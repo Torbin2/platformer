@@ -54,7 +54,7 @@ class player:
             if gravity_direction == False:
                 self.gravity = 0
 
-    #this is not working :(
+    #fix this !!
     def collisions(self):
         rect_list = converter()
         for bg_rect in rect_list:
