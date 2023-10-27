@@ -22,11 +22,13 @@ class player:
         self.x_speed = 0
         self.gravity = 0
         self.last_press = 0
+        self.ground_grounded = False
 
     def input(self):
         global gravity_direction
         keys = pygame.key.get_pressed()
         current_time = pygame.time.get_ticks()
+        
         
         if keys[pygame.K_a]:
             self.x_speed -=1
@@ -42,9 +44,12 @@ class player:
         if self.x_speed >= 0:self.x_speed -=0.5
         if self.x_speed < 0:self.x_speed +=0.5  
         #gravity        
-        if gravity_direction: self.gravity+= 1
-        else: self.gravity-=1
-        self.rect.y += self.gravity
+        if self.ground_grounded:
+            self.gravity = 0
+        else:
+            if gravity_direction: self.gravity+= 1
+            else: self.gravity-=1
+            self.rect.y += self.gravity
         if self.rect.bottom >= 600:
             self.rect.bottom = 600
             if gravity_direction:
@@ -54,21 +59,9 @@ class player:
             if gravity_direction == False:
                 self.gravity = 0
 
-    #fix this !!
-    def collisions(self):
-        rect_list = converter()
-        for bg_rect in rect_list:
-            if bg_rect == ground_rect:
-                if self.rect.colliderect(bg_rect):
-                    self.rect.bottom = bg_rect
-                    print("collision")
-            print("test")
-
-
     def update(self):
         self.input()
         self.movement()
-        self.collisions
         pygame.draw.rect(screen, (255,240,255), self.rect)
 
 player_class = player()
@@ -92,20 +85,26 @@ def converter():
             rect.left = (pos - 12) * 200
         if rect == ground_rect:
             pygame.draw.rect(screen, (0,255,0), rect)
+            if player_class.rect.colliderect(rect):
+                if gravity_direction:
+                    player_class.rect.bottom = rect.top
+                else:player_class.rect.top = rect.bottom
+                player_class.ground_grounded = True
+            else: player_class.ground_grounded = False
         if rect == sky_rect:
             pygame.draw.rect(screen,(0,0,255), rect)  
-    return rect_list
+
 
 
 
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            pygame.quit
+            pygame.quit()
             exit()
     screen.fill((255, 255, 255))
     if level == 1:
-        num_list = [0,1,0,0,1,1 ,1,0,0,0,0,0 ,1,0,1,0,0,0,]
+        num_list = [0,0,0,1,1,0 ,1,1,1,0,0,0 , 1,0,1,0,1,0]
     
     converter()
     player_class.update()
