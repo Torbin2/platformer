@@ -67,6 +67,7 @@ class player:
 player_class = player()
 
 def converter():
+    player_class.ground_grounded = False
     rect_list = []
     for number in num_list:
         if number == 1:
@@ -90,7 +91,7 @@ def converter():
                     player_class.rect.bottom = rect.top
                 else:player_class.rect.top = rect.bottom
                 player_class.ground_grounded = True
-            else: player_class.ground_grounded = False
+            # else: player_class.ground_grounded = False
         if rect == sky_rect:
             pygame.draw.rect(screen,(0,0,255), rect)  
 
