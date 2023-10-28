@@ -125,6 +125,7 @@ def colisions(rect):
 
 
 def converter():
+    player_class.ground_grounded = False
     rect_list = []
     for number in num_list:
         if number == 1:
