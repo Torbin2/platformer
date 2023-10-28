@@ -22,10 +22,11 @@ class player:
         self.x_speed = 0
         self.gravity = 0
         self.last_press = 0
-        self.ground_grounded = False
+        self.grounded = False
 
     def input(self):
         global gravity_direction
+        global level
         keys = pygame.key.get_pressed()
         current_time = pygame.time.get_ticks()
         
@@ -37,34 +38,91 @@ class player:
         if keys[pygame.K_SPACE] and current_time - self.last_press > 200:
             gravity_direction = not gravity_direction
             self.last_press = current_time
+
     def movement(self):
         global gravity_direction
         #left and right
         self.rect.x += self.x_speed
         if self.x_speed >= 0:self.x_speed -=0.5
         if self.x_speed < 0:self.x_speed +=0.5  
-        #gravity        
-        if self.ground_grounded:
-            self.gravity = 0
-        else:
-            if gravity_direction: self.gravity+= 1
-            else: self.gravity-=1
-            self.rect.y += self.gravity
+        #gravity       
+        if gravity_direction: self.gravity+= 1
+        else: self.gravity-=1
+        self.rect.y += self.gravity
+
+
+    def screen_side_check(self):
+        #side of the screen colisions
+        
+        self.grounded = False
+
         if self.rect.bottom >= 600:
             self.rect.bottom = 600
-            if gravity_direction:
-                self.gravity = 0
+            self.grounded = True
         if self.rect.top <= 0:
             self.rect.top = 0
-            if gravity_direction == False:
-                self.gravity = 0
+            self.grounded = True
 
+        if self.rect.right >= 1200: 
+            self.rect.right = 1200
+            self.x_speed -= 2
+        if self.rect.left <= 0: 
+            self.rect.left = 0
+            self.x_speed += 2
+        
+        if self.grounded:
+            self.gravity = 0
+        
+                      
     def update(self):
         self.input()
         self.movement()
+        self.screen_side_check()
         pygame.draw.rect(screen, (255,240,255), self.rect)
 
 player_class = player()
+def colision_side_check(rect):
+    delta_x = rect.centerx - player_class.rect.centerx
+    delta_y = rect.centery - player_class.rect.centery
+
+    abs_delta_x = abs(delta_x)
+    abs_delta_y = abs(delta_y)
+
+    if abs_delta_x > abs_delta_y:
+        if delta_x > 0:
+            return "right"
+        else:
+            return "left"
+    else:
+        if delta_y > 0:
+            return "bottom"
+        else:
+            return "top"
+
+
+def colisions(rect):
+    if rect.colliderect(player_class.rect):
+        colision_side = colision_side_check(rect)
+        
+        if colision_side == "bottom":
+            player_class.rect.bottom = rect.top
+            player_class.gravity = 0
+        
+        if colision_side == "top":
+            player_class.rect.top = rect.bottom
+            player_class.gravity = 0
+        
+        if colision_side == "left":
+            player_class.rect.left = rect.right
+            player_class.x_speed = 0
+        
+        if colision_side == "right":
+            player_class.rect.right = rect.left
+            player_class.x_speed = 0
+    
+
+
+
 
 def converter():
     rect_list = []
@@ -85,14 +143,10 @@ def converter():
             rect.left = (pos - 12) * 200
         if rect == ground_rect:
             pygame.draw.rect(screen, (0,255,0), rect)
-            if player_class.rect.colliderect(rect):
-                if gravity_direction:
-                    player_class.rect.bottom = rect.top
-                else:player_class.rect.top = rect.bottom
-                player_class.ground_grounded = True
-            else: player_class.ground_grounded = False
+            colisions(rect)
         if rect == sky_rect:
-            pygame.draw.rect(screen,(0,0,255), rect)  
+            pygame.draw.rect(screen,(0,0,255), rect) 
+    
 
 
 
@@ -103,9 +157,8 @@ while True:
             pygame.quit()
             exit()
     screen.fill((255, 255, 255))
-    if level == 1:
-        num_list = [0,0,0,1,1,0 ,1,1,1,0,0,0 , 1,0,1,0,1,0]
-    
+
+    num_list = [0,0,0,1,1,1 ,0,1,0,0,0,0 ,0,0,0,0,0,1]
     converter()
     player_class.update()
     
