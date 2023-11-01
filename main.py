@@ -8,17 +8,27 @@ clock = pygame.time.Clock()
 
 
 gravity_direction = True
-num_list = []
+num_list = [0,0,0,0,0,0,0,0,0,0,0,0
+            ,0,0,0,0,0,0,0,0,0,0,0,0
+           ,0,0,0,0,0,0,0,0,0,0,0,0               
+           ,0,0,0,0,0,0,0,0,0,0,0,0
+            ,0,0,0,0,0,0,0,0,0,0,0,0
+           ,0,0,0,0,0,0,0,0,0,0,0,0]
 level = 1
 
-ground_rect = pygame.Rect(0,0,200,200)
-sky_rect = pygame.Rect(0,0,200,200)
+ground_rect = pygame.Rect(0,0,100,100)
+sky_rect = pygame.Rect(0,0,100,100)
+end_rect = pygame.Rect(0,0,100,100)
+lava_rect = pygame.Rect(0,0,100,100)
+
+
+#colour scheme, #446482, #70a5d7, #18232d
 
 class player:
     
     def __init__(self):
         super().__init__()
-        self.rect = pygame.Rect(0,0,50,100)
+        self.rect = pygame.Rect(100,100,50,100)
         self.x_speed = 0
         self.gravity = 0
         self.last_press = 0
@@ -78,9 +88,9 @@ class player:
         self.input()
         self.movement()
         self.screen_side_check()
-        pygame.draw.rect(screen, (255,240,255), self.rect)
-
+        pygame.draw.rect(screen, ('#18232d'), self.rect)
 player_class = player()
+
 def colision_side_check(rect):
     delta_x = rect.centerx - player_class.rect.centerx
     delta_y = rect.centery - player_class.rect.centery
@@ -98,7 +108,6 @@ def colision_side_check(rect):
             return "bottom"
         else:
             return "top"
-
 
 def colisions(rect):
     if rect.colliderect(player_class.rect):
@@ -119,39 +128,63 @@ def colisions(rect):
         if colision_side == "right":
             player_class.rect.right = rect.left
             player_class.x_speed = 0
-    
-
-
-
 
 def converter():
     player_class.ground_grounded = False
     rect_list = []
+    y_pos = 1
     for number in num_list:
         if number == 1:
             rect_list.append(ground_rect)
-        if number == 0:
+        elif number == 0:
             rect_list.append(sky_rect)
+        elif number == 2:
+            rect_list.append(lava_rect)
+        elif number == 9:
+            rect_list.append(end_rect)
+
     for pos, rect in enumerate(rect_list):
-        if pos >= 0 and pos <6:
-            rect.top = 0
-            rect.left = pos  * 200
-        elif pos >= 6 and pos < 12: 
-            rect.top = 200
-            rect.left = (pos - 6) * 200
-        elif pos >= 12 and pos < 18: 
-            rect.top = 400
-            rect.left = (pos - 12) * 200
+        if pos == y_pos * 12:
+            y_pos+=1
+        pos -= (y_pos*12)-12
+
+        rect.top = (y_pos*100) -100
+        rect.left = pos  * 100
+        
         if rect == ground_rect:
-            pygame.draw.rect(screen, (0,255,0), rect)
+            pygame.draw.rect(screen, ("#446482"), rect)
             colisions(rect)
         if rect == sky_rect:
-            pygame.draw.rect(screen,(0,0,255), rect) 
-    
-
-
-
-
+            pygame.draw.rect(screen,("#70a5d7"), rect) 
+        if rect == end_rect:
+            pygame.draw.rect(screen,('#6c25be'), rect)
+        if rect == lava_rect:
+            pygame.draw.rect(screen, ("#bea925"), rect)
+        
+def level_picker():
+    global num_list
+    level = pygame.key.get_pressed()
+    if level[pygame.K_1]:
+        num_list = [1,2,9,0,0,0,0,0,0,2,2,2
+                   ,0,0,0,0,0,0,0,0,0,0,0,0
+                   ,0,0,0,0,0,0,0,0,0,0,0,0
+                   ,0,0,0,0,0,0,0,0,0,0,0,0
+                   ,0,0,0,0,0,0,0,0,0,0,0,0
+                   ,0,0,0,0,0,0,0,0,0,0,0,0]
+    if level[pygame.K_2]:
+        num_list = [0,1,0,0,0,0,1,0,0,0,0,0
+                   ,0,1,0,0,0,0,1,0,0,1,0,0
+                   ,0,1,0,1,0,0,1,0,0,0,0,0
+                   ,0,1,0,1,0,0,1,0,1,1,1,0
+                   ,0,0,0,1,0,0,1,0,0,0,0,0
+                   ,0,0,0,1,0,0,0,0,0,0,0,0]
+    if level[pygame.K_3]:
+        num_list= [1,1,1,0,0,0,0,0,0,0,0,9
+                  ,0,0,1,0,0,0,0,1,1,1,1,1
+                  ,0,0,1,1,1,1,0,0,0,0,0,0               
+                  ,0,0,1,0,0,0,0,0,0,0,0,0
+                  ,0,0,1,0,0,0,1,1,1,0,0,0
+                  ,0,0,0,0,0,0,0,0,0,0,0,0]
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -159,7 +192,7 @@ while True:
             exit()
     screen.fill((255, 255, 255))
 
-    num_list = [0,0,0,1,1,1 ,0,1,0,0,0,0 ,0,0,0,0,0,1]
+    level_picker()
     converter()
     player_class.update()
     
