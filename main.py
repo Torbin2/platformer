@@ -83,7 +83,11 @@ class player:
         self.input()
         self.movement()
         self.screen_side_check()
+
+    def draw(self):
         pygame.draw.rect(screen, ('#18232d'), self.rect)
+
+
 player_class = player()
 
 def colision_side_check(rect):
@@ -92,6 +96,14 @@ def colision_side_check(rect):
 
     abs_delta_x = abs(delta_x)
     abs_delta_y = abs(delta_y)
+
+    # if abs_delta_x > 90 - player_class.x_speed and abs_delta_y > 90:
+    #     return ""  # to prevent wall clinging
+    # if abs_delta_x > 90 or abs_delta_y > 90:
+    #     return
+    print(player_class.x_speed)
+    if abs(abs_delta_x - abs_delta_y) < 25:
+        return
 
     if abs_delta_x > abs_delta_y:
         if delta_x > 0:
@@ -105,23 +117,25 @@ def colision_side_check(rect):
             return "top"
 def colisions(rect):
     if rect.colliderect(player_class.rect):
-        colision_side = colision_side_check(rect)
-        
-        if colision_side == "bottom":
+        collision_side = colision_side_check(rect)
+
+        print(collision_side)
+
+        if collision_side == "bottom":
             player_class.rect.bottom = rect.top
             player_class.gravity = 0
             player_class.grounded = True
         
-        if colision_side == "top":
+        if collision_side == "top":
             player_class.rect.top = rect.bottom
             player_class.gravity = 0
             player_class.grounded = True
         
-        if colision_side == "left":
+        if collision_side == "left":
             player_class.rect.left = rect.right
             player_class.x_speed = 0
         
-        if colision_side == "right":
+        if collision_side == "right":
             player_class.rect.right = rect.left
             player_class.x_speed = 0
 def converter():
@@ -236,9 +250,12 @@ while True:
     screen.fill(("#70a5d7"))
 
     level_picker()
-    converter()
     player_class.update()
-    
+    converter()
+    player_class.draw()
+
+    # print(player_class.x_speed, player_class.gravity)
+
     pygame.display.update()
     clock.tick(60)
     
