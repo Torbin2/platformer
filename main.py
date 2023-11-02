@@ -97,11 +97,6 @@ def colision_side_check(rect):
     abs_delta_x = abs(delta_x)
     abs_delta_y = abs(delta_y)
 
-    # if abs_delta_x > 90 - player_class.x_speed and abs_delta_y > 90:
-    #     return ""  # to prevent wall clinging
-    # if abs_delta_x > 90 or abs_delta_y > 90:
-    #     return
-    print(player_class.x_speed)
     if abs(abs_delta_x - abs_delta_y) < 25:
         return
 
@@ -118,8 +113,6 @@ def colision_side_check(rect):
 def colisions(rect):
     if rect.colliderect(player_class.rect):
         collision_side = colision_side_check(rect)
-
-        print(collision_side)
 
         if collision_side == "bottom":
             player_class.rect.bottom = rect.top
@@ -183,8 +176,6 @@ def converter():
                 if i < 0:
                     i = 0
                 num_list[i] = 2
-                print(num_list)
-                # break
 def level_picker():
     global num_list
     if level == 1:
@@ -233,11 +224,11 @@ def level_picker():
                      ,0,0,0,2,0,0,0,2,0,0,0,2]
     if level==7:
         num_list = [0,1,2,1,2,1,2,2,1,2,2,9
-           ,0,1,0,0,0,1,0,0,0,0,0,0
-           ,0,1,0,1,0,1,0,0,0,0,0,0
-           ,0,0,0,1,0,0,0,0,1,0,1,0
-           ,0,1,0,1,0,1,0,0,1,0,0,0
-           ,0,1,2,1,2,1,0,0,1,0,2,0]
+                   ,0,1,0,0,0,1,0,0,0,0,0,0
+                   ,0,0,0,0,0,1,0,0,0,0,0,0
+                   ,0,0,0,1,0,0,0,0,1,0,1,0
+                   ,0,1,0,1,0,0,0,0,1,0,0,0
+                   ,0,1,2,1,2,1,0,0,1,0,2,0]
 
 def reset_rects():
     global ground_rect
@@ -265,8 +256,6 @@ while True:
     player_class.update()
     converter()
     player_class.draw()
-
-    # print(player_class.x_speed, player_class.gravity)
 
     pygame.display.update()
     clock.tick(60)
