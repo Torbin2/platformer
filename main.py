@@ -169,11 +169,22 @@ def converter():
             if end_rect.colliderect(player_class.rect):
                 level+=1
                 reset_rects()
+                level_picker()
         if rect == lava_rect:
             pygame.draw.rect(screen, ("#bea925"), rect)
             lava_hitbox_rect.center = rect.center
             if lava_hitbox_rect.colliderect(player_class.rect):
-                player_class.rect.topleft = (50,0)
+                level = 1
+                i = rect.x // 100 % 12 + rect.y // 100 * 12
+                reset_rects()
+                level_picker()
+                if i >= len(num_list):
+                    i = len(num_list) - 1
+                if i < 0:
+                    i = 0
+                num_list[i] = 2
+                print(num_list)
+                # break
 def level_picker():
     global num_list
     if level == 1:
@@ -216,17 +227,17 @@ def level_picker():
     if level==6:
         num_list = [0,2,0,0,0,2,0,0,0,2,9,2
                     ,0,2,0,2,0,2,0,2,0,2,0,2
-                     ,0,2,0,2,0,2,0,2,0,2,0,2               
+                     ,0,2,0,2,0,2,0,2,0,2,0,2
                      ,0,2,0,2,0,2,0,2,0,2,0,2
                     ,0,2,0,2,0,2,0,2,0,2,0,2
                      ,0,0,0,2,0,0,0,2,0,0,0,2]
     if level==7:
         num_list = [0,1,2,1,2,1,2,2,1,2,2,9
            ,0,1,0,0,0,1,0,0,0,0,0,0
-           ,0,1,0,1,0,1,0,0,0,0,0,0               
+           ,0,1,0,1,0,1,0,0,0,0,0,0
            ,0,0,0,1,0,0,0,0,1,0,1,0
            ,0,1,0,1,0,1,0,0,1,0,0,0
-           ,0,1,2,1,2,1,0,0,1,0,2,0]     
+           ,0,1,2,1,2,1,0,0,1,0,2,0]
 
 def reset_rects():
     global ground_rect
@@ -242,6 +253,7 @@ def reset_rects():
     lava_hitbox_rect = pygame.Rect(-100,0,75,75)
     player_class.rect.topleft = (50,0)
 reset_rects()
+level_picker()
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -249,7 +261,7 @@ while True:
             exit()
     screen.fill(("#70a5d7"))
 
-    level_picker()
+    # level_picker()
     player_class.update()
     converter()
     player_class.draw()
