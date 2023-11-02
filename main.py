@@ -72,10 +72,10 @@ class player:
 
         if self.rect.right >= 1200: 
             self.rect.right = 1200
-            self.x_speed -= 2
+            self.x_speed = 0
         if self.rect.left <= 0: 
             self.rect.left = 0
-            self.x_speed += 2
+            self.x_speed = 0
         
         
                       
