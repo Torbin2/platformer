@@ -159,7 +159,7 @@ def converter():
             pygame.draw.rect(screen, ("#bea925"), rect)
             lava_hitbox_rect.center = rect.center
             if lava_hitbox_rect.colliderect(player_class.rect):
-                level = 1
+                player_class.rect.topleft = (50,0)
 def level_picker():
     global num_list
     if level == 1:
@@ -183,6 +183,7 @@ def level_picker():
                    ,0,1,0,1,0,0,2,2,2,2,1,0
                    ,0,0,0,1,0,0,2,0,0,0,0,0
                    ,0,0,0,1,0,0,0,0,0,0,0,0]
+    #credits to HogoSPR on github
     if level==4:
         num_list= [0,1,1,0,0,0,0,0,0,0,0,9
                   ,0,0,1,0,0,0,0,1,1,1,1,1
@@ -197,6 +198,22 @@ def level_picker():
                    ,0,1,2,0,0,0,0,0,2,9,2,0
                    ,0,1,1,1,1,1,1,0,2,0,2,0
                    ,0,0,0,0,0,0,0,0,2,0,0,0]
+     #Tommy nikes level
+    if level==6:
+        num_list = [0,2,0,0,0,2,0,0,0,2,9,2
+                    ,0,2,0,2,0,2,0,2,0,2,0,2
+                     ,0,2,0,2,0,2,0,2,0,2,0,2               
+                     ,0,2,0,2,0,2,0,2,0,2,0,2
+                    ,0,2,0,2,0,2,0,2,0,2,0,2
+                     ,0,0,0,2,0,0,0,2,0,0,0,2]
+    if level==7:
+        num_list = [0,1,2,1,2,1,2,2,1,2,2,9
+           ,0,1,0,0,0,1,0,0,0,0,0,0
+           ,0,1,0,1,0,1,0,0,0,0,0,0               
+           ,0,0,0,1,0,0,0,0,1,0,1,0
+           ,0,1,0,1,0,1,0,0,1,0,0,0
+           ,0,1,2,1,2,1,0,0,1,0,2,0]     
+
 def reset_rects():
     global ground_rect
     global sky_rect
