@@ -74,10 +74,10 @@ class player:
 
         if self.rect.right >= 1200: 
             self.rect.right = 1200
-            self.x_speed -= 2
+            self.x_speed = 0
         if self.rect.left <= 0: 
             self.rect.left = 0
-            self.x_speed += 2
+            self.x_speed = 0
         
         
                       
@@ -85,7 +85,11 @@ class player:
         self.input()
         self.movement()
         self.screen_side_check()
+
+    def draw(self):
         pygame.draw.rect(screen, ('#18232d'), self.rect)
+
+
 player_class = player()
 
 def colision_side_check(rect):
@@ -94,6 +98,9 @@ def colision_side_check(rect):
 
     abs_delta_x = abs(delta_x)
     abs_delta_y = abs(delta_y)
+
+    if abs(abs_delta_x - abs_delta_y) < 25:
+        return
 
     if abs_delta_x > abs_delta_y:
         if delta_x > 0:
@@ -107,23 +114,23 @@ def colision_side_check(rect):
             return "top"
 def colisions(rect):
     if rect.colliderect(player_class.rect):
-        colision_side = colision_side_check(rect)
-        
-        if colision_side == "bottom":
+        collision_side = colision_side_check(rect)
+
+        if collision_side == "bottom":
             player_class.rect.bottom = rect.top
             player_class.gravity = 0
             player_class.grounded = True
         
-        if colision_side == "top":
+        if collision_side == "top":
             player_class.rect.top = rect.bottom
             player_class.gravity = 0
             player_class.grounded = True
         
-        if colision_side == "left":
+        if collision_side == "left":
             player_class.rect.left = rect.right
             player_class.x_speed = 0
         
-        if colision_side == "right":
+        if collision_side == "right":
             player_class.rect.right = rect.left
             player_class.x_speed = 0
 def converter():
@@ -157,11 +164,20 @@ def converter():
             if end_rect.colliderect(player_class.rect):
                 level+=1
                 reset_rects()
+                level_picker()
         if rect == lava_rect:
             pygame.draw.rect(screen, ("#bea925"), rect)
             lava_hitbox_rect.center = rect.center
             if lava_hitbox_rect.colliderect(player_class.rect):
-                player_class.rect.topleft = (50,0)
+                level = 1
+                i = rect.x // 100 % 12 + rect.y // 100 * 12
+                reset_rects()
+                level_picker()
+                if i >= len(num_list):
+                    i = len(num_list) - 1
+                if i < 0:
+                    i = 0
+                num_list[i] = 2
 def level_picker():
     global num_list
     if level == 1:
@@ -204,7 +220,7 @@ def level_picker():
     if level==6:
         num_list = [0,2,0,0,0,2,0,0,0,2,9,2
                     ,0,2,0,2,0,2,0,2,0,2,0,2
-                     ,0,2,0,2,0,2,0,2,0,2,0,2               
+                     ,0,2,0,2,0,2,0,2,0,2,0,2
                      ,0,2,0,2,0,2,0,2,0,2,0,2
                     ,0,2,0,2,0,2,0,2,0,2,0,2
                      ,0,0,0,2,0,0,0,2,0,0,0,2]
@@ -237,6 +253,7 @@ def reset_rects():
     lava_hitbox_rect = pygame.Rect(-100,0,75,75)
     player_class.rect.topleft = (50,0)
 reset_rects()
+level_picker()
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -244,10 +261,11 @@ while True:
             exit()
     screen.fill(("#70a5d7"))
 
-    level_picker()
-    converter()
+    # level_picker()
     player_class.update()
-    
+    converter()
+    player_class.draw()
+
     pygame.display.update()
     clock.tick(60)
     
