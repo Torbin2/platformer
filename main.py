@@ -48,6 +48,9 @@ class player:
             self.grounded = False
         if keys[pygame.K_t]:
             level = 999
+            reset_rects()
+            level_picker( )
+            
 
     def movement(self):
         global gravity_direction
@@ -85,7 +88,6 @@ class player:
         self.input()
         self.movement()
         self.screen_side_check()
-
     def draw(self):
         pygame.draw.rect(screen, ('#18232d'), self.rect)
 
@@ -135,6 +137,7 @@ def colisions(rect):
             player_class.x_speed = 0
 def converter():
     global level
+    global gravity_direction
     rect_list = []
     y_pos = 1
     for number in num_list:
@@ -169,15 +172,18 @@ def converter():
             pygame.draw.rect(screen, ("#bea925"), rect)
             lava_hitbox_rect.center = rect.center
             if lava_hitbox_rect.colliderect(player_class.rect):
-                level = 1
-                i = rect.x // 100 % 12 + rect.y // 100 * 12
-                reset_rects()
-                level_picker()
-                if i >= len(num_list):
-                    i = len(num_list) - 1
-                if i < 0:
-                    i = 0
-                num_list[i] = 2
+                player_class.rect.topleft = 0,0
+                player_class.gravity = 0
+                gravity_direction = False
+                # level = 1
+                # i = rect.x // 100 % 12 + rect.y // 100 * 12
+                # reset_rects()
+                # level_picker()
+                # if i >= len(num_list):
+                #     i = len(num_list) - 1
+                # if i < 0:
+                #     i = 0
+                # num_list[i] = 2
 def level_picker():
     global num_list
     if level == 1:
