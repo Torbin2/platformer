@@ -46,6 +46,8 @@ class player:
             gravity_direction = not gravity_direction
             self.last_press = current_time
             self.grounded = False
+        if keys[pygame.K_t]:
+            level = 999
 
     def movement(self):
         global gravity_direction
@@ -212,7 +214,14 @@ def level_picker():
            ,0,1,0,1,0,1,0,0,0,0,0,0               
            ,0,0,0,1,0,0,0,0,1,0,1,0
            ,0,1,0,1,0,1,0,0,1,0,0,0
-           ,0,1,2,1,2,1,0,0,1,0,2,0]     
+           ,0,1,2,1,2,1,0,0,1,0,2,0]    
+    if level == 999:
+        num_list =[0,0,2,2,2,0,0,0,0,0,2,2
+,0,0,0,2,2,0,1,1,2,0,2,2
+,2,0,0,0,2,0,0,1,2,0,1,2
+,0,2,0,0,0,2,0,0,2,0,0,0
+,0,0,2,0,0,0,2,0,2,1,2,0
+,0,0,0,2,0,0,0,0,2,0,2,9] 
 
 def reset_rects():
     global ground_rect
