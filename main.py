@@ -15,6 +15,7 @@ movie = tas.TASMovie()
 if movie.mode == "write":
     movie.write_header()
 elif movie.mode == "read":
+    frame_advance = False
     movie.read_inputs()
 
 gravity_direction = True
