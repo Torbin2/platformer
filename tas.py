@@ -4,7 +4,7 @@
 # !ptm
 # !gameversion [Version of the game]
 # !input-start
-#
+# (here goes the inputs, e.g. "L.S", ".RS", "...", "LR.", "LRS")
 # !input-end
 import os
 
