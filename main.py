@@ -49,7 +49,7 @@ class player:
 
         if movie.mode == "write":
             movie.write_input([keys[pygame.K_a], keys[pygame.K_d], keys[pygame.K_SPACE]])
-        else:
+        elif movie.mode == "read":
             print(movie.inputs[frame].l, movie.inputs[frame].r, movie.inputs[frame].s)
 
         if keys[pygame.K_a] or (movie.mode == "read" and movie.inputs[frame].l):
