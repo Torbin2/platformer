@@ -1,4 +1,5 @@
 import pygame
+import tas
 from sys import exit
 
 pygame.init()
@@ -6,6 +7,14 @@ screen = pygame.display.set_mode((1200,600))
 pygame.display.set_caption("platformer")
 clock = pygame.time.Clock()
 
+frame = 0
+
+movie = tas.TASMovie()
+
+if movie.mode == "write":
+    movie.write_header()
+else:
+    movie.read_inputs()
 
 gravity_direction = True
 num_list = []
@@ -32,17 +41,22 @@ class player:
         self.grounded = False
 
     def input(self):
+        global frame
         global gravity_direction
         global level
         keys = pygame.key.get_pressed()
         current_time = pygame.time.get_ticks()
-        
-        
-        if keys[pygame.K_a]:
+
+        if movie.mode == "write":
+            movie.write_input([keys[pygame.K_a], keys[pygame.K_d], keys[pygame.K_SPACE]])
+        else:
+            print(movie.inputs[frame].l, movie.inputs[frame].r, movie.inputs[frame].s)
+
+        if keys[pygame.K_a] or (movie.mode == "read" and movie.inputs[frame].l):
             self.x_speed -=1
-        if keys[pygame.K_d]:
+        if keys[pygame.K_d] or (movie.mode == "read" and movie.inputs[frame].r):
             self.x_speed +=1
-        if keys[pygame.K_SPACE] and current_time - self.last_press > 200 and self.grounded:
+        if (keys[pygame.K_SPACE] or (movie.mode == "read" and movie.inputs[frame].s)) and current_time - self.last_press > 200 and self.grounded:
             gravity_direction = not gravity_direction
             self.last_press = current_time
             self.grounded = False
@@ -50,6 +64,8 @@ class player:
             level = 999
             reset_rects()
             level_picker( )
+
+        frame += 1
             
 
     def movement(self):
@@ -263,6 +279,8 @@ level_picker()
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            if movie.mode == "write":
+                movie.write_end()
             pygame.quit()
             exit()
     screen.fill(("#70a5d7"))
