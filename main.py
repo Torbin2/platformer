@@ -13,7 +13,7 @@ movie = tas.TASMovie()
 
 if movie.mode == "write":
     movie.write_header()
-else:
+elif movie.mode == "read":
     movie.read_inputs()
 
 gravity_direction = True
@@ -291,5 +291,5 @@ while True:
     player_class.draw()
 
     pygame.display.update()
-    clock.tick(60)
+    clock.tick(30)
     
