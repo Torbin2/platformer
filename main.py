@@ -8,6 +8,7 @@ pygame.display.set_caption("platformer")
 clock = pygame.time.Clock()
 
 frame = 0
+frame_advance = True
 
 movie = tas.TASMovie()
 
@@ -276,13 +277,27 @@ def reset_rects():
     player_class.rect.topleft = (50,0)
 reset_rects()
 level_picker()
+events = []
 while True:
-    for event in pygame.event.get():
+    if frame_advance:
+        event = pygame.event.wait()
+        while not (event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT):
+            event = pygame.event.wait()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
+                frame_advance = False
+                break
+            events.append(event)
+            if event.type == pygame.QUIT:
+                break
+    for event in events + pygame.event.get():
         if event.type == pygame.QUIT:
             if movie.mode == "write":
                 movie.write_end()
             pygame.quit()
             exit()
+        elif event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
+            frame_advance = True
+    events = []
     screen.fill(("#70a5d7"))
 
     # level_picker()
