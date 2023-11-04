@@ -6,6 +6,7 @@
 # !input-start
 #
 # !input-end
+import os
 
 
 class TASMovie:
@@ -21,7 +22,12 @@ class TASMovie:
         self.inputs = []
 
     def write_header(self):
+
+        if self.filename in os.listdir("."):
+            os.remove(self.filename)
+
         with open(self.filename, "a") as f:
+
             f.write("!ptm\n")
             f.write(f"!gameversion {self.gameversion}\n")
             f.write("!input-start\n")
