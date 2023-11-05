@@ -344,6 +344,8 @@ while True:
     player_class.draw()
 
     screen.blit(font.render(str(frame), True, (255, 255, 255)), (0, 0))
+    if movie.mode == 'play':
+        screen.blit(font.render(str(movie.inputs[frame].to_string()), True, (255, 255, 255)), (0, 20))
 
     pygame.display.update()
     clock.tick(30)
