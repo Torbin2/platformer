@@ -45,6 +45,12 @@ class TASMovie:
                     f"{'S' if inputs[2] else '.'}\n")
             f.close()
 
+    def remove_input(self):
+        with open(self.filename, 'r+') as f:
+            f.seek(0, os.SEEK_END)
+            pos = f.tell() - 3
+            f.truncate(pos)
+
     def read_inputs(self):
 
         with open(self.filename, "r+") as f:
