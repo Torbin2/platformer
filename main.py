@@ -127,7 +127,8 @@ class player:
             'xv': self.x_speed,
             'yv': self.gravity,
             'direction': gravity_direction,
-            'ground': self.grounded
+            'ground': self.grounded,
+            'last_press': self.last_press
         }
 
     def load(self, raw: dict):
@@ -140,6 +141,7 @@ class player:
         self.gravity = raw['yv']
         gravity_direction = raw['direction']
         self.grounded = raw['ground']
+        self.last_press = raw['last_press']
 
 
 player_class = player()
@@ -324,7 +326,8 @@ while True:
                 player_class.load(frame_saves.pop())
                 physics = False
                 frame -= 1
-                movie.remove_input()
+                if movie.mode != 'read':
+                    movie.remove_input()
                 break
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_PAGEDOWN:
                 physics = False
@@ -352,10 +355,10 @@ while True:
     player_class.draw()
 
     screen.blit(font.render(str(frame), True, (255, 255, 255)), (0, 0))
-    if movie.mode == 'play':
+    if movie.mode == 'read':
         screen.blit(font.render(str(movie.inputs[frame].to_string()), True, (255, 255, 255)), (0, 20))
 
     pygame.display.update()
-    clock.tick(30)
+    clock.tick(60)
     physics = True
     
