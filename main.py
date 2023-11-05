@@ -24,6 +24,7 @@ gravity_direction = True
 num_list = []
 level = 1
 game_on = True
+current_time = 0  # in real game this is in milliseconds, here it is in frames
 
 ground_rect = pygame.Rect(-100,0,100,100)
 sky_rect = pygame.Rect(-100,0,100,100)
@@ -50,7 +51,6 @@ class player:
         global level
         global physics
         keys = pygame.key.get_pressed()
-        current_time = pygame.time.get_ticks()
 
         if physics:
             if movie.mode == "write":
@@ -62,7 +62,7 @@ class player:
             self.x_speed -=1
         if keys[pygame.K_d] or (movie.mode == "read" and movie.inputs[frame].r):
             self.x_speed +=1
-        if (keys[pygame.K_SPACE] or (movie.mode == "read" and movie.inputs[frame].s)) and current_time - self.last_press > 200 and self.grounded:
+        if (keys[pygame.K_SPACE] or (movie.mode == "read" and movie.inputs[frame].s)) and current_time - self.last_press > 12 and self.grounded:
             gravity_direction = not gravity_direction
             self.last_press = current_time
             self.grounded = False
@@ -128,11 +128,12 @@ class player:
             'yv': self.gravity,
             'direction': gravity_direction,
             'ground': self.grounded,
-            'last_press': self.last_press
+            'last_press': self.last_press,
+            'time': current_time
         }
 
     def load(self, raw: dict):
-        global gravity_direction, level
+        global gravity_direction, level, current_time
         level = raw['level']
         level_picker()
         self.rect.x = raw['x']
@@ -142,6 +143,7 @@ class player:
         gravity_direction = raw['direction']
         self.grounded = raw['ground']
         self.last_press = raw['last_press']
+        current_time = raw['time']
 
 
 player_class = player()
@@ -153,8 +155,11 @@ def colision_side_check(rect):
     abs_delta_x = abs(delta_x)
     abs_delta_y = abs(delta_y)
 
+    pygame.draw.line(screen, (255, 0, 0), rect.bottomleft, rect.topright, 25 // 2)
+
     if abs(abs_delta_x - abs_delta_y) < 25:
         return
+    pygame.draw.rect(screen, (255, 0, 0), rect, 1)
 
     if abs_delta_x > abs_delta_y:
         if delta_x > 0:
@@ -354,11 +359,12 @@ while True:
     converter()
     player_class.draw()
 
-    screen.blit(font.render(str(frame), True, (255, 255, 255)), (0, 0))
+    screen.blit(font.render(str(frame) + ' ' + str(current_time - player_class.last_press) + ' ' + str(player_class.grounded), True, (255, 255, 255)), (0, 0))
     if movie.mode == 'read':
         screen.blit(font.render(str(movie.inputs[frame].to_string()), True, (255, 255, 255)), (0, 20))
 
     pygame.display.update()
     clock.tick(60)
     physics = True
+    current_time += 1
     
