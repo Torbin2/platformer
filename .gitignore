@@ -1,7 +1,0 @@
-__pycache__
-
-# Platformer TAS Movies
-*.ptm
-
-# TAS config file
-tasconfig.txt

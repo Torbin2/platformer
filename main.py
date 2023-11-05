@@ -1,24 +1,11 @@
 import pygame
-import tas
 from sys import exit
 
 pygame.init()
 screen = pygame.display.set_mode((1200,600))
 pygame.display.set_caption("platformer")
 clock = pygame.time.Clock()
-font = pygame.font.SysFont('times new roman', 20)
 
-frame = 0
-frame_advance = True
-frame_saves = []
-
-movie = tas.TASMovie()  # TODO: go back in file
-
-if movie.mode == "write":
-    movie.write_header()
-elif movie.mode == "read":
-    frame_advance = False
-    movie.read_inputs()
 
 gravity_direction = True
 num_list = []
@@ -45,24 +32,17 @@ class player:
         self.grounded = False
 
     def input(self):
-        global frame
         global gravity_direction
         global level
-        global physics
         keys = pygame.key.get_pressed()
         current_time = pygame.time.get_ticks()
-
-        if physics:
-            if movie.mode == "write":
-                movie.write_input([keys[pygame.K_a], keys[pygame.K_d], keys[pygame.K_SPACE]])
-            elif movie.mode == "read":
-                print(movie.inputs[frame].l, movie.inputs[frame].r, movie.inputs[frame].s)
-
-        if keys[pygame.K_a] or (movie.mode == "read" and movie.inputs[frame].l):
+        
+        
+        if keys[pygame.K_a]:
             self.x_speed -=1
-        if keys[pygame.K_d] or (movie.mode == "read" and movie.inputs[frame].r):
+        if keys[pygame.K_d]:
             self.x_speed +=1
-        if (keys[pygame.K_SPACE] or (movie.mode == "read" and movie.inputs[frame].s)) and current_time - self.last_press > 200 and self.grounded:
+        if keys[pygame.K_SPACE] and current_time - self.last_press > 200 and self.grounded:
             gravity_direction = not gravity_direction
             self.last_press = current_time
             self.grounded = False
@@ -70,8 +50,6 @@ class player:
             level = 999
             reset_rects()
             level_picker( )
-
-        frame += 1
             
 
     def movement(self):
@@ -112,26 +90,6 @@ class player:
         self.screen_side_check()
     def draw(self):
         pygame.draw.rect(screen, ('#18232d'), self.rect)
-
-    def save(self) -> dict:
-        return {
-            'level': level,
-            'x': self.rect.x,
-            'y': self.rect.y,
-            'xv': self.x_speed,
-            'yv': self.gravity,
-            'direction': gravity_direction
-        }
-
-    def load(self, raw: dict):
-        global gravity_direction, level
-        level = raw['level']
-        level_picker()
-        self.rect.x = raw['x']
-        self.rect.y = raw['y']
-        self.x_speed = raw['xv']
-        self.gravity = raw['yv']
-        gravity_direction = raw['direction']
 
 
 player_class = player()
@@ -302,52 +260,18 @@ def reset_rects():
     player_class.rect.topleft = (50,0)
 reset_rects()
 level_picker()
-events = []
-physics = True
 while True:
-    if frame_advance:
-        event = pygame.event.wait()
-        while not (event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT):
-            event = pygame.event.wait()
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
-                frame_advance = False
-                break
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
-                player_class.load(frame_saves.pop())
-                physics = False
-                frame -= 1
-                movie.remove_input()
-                break
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_PAGEDOWN:
-                physics = False
-                break
-            events.append(event)
-            if event.type == pygame.QUIT:
-                break
-    if physics:
-        for event in events + pygame.event.get():
-            if event.type == pygame.QUIT:
-                if movie.mode == "write":
-                    movie.write_end()
-                pygame.quit()
-                exit()
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
-                frame_advance = True
-        events = []
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            exit()
     screen.fill(("#70a5d7"))
 
     # level_picker()
-    if physics:
-        player_class.update()
-        frame_saves.append(player_class.save())
+    player_class.update()
     converter()
     player_class.draw()
 
-    screen.blit(font.render(str(frame), True, (255, 255, 255)), (0, 0))
-    if movie.mode == 'play':
-        screen.blit(font.render(str(movie.inputs[frame].to_string()), True, (255, 255, 255)), (0, 20))
-
     pygame.display.update()
-    clock.tick(30)
-    physics = True
+    clock.tick(60)
     
