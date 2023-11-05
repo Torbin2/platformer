@@ -126,7 +126,8 @@ class player:
             'y': self.rect.y,
             'xv': self.x_speed,
             'yv': self.gravity,
-            'direction': gravity_direction
+            'direction': gravity_direction,
+            'ground': self.grounded
         }
 
     def load(self, raw: dict):
@@ -138,6 +139,7 @@ class player:
         self.x_speed = raw['xv']
         self.gravity = raw['yv']
         gravity_direction = raw['direction']
+        self.grounded = raw['ground']
 
 
 player_class = player()
