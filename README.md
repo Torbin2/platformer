@@ -7,10 +7,11 @@ and `space` to switch gravity
 ## Current features
 - Recording inputs
 - Playing inputs
+- Frame advance
+- Frame depart
 
 ## Upcoming features
-- Frame advance
-- Savestates
+- Savestates (delayed)
 
 ## Usage
 - Change the text inside tasconfig.txt to "read" or "write"
