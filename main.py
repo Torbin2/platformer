@@ -113,6 +113,12 @@ class player:
     def draw(self):
         pygame.draw.rect(screen, ('#18232d'), self.rect)
 
+        if not gravity_direction:
+            pygame.draw.rect(screen, (255, 255, 255), self.rect.topleft + (self.rect.width, self.rect.height // 4))
+        else:
+            pygame.draw.rect(screen, (255, 255, 255),
+                             (self.rect.bottomleft[0], self.rect.bottomleft[1] - self.rect.height // 4, self.rect.width, self.rect.height // 4))
+
     def save(self) -> dict:
         return {
             'level': level,
