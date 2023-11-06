@@ -2,6 +2,8 @@ import pygame
 import tas
 from sys import exit
 
+VERSION = 1
+
 pygame.init()
 screen = pygame.display.set_mode((1200,600))
 pygame.display.set_caption("platformer")
@@ -36,7 +38,7 @@ lava_hitbox_rect = pygame.Rect(-100,0,75,75)
 #colour scheme, #446482, #70a5d7, #18232d
 
 class player:
-    
+
     def __init__(self):
         super().__init__()
         self.rect = pygame.Rect(100,100,50,100)
@@ -72,15 +74,15 @@ class player:
             level_picker( )
 
         frame += 1
-            
+
 
     def movement(self):
         global gravity_direction
         #left and right
         self.rect.x += self.x_speed
         if self.x_speed >= 0:self.x_speed -=0.5
-        if self.x_speed < 0:self.x_speed +=0.5  
-        #gravity       
+        if self.x_speed < 0:self.x_speed +=0.5
+        #gravity
         if gravity_direction: self.gravity+= 1
         else: self.gravity-=1
         self.rect.y += self.gravity
@@ -97,15 +99,15 @@ class player:
             self.grounded = True
             self.gravity = 0
 
-        if self.rect.right >= 1200: 
+        if self.rect.right >= 1200:
             self.rect.right = 1200
             self.x_speed = 0
-        if self.rect.left <= 0: 
+        if self.rect.left <= 0:
             self.rect.left = 0
             self.x_speed = 0
-        
-        
-                      
+
+
+
     def update(self):
         self.input()
         self.movement()
@@ -129,11 +131,12 @@ class player:
             'direction': gravity_direction,
             'ground': self.grounded,
             'last_press': self.last_press,
-            'time': current_time
+            'time': current_time,
+            'frame': frame
         }
 
     def load(self, raw: dict):
-        global gravity_direction, level, current_time
+        global gravity_direction, level, current_time, frame
         level = raw['level']
         level_picker()
         self.rect.x = raw['x']
@@ -144,6 +147,7 @@ class player:
         self.grounded = raw['ground']
         self.last_press = raw['last_press']
         current_time = raw['time']
+        frame = raw['frame']
 
 
 player_class = player()
@@ -179,16 +183,16 @@ def colisions(rect):
             player_class.rect.bottom = rect.top
             player_class.gravity = 0
             player_class.grounded = True
-        
+
         if collision_side == "top":
             player_class.rect.top = rect.bottom
             player_class.gravity = 0
             player_class.grounded = True
-        
+
         if collision_side == "left":
             player_class.rect.left = rect.right
             player_class.x_speed = 0
-        
+
         if collision_side == "right":
             player_class.rect.right = rect.left
             player_class.x_speed = 0
@@ -213,12 +217,12 @@ def converter():
 
         rect.top = (y_pos*100) -100
         rect.left = pos  * 100
-        
+
         if rect == ground_rect:
             pygame.draw.rect(screen, ("#446482"), rect)
             colisions(rect)
         if rect == sky_rect:
-            pygame.draw.rect(screen,("#70a5d7"), rect) 
+            pygame.draw.rect(screen,("#70a5d7"), rect)
         if rect == end_rect:
             pygame.draw.rect(screen,('#6c25be'), rect)
             if end_rect.colliderect(player_class.rect):
@@ -246,7 +250,7 @@ def level_picker():
     if level == 1:
         num_list = [0,0,0,0,0,9,9,0,0,0,0,0
             ,0,0,0,0,0,0,0,0,0,0,0,0
-           ,0,0,0,0,0,0,0,0,0,0,0,0               
+           ,0,0,0,0,0,0,0,0,0,0,0,0
            ,0,0,0,0,0,0,0,0,0,0,0,0
             ,0,0,0,0,0,0,0,0,0,0,0,0
            ,0,0,0,0,0,0,0,0,0,0,0,0]
@@ -268,14 +272,14 @@ def level_picker():
     if level==4:
         num_list= [0,1,1,0,0,0,0,0,0,0,0,9
                   ,0,0,1,0,0,0,0,1,1,1,1,1
-                  ,0,0,1,1,1,1,0,0,0,0,0,0               
+                  ,0,0,1,1,1,1,0,0,0,0,0,0
                   ,0,0,1,0,0,0,0,0,0,0,0,0
                   ,0,0,1,0,0,0,1,1,1,0,0,0
                   ,0,0,0,0,0,0,0,0,0,0,0,0]
     if level==5:
         num_list = [0,1,2,1,0,0,0,0,0,1,1,2
                    ,0,1,2,0,0,2,1,1,0,0,0,0
-                   ,0,1,2,0,1,1,0,0,1,2,2,0               
+                   ,0,1,2,0,1,1,0,0,1,2,2,0
                    ,0,1,2,0,0,0,0,0,2,9,2,0
                    ,0,1,1,1,1,1,1,0,2,0,2,0
                    ,0,0,0,0,0,0,0,0,2,0,0,0]
@@ -290,17 +294,25 @@ def level_picker():
     if level==7:
         num_list = [0,1,2,1,2,1,2,2,1,2,2,9
            ,0,1,0,0,0,1,0,0,0,0,0,0
-           ,0,1,0,1,0,1,0,0,0,0,0,0               
+           ,0,1,0,1,0,1,0,0,0,0,0,0
            ,0,0,0,1,0,0,0,0,1,0,1,0
            ,0,1,0,1,0,1,0,0,1,0,0,0
-           ,0,1,2,1,2,1,0,0,1,0,2,0]    
-    if level == 999:
+           ,0,1,2,1,2,1,0,0,1,0,2,0]
+    if level == 8:
         num_list =[0,0,2,2,2,0,0,0,0,0,2,2
 ,0,0,0,2,2,0,1,1,2,0,2,2
 ,2,0,0,0,2,0,0,1,2,0,1,2
 ,0,2,0,0,0,2,0,0,2,0,0,0
 ,0,0,2,0,0,0,2,0,2,1,2,0
-,0,0,0,2,0,0,0,0,2,0,2,9] 
+,0,0,0,2,0,0,0,0,2,0,2,9]
+
+    if level == 9:
+        num_list = [0,1,0,0,0,1,0,0,2,1,2,2
+,0,1,0,9,0,1,1,0,0,0,0,2
+,0,2,1,0,0,0,1,2,0,0,0,0
+,0,0,1,1,1,2,0,1,0,0,1,0
+,0,0,0,0,0,0,0,1,0,0,0,0
+,2,0,0,2,2,2,0,2,2,0,0,0]
 
 def reset_rects():
     global ground_rect
@@ -319,29 +331,58 @@ reset_rects()
 level_picker()
 events = []
 physics = True
+
+testsave: dict = {}
+
+def create_savestate_test():
+
+    global testsave
+    testsave = player_class.save()
+
+def load_savestate_test(): # TODO: fix rendering and allowing saving and loading from non-frame advance state
+
+    print(testsave.keys())
+
+    if testsave is not {}:
+        player_class.load(testsave)
+
+        movie.remove_input(frame)
+
+        player_class.draw()
+        pygame.display.update()
+
 while True:
+
     if frame_advance:
         event = pygame.event.wait()
         while not (event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT):
             event = pygame.event.wait()
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_w:
+                create_savestate_test()
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_2:
+                load_savestate_test()
+
             if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
                 frame_advance = False
                 break
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
-                player_class.load(frame_saves.pop())
-                physics = False
-                frame -= 1
-                if movie.mode != 'read':
-                    movie.remove_input()
-                break
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_PAGEDOWN:
-                physics = False
-                break
+            # elif event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
+            #     player_class.load(frame_saves.pop())
+            #     physics = False
+            #     frame -= 1
+            #     if movie.mode != 'read':
+            #         movie.remove_input()
+            #     break
+            # elif event.type == pygame.KEYDOWN and event.key == pygame.K_PAGEDOWN:
+            #     physics = False
+            #     break
             events.append(event)
             if event.type == pygame.QUIT:
                 break
     if physics:
         for event in events + pygame.event.get():
+
             if event.type == pygame.QUIT:
                 if movie.mode == "write":
                     movie.write_end()
@@ -367,4 +408,3 @@ while True:
     clock.tick(60)
     physics = True
     current_time += 1
-    

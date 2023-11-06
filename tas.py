@@ -45,11 +45,20 @@ class TASMovie:
                     f"{'S' if inputs[2] else '.'}\n")
             f.close()
 
-    def remove_input(self):
+    def remove_input(self, frame):
         with open(self.filename, 'r+') as f:
-            f.seek(0, os.SEEK_END)
-            pos = f.tell() - 4
-            f.truncate(pos)
+
+            lines = f.readlines()
+
+            res = []
+
+            for i in range(len(lines)):
+                if i <= frame - 1 + 3: # here you have to remove 3 because of the headers
+                    res.append(lines[i])
+
+            f.seek(0)
+            f.truncate()
+            f.writelines(res)
 
     def read_inputs(self):
 
