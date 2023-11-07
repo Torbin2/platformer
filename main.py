@@ -44,9 +44,13 @@ class player:
         if keys[pygame.K_d]:
             self.x_speed +=1
         if keys[pygame.K_SPACE] and current_time - self.last_press > 200 and self.grounded:
-            gravity_direction = not gravity_direction
-            self.last_press = current_time
-            self.grounded = False
+           gravity_direction = not gravity_direction
+           self.last_press = current_time
+           self.grounded = False
+        # if keys[pygame.K_SPACE] and current_time - self.last_press > 200:
+        #     gravity_direction = not gravity_direction
+        #     self.last_press = current_time
+        #     self.grounded = False
         if keys[pygame.K_t]:
             level = 999
             reset_rects()
@@ -180,17 +184,17 @@ def converter():
                 player_class.rect.topleft = 0,0
                 player_class.gravity = 0
                 gravity_direction = False
-                level = 1
-                i = rect.x // 100 % 12 + rect.y // 100 * 12
-                reset_rects()
-                level_picker()
-                timer(True)
-                print("death")
-                if i >= len(num_list):
-                     i = len(num_list) - 1
-                if i < 0:
-                     i = 0
-                num_list[i] = 2
+                #level = 1
+                #i = rect.x // 100 % 12 + rect.y // 100 * 12
+                #reset_rects()
+                #level_picker()
+                #timer(True)
+                #print("death")
+                #if i >= len(num_list):
+                #     i = len(num_list) - 1
+                #if i < 0:
+                #     i = 0
+                #num_list[i] = 2
 def level_picker():
     global num_list
     if level == 1:
