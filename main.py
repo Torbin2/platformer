@@ -5,12 +5,15 @@ pygame.init()
 screen = pygame.display.set_mode((1200,600))
 pygame.display.set_caption("platformer")
 clock = pygame.time.Clock()
-
+current_time = pygame.time.get_ticks()
 
 gravity_direction = True
 num_list = []
 level = 1
 game_on = True
+last_run_time = 0
+
+font = pygame.font.Font(("font/Pixeltype.ttf"), 50)
 
 ground_rect = pygame.Rect(-100,0,100,100)
 sky_rect = pygame.Rect(-100,0,100,100)
@@ -34,10 +37,8 @@ class player:
     def input(self):
         global gravity_direction
         global level
-        keys = pygame.key.get_pressed()
+        keys = pygame.key.get_pressed()        
         current_time = pygame.time.get_ticks()
-        
-        
         if keys[pygame.K_a]:
             self.x_speed -=1
         if keys[pygame.K_d]:
@@ -53,7 +54,8 @@ class player:
         if keys[pygame.K_r]:
             level = 1
             reset_rects()
-            level_picker( )
+            level_picker()
+            timer(True)
             
 
     def movement(self):
@@ -167,6 +169,7 @@ def converter():
         if rect == end_rect:
             pygame.draw.rect(screen,('#6c25be'), rect)
             if end_rect.colliderect(player_class.rect):
+                print(f"level: {level} time: {timer(False)}")
                 level+=1
                 reset_rects()
                 level_picker()
@@ -181,6 +184,8 @@ def converter():
                 i = rect.x // 100 % 12 + rect.y // 100 * 12
                 reset_rects()
                 level_picker()
+                timer(True)
+                print("death")
                 if i >= len(num_list):
                      i = len(num_list) - 1
                 if i < 0:
@@ -288,6 +293,17 @@ def reset_rects():
     lava_rect = pygame.Rect(-100,0,100,100)
     lava_hitbox_rect = pygame.Rect(-100,0,75,75)
     player_class.rect.topleft = (50,0)
+def timer(reset):
+    global last_run_time
+    current_time = pygame.time.get_ticks()
+    if reset:
+        last_run_time = current_time
+    run_time = float((current_time - last_run_time)/1000)
+    score_display = font.render(f"{run_time}", False,("#8f5a28"))
+    score_rect = score_display.get_rect(midtop = (600,0))
+    screen.blit(score_display,score_rect)
+    return run_time
+
 reset_rects()
 level_picker()
 while True:
@@ -301,6 +317,7 @@ while True:
     player_class.update()
     converter()
     player_class.draw()
+    timer(False)
 
     pygame.display.update()
     clock.tick(60)
