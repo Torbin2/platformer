@@ -409,7 +409,7 @@ def load_savestate(slot): # TODO: fix rendering and allowing saving and loading 
 
     print(save.keys())
 
-    if save is not {}:
+    if len(save.keys()) > 0:
         player_class.load(save)
 
         movie.remove_input(frame)
@@ -433,8 +433,6 @@ while True:
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_2:
                 load_savestate(0)
-                # physics = False
-                # continue
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
                 create_savestate(1)
