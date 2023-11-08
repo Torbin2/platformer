@@ -426,6 +426,7 @@ while True:
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
                 frame_advance = False
+                break
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_w:
                 create_savestate(0)
