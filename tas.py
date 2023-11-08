@@ -4,7 +4,7 @@
 # !ptm
 # !gameversion [Version of the game]
 # !input-start
-# (here goes the inputs, e.g. "L.S", ".RS", "...", "LR.", "LRS")
+# (here goes the inputs, e.g. "A.S..", ".DS..", ".....", "AD..T", "ADSRT")
 # !input-end
 import os
 
@@ -12,7 +12,7 @@ import os
 class TASMovie:
 
     def __init__(self):
-        self.gameversion = 0
+        self.gameversion = 1
         self.filename = "test.ptm"
         self.mode = ""
 
@@ -40,9 +40,11 @@ class TASMovie:
 
     def write_input(self, inputs: list[bool, bool, bool]):
         with open(self.filename, "a") as f:
-            f.write(f"{'L' if inputs[0] else '.'}"
-                    f"{'R' if inputs[1] else '.'}"
-                    f"{'S' if inputs[2] else '.'}\n")
+            f.write(f"{'A' if inputs[0] else '.'}"
+                    f"{'D' if inputs[1] else '.'}"
+                    f"{'S' if inputs[2] else '.'}"
+                    f"{'R' if inputs[3] else '.'}"
+                    f"{'T' if inputs[4] else '.'}\n")
             f.close()
 
     def remove_input(self, frame):
@@ -122,18 +124,25 @@ class TASMovie:
             else:
                 res.append(True)
 
+        while len(res) < 6: # to make sure old ptm files also works
+            res.append(False)
+
         return TASMovie.Input(res)
     class Input:
 
-        def __init__(self, inputs: [bool, bool, bool]):
+        def __init__(self, inputs: [bool, bool, bool, bool, bool]):
 
             print("inputs", inputs)
 
-            self.l = inputs[0]
-            self.r = inputs[1]
+            self.a = inputs[0]
+            self.d = inputs[1]
             self.s = inputs[2]
+            self.r = inputs[3]
+            self.t = inputs[4]
 
         def to_string(self) -> str:
-            return (f"{'L' if self.l else '.'}"
+            return (f"{'A' if self.a else '.'}"
+                    f"{'D' if self.d else '.'}"
+                    f"{'S' if self.s else '.'}"
                     f"{'R' if self.r else '.'}"
-                    f"{'S' if self.s else '.'}")
+                    f"{'T' if self.t else '.'}")
