@@ -248,71 +248,91 @@ def converter():
 def level_picker():
     global num_list
     if level == 1:
-        num_list = [0,0,0,0,0,9,9,0,0,0,0,0
-            ,0,0,0,0,0,0,0,0,0,0,0,0
-           ,0,0,0,0,0,0,0,0,0,0,0,0
-           ,0,0,0,0,0,0,0,0,0,0,0,0
-            ,0,0,0,0,0,0,0,0,0,0,0,0
-           ,0,0,0,0,0,0,0,0,0,0,0,0]
-    if level ==2:
-        num_list = [0,1,9,2,0,0,0,0,1,1,1,0
-                   ,0,1,0,2,0,0,0,1,1,2,2,0
-                   ,0,1,0,2,0,0,0,1,1,1,1,0
-                   ,0,1,0,2,0,0,0,1,1,1,1,0
-                   ,0,0,0,0,0,0,0,0,1,0,1,0
-                   ,0,0,0,0,0,0,0,0,1,0,1,0]
-    if level==3:
-        num_list = [0,1,0,0,0,0,1,2,2,2,0,0
-                   ,0,1,0,0,0,0,1,0,0,9,0,0
-                   ,0,1,0,1,1,0,1,0,0,0,0,0
-                   ,0,1,0,1,0,0,2,2,2,2,1,0
-                   ,0,0,0,1,0,0,2,0,0,0,0,0
-                   ,0,0,0,1,0,0,0,0,0,0,0,0]
-    #credits to HogoSPR on github
-    if level==4:
-        num_list= [0,1,1,0,0,0,0,0,0,0,0,9
-                  ,0,0,1,0,0,0,0,1,1,1,1,1
-                  ,0,0,1,1,1,1,0,0,0,0,0,0
-                  ,0,0,1,0,0,0,0,0,0,0,0,0
-                  ,0,0,1,0,0,0,1,1,1,0,0,0
-                  ,0,0,0,0,0,0,0,0,0,0,0,0]
-    if level==5:
-        num_list = [0,1,2,1,0,0,0,0,0,1,1,2
-                   ,0,1,2,0,0,2,1,1,0,0,0,0
-                   ,0,1,2,0,1,1,0,0,1,2,2,0
-                   ,0,1,2,0,0,0,0,0,2,9,2,0
-                   ,0,1,1,1,1,1,1,0,2,0,2,0
-                   ,0,0,0,0,0,0,0,0,2,0,0,0]
-     #Tommy nikes level
-    if level==6:
-        num_list = [0,2,0,0,0,2,0,0,0,2,9,2
-                    ,0,2,0,2,0,2,0,2,0,2,0,2
-                     ,0,2,0,2,0,2,0,2,0,2,0,2
-                     ,0,2,0,2,0,2,0,2,0,2,0,2
-                    ,0,2,0,2,0,2,0,2,0,2,0,2
-                     ,0,0,0,2,0,0,0,2,0,0,0,2]
-    if level==7:
-        num_list = [0,1,2,1,2,1,2,2,1,2,2,9
-           ,0,1,0,0,0,1,0,0,0,0,0,0
-           ,0,1,0,1,0,1,0,0,0,0,0,0
-           ,0,0,0,1,0,0,0,0,1,0,1,0
-           ,0,1,0,1,0,1,0,0,1,0,0,0
-           ,0,1,2,1,2,1,0,0,1,0,2,0]
-    if level == 8:
-        num_list =[0,0,2,2,2,0,0,0,0,0,2,2
-,0,0,0,2,2,0,1,1,2,0,2,2
-,2,0,0,0,2,0,0,1,2,0,1,2
-,0,2,0,0,0,2,0,0,2,0,0,0
-,0,0,2,0,0,0,2,0,2,1,2,0
-,0,0,0,2,0,0,0,0,2,0,2,9]
+        num_list = [0, 0, 0, 0, 0, 9, 9, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    if level == 2:
+        num_list = [0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 9
+            , 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1
+            , 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0
+            , 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            , 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0
+            , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    if level == 3:
+        num_list = [0, 1, 9, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+                    0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1,
+                    0, 1, 9, 0, 0, 1, 0, 0, 0, 0, 0, 1,
+                    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+    if level == 4:
+        num_list = [0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 9,
+                    0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0,
+                    1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0,
+                    1, 1, 2, 0, 0, 0, 1, 0, 0, 1, 1, 1,
+                    9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
+                    1, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1]
+    if level == 5:
+        num_list = [0, 1, 1, 2, 2, 0, 0, 0, 0, 0, 0, 9,
+                    0, 1, 1, 1, 2, 0, 0, 0, 1, 2, 1, 1,
+                    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
+                    0, 1, 0, 0, 1, 1, 1, 2, 0, 0, 1, 2,
+                    0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2, 2,
+                    0, 0, 0, 0, 0, 1, 9, 0, 0, 1, 1, 2]
+    if level == 6:
+        num_list = [0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 9,
+                    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+                    0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0,
+                    0, 2, 0, 1, 9, 2, 2, 2, 1, 0, 2, 0,
+                    0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1]
+    if level == 7:
+        num_list = [0, 1, 2, 1, 0, 0, 0, 0, 0, 1, 1, 1
+            , 0, 1, 2, 0, 0, 2, 1, 1, 0, 0, 0, 0
+            , 0, 1, 2, 0, 1, 1, 0, 0, 1, 2, 2, 0
+            , 0, 1, 2, 0, 0, 0, 0, 0, 2, 9, 2, 0
+            , 0, 0, 1, 1, 1, 1, 1, 0, 2, 0, 2, 0
+            , 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0]
 
+    if level == 8:
+        num_list = [0, 1, 1, 1, 1, 2, 1, 2, 2, 2, 2, 2,
+                    0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 9,
+                    0, 0, 0, 1, 0, 2, 0, 1, 1, 0, 0, 9,
+                    0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 9,
+                    1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 9,
+                    1, 1, 2, 0, 0, 1, 0, 0, 2, 2, 2, 1, ]
     if level == 9:
-        num_list = [0,1,0,0,0,1,0,0,2,1,2,2
-,0,1,0,9,0,1,1,0,0,0,0,2
-,0,2,1,0,0,0,1,2,0,0,0,0
-,0,0,1,1,1,2,0,1,0,0,1,0
-,0,0,0,0,0,0,0,1,0,0,0,0
-,2,0,0,2,2,2,0,2,2,0,0,0]
+        num_list = [0, 1, 1, 2, 2, 1, 2, 2, 1, 2, 2, 1
+            , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            , 1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 0
+            , 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0
+            , 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0]
+    if level == 10:
+        num_list = [0, 0, 0, 0, 1, 9, 0, 0, 2, 1, 0, 2,
+                    1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 2,
+                    2, 9, 2, 0, 0, 0, 1, 0, 0, 0, 0, 2,
+                    2, 0, 2, 1, 0, 0, 0, 1, 1, 1, 0, 2,
+                    2, 0, 2, 2, 1, 0, 0, 0, 0, 0, 0, 2,
+                    0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 1, 2]
+    if level == 11:
+        num_list = [0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 2, 2
+            , 0, 0, 0, 2, 2, 0, 1, 1, 2, 0, 2, 2
+            , 2, 0, 0, 0, 2, 0, 0, 1, 2, 0, 1, 2
+            , 0, 2, 0, 0, 0, 2, 0, 0, 2, 0, 0, 0
+            , 0, 0, 2, 0, 0, 0, 2, 0, 2, 1, 2, 0
+            , 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 2, 9]
+
+    if level == 999:
+        num_list = [0, 1, 0, 0, 0, 1, 0, 0, 2, 1, 2, 2
+            , 0, 1, 0, 9, 0, 1, 1, 0, 0, 0, 0, 2
+            , 0, 2, 1, 0, 0, 0, 1, 2, 0, 0, 0, 0
+            , 0, 0, 1, 1, 1, 2, 0, 1, 0, 0, 1, 0
+            , 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0
+            , 2, 0, 0, 2, 2, 2, 0, 2, 2, 0, 0, 0]
 
 def reset_rects():
     global ground_rect
@@ -332,24 +352,35 @@ level_picker()
 events = []
 physics = True
 
-testsave: dict = {}
+class SaveState:
+    def __init__(self, slot, data):
+        self.slot = slot
+        self.data = data
 
-def create_savestate_test():
+savestates = []
 
-    global testsave
-    testsave = player_class.save()
+for i in range(8):
+    savestates.append(SaveState(i, {}))
 
-def load_savestate_test(): # TODO: fix rendering and allowing saving and loading from non-frame advance state
+def create_savestate(slot):
 
-    print(testsave.keys())
+    global savestates
+    savestates[slot].data = player_class.save()
 
-    if testsave is not {}:
-        player_class.load(testsave)
+def load_savestate(slot): # TODO: fix rendering and allowing saving and loading from non-frame advance state
+
+    save = savestates[slot].data
+
+    print(save.keys())
+
+    if save is not {}:
+        player_class.load(save)
 
         movie.remove_input(frame)
 
         player_class.draw()
         pygame.display.update()
+
 
 while True:
 
@@ -358,15 +389,34 @@ while True:
         while not (event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT):
             event = pygame.event.wait()
 
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_w:
-                create_savestate_test()
-
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_2:
-                load_savestate_test()
-
             if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
                 frame_advance = False
                 break
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_w:
+                create_savestate(0)
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_2:
+                load_savestate(0)
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
+                create_savestate(1)
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_3:
+                load_savestate(1)
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                create_savestate(2)
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_4:
+                load_savestate(2)
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_t:
+                create_savestate(3)
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_5:
+                load_savestate(3)
+
             # elif event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
             #     player_class.load(frame_saves.pop())
             #     physics = False
@@ -390,6 +440,7 @@ while True:
                 exit()
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
                 frame_advance = True
+
         events = []
     screen.fill(("#70a5d7"))
 
