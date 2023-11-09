@@ -33,6 +33,7 @@ class player:
         self.gravity = 0
         self.last_press = 0
         self.grounded = False
+        self.hat_rect = pygame.Rect(0,0,50,35)
 
     def input(self):
         global gravity_direction
@@ -91,15 +92,18 @@ class player:
         if self.rect.left <= 0: 
             self.rect.left = 0
             self.x_speed = 0
-        
-        
-                      
+                        
     def update(self):
         self.input()
         self.movement()
         self.screen_side_check()
     def draw(self):
         pygame.draw.rect(screen, ('#18232d'), self.rect)
+        if gravity_direction: self.hat_rect.midtop = self.rect.midtop
+        else: self.hat_rect.midbottom = self.rect.midbottom
+        pygame.draw.rect(screen,('#747b81'), self.hat_rect)
+        
+
 player_class = player()
 
 def colision_side_check(rect):
@@ -272,18 +276,19 @@ def level_picker():
         num_list = [0,0,2,2,2,0,0,0,0,0,2,2
 ,0,0,0,2,2,0,1,1,2,0,2,2
 ,2,0,0,0,2,0,0,1,2,0,1,2
-,0,2,0,0,0,2,0,0,2,0,0,0
-,0,0,2,0,0,0,2,0,2,1,2,0
-,0,0,0,2,0,0,0,0,2,0,2,9]
+,2,2,0,0,0,2,0,0,2,0,0,0
+,2,2,2,0,0,0,2,0,2,1,2,0
+,2,2,2,2,0,0,0,0,2,0,2,9]
     
     
     if level == 999:
-        num_list = [0,1,0,0,0,1,0,0,2,1,2,2
-,0,1,0,9,0,1,1,0,0,0,0,2
-,0,2,1,0,0,0,1,2,0,0,0,0
-,0,0,1,1,1,2,0,1,0,0,1,0
-,0,0,0,0,0,0,0,1,0,0,0,0
-,2,0,0,2,2,2,0,2,2,0,0,0]
+        num_list = [0,0,0,2,2,0,0,0,0,0,0,0
+,0,0,0,2,1,2,1,2,0,2,1,0
+,2,2,0,0,0,0,0,0,0,2,0,0
+,9,1,2,1,2,1,2,1,2,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0
+,1,0,1,2,1,2,1,1,2,1,1,2]
+
 def reset_rects():
     global ground_rect
     global sky_rect
