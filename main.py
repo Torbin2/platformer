@@ -12,6 +12,7 @@ num_list = []
 level = 1
 game_on = True
 last_run_time = 0
+buttoning = False
 
 font = pygame.font.Font(("font/Pixeltype.ttf"), 50)
 
@@ -20,6 +21,7 @@ sky_rect = pygame.Rect(-100,0,100,100)
 end_rect = pygame.Rect(-100,0,100,100)
 lava_rect = pygame.Rect(-100,0,100,100)
 lava_hitbox_rect = pygame.Rect(-100,0,75,75)
+button_rect = pygame.Rect(0,0,0,0)
 
 
 #colour scheme, #446482, #70a5d7, #18232d
@@ -62,7 +64,6 @@ class player:
             level_picker()
             timer(True)
             
-
     def movement(self):
         global gravity_direction
         #left and right
@@ -73,7 +74,6 @@ class player:
         if gravity_direction: self.gravity+= 1
         else: self.gravity-=1
         self.rect.y += self.gravity
-
 
     def screen_side_check(self):
         #side of the screen colisions
@@ -102,8 +102,6 @@ class player:
         if gravity_direction: self.hat_rect.midtop = self.rect.midtop
         else: self.hat_rect.midbottom = self.rect.midbottom
         pygame.draw.rect(screen,('#747b81'), self.hat_rect)
-        
-
 player_class = player()
 
 def colision_side_check(rect):
@@ -187,8 +185,9 @@ def converter():
             if lava_hitbox_rect.colliderect(player_class.rect):
                 player_class.rect.topleft = 0,0
                 player_class.gravity = 0
-                gravity_direction = False
-                #level = 1
+                reset_rects()
+                level_picker()
+                #level = 1  
                 #i = rect.x // 100 % 12 + rect.y // 100 * 12
                 #reset_rects()
                 #level_picker()
@@ -279,6 +278,9 @@ def level_picker():
 ,2,2,0,0,0,2,0,0,2,0,0,0
 ,2,2,2,0,0,0,2,0,2,1,2,0
 ,2,2,2,2,0,0,0,0,2,0,2,9]
+    if level == 12:
+        pygame.quit()
+        exit()
     
     
     if level == 999:
@@ -288,7 +290,6 @@ def level_picker():
 ,9,1,2,1,2,1,2,1,2,0,0,0
 ,0,0,0,0,0,0,0,0,0,0,0,0
 ,1,0,1,2,1,2,1,1,2,1,1,2]
-
 def reset_rects():
     global ground_rect
     global sky_rect
@@ -296,12 +297,18 @@ def reset_rects():
     global lava_rect
     global lava_hitbox_rect
     global player_class
+    global button_rect
+    global gravity_direction
+    global buttoning
     ground_rect = pygame.Rect(-100,0,100,100)
     sky_rect = pygame.Rect(-100,0,100,100)
     end_rect = pygame.Rect(-100,0,100,100)
     lava_rect = pygame.Rect(-100,0,100,100)
     lava_hitbox_rect = pygame.Rect(-100,0,75,75)
+    button_rect =  (0,0)
+    gravity_direction = False
     player_class.rect.topleft = (50,0)
+    buttoning = False
 def timer(reset):
     global last_run_time
     current_time = pygame.time.get_ticks()
@@ -312,7 +319,24 @@ def timer(reset):
     score_rect = score_display.get_rect(midtop = (600,0))
     screen.blit(score_display,score_rect)
     return run_time
-
+def button():
+    global button_rect
+    global num_list
+    global buttoning
+    if level == 1:
+        if buttoning == False:
+            button_rect = pygame.Rect(0,580,100,20)
+    pygame.draw.rect(screen,("red"),button_rect)
+    if button_rect.colliderect(player_class.rect):
+        if level == 1:
+            num_list = [2,2,2,2,2,9,9,2,2,2,2,2,
+                        2,2,2,2,2,2,2,2,1,1,1,2,
+                        2,2,2,2,2,2,2,1,1,9,9,2,               
+                        2,2,2,2,2,2,2,1,1,1,1,2,
+                        2,2,2,2,2,2,2,1,1,1,1,2,
+                        0,2,2,2,2,2,2,2,1,2,1,2] 
+            button_rect = pygame.Rect(0,0,0,0)
+            buttoning = True  
 reset_rects()
 level_picker()
 while True:
@@ -325,6 +349,7 @@ while True:
     # level_picker()
     player_class.update()
     converter()
+    button()
     player_class.draw()
     timer(False)
 
