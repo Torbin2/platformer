@@ -151,10 +151,7 @@ class TASMovie:
 
         filename = f"{slot}.psv"
 
-        if filename in os.listdir("./saves"):
-            os.remove("saves/" + filename)
-
-        with open("saves/" + filename, "a") as f:
+        with open("saves/" + filename, "w") as f:
             f.write("!psv\n")
             # json.dump(save, f)
             f.write("!input-start\n")

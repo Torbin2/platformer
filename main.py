@@ -100,9 +100,12 @@ class player:
                               movie.inputs[frame].s,
                               movie.inputs[frame].r,
                               movie.inputs[frame].t)
-                    except Exception as e:
+                    except IndexError as e:
                         print(e.__repr__())
                         on_finish_savestate_load()
+                        global current_time
+                        current_time -= 1  # the save states wil desynchronise if you do not do this
+                        return
 
                 else:
                     movie.write_input([keys[pygame.K_a],
@@ -460,7 +463,7 @@ def load_savestate(slot): # TODO: fix rendering and allowing saving and loading 
     global loading_savestate, clock_speed
 
     loading_savestate = "true"
-    clock_speed = 420
+    clock_speed = 0
 
 
 def on_finish_savestate_load():
@@ -477,8 +480,6 @@ while True:
     if frame_advance:
         event = pygame.event.wait()
         while not (event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT):
-            event = pygame.event.wait()
-
             if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
                 frame_advance = False
                 break
@@ -488,24 +489,28 @@ while True:
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_2:
                 load_savestate(0)
+                break
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
                 create_savestate(1)
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_3:
                 load_savestate(1)
+                break
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
                 create_savestate(2)
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_4:
                 load_savestate(2)
+                break
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_t:
                 create_savestate(3)
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_5:
                 load_savestate(3)
+                break
 
             # elif event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
             #     player_class.load(frame_saves.pop())
@@ -514,12 +519,15 @@ while True:
             #     if movie.mode != 'read':
             #         movie.remove_input()
             #     break
-            # elif event.type == pygame.KEYDOWN and event.key == pygame.K_PAGEDOWN:
-            #     physics = False
-            #     break
+            # if event.type == pygame.KEYDOWN and event.key == pygame.K_PAGEDOWN:
+            #     converter()
+            #     player_class.draw()
+            #     pygame.display.update()
             events.append(event)
             if event.type == pygame.QUIT:
                 break
+
+            event = pygame.event.wait()
 
     if physics:
         for event in events + pygame.event.get():
