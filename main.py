@@ -46,14 +46,14 @@ class player:
             self.x_speed -=1
         if keys[pygame.K_d]:
             self.x_speed +=1
-        if keys[pygame.K_SPACE] and current_time - self.last_press > 200 and self.grounded:
-           gravity_direction = not gravity_direction
-           self.last_press = current_time
-           self.grounded = False
-        # if keys[pygame.K_SPACE] and current_time - self.last_press > 200:
-        #     gravity_direction = not gravity_direction
-        #     self.last_press = current_time
-        #     self.grounded = False
+        # if keys[pygame.K_SPACE] and current_time - self.last_press > 200 and self.grounded:
+        #    gravity_direction = not gravity_direction
+        #    self.last_press = current_time
+        #    self.grounded = False
+        if keys[pygame.K_SPACE] and current_time - self.last_press > 200:
+            gravity_direction = not gravity_direction
+            self.last_press = current_time
+            self.grounded = False
         if keys[pygame.K_t]:
             level = 999
             reset_rects()
@@ -185,7 +185,6 @@ def converter():
             if lava_hitbox_rect.colliderect(player_class.rect):
                 player_class.rect.topleft = 0,0
                 player_class.gravity = 0
-                reset_rects()
                 level_picker()
                 #level = 1  
                 #i = rect.x // 100 % 12 + rect.y // 100 * 12
@@ -216,11 +215,11 @@ def level_picker():
            ,0,0,0,0,0,0,0,0,0,0,0,0]
     if level == 3:
         num_list = [0,1,9,0,0,0,0,0,0,0,0,1,
-                    0,0,1,1,1,1,1,1,0,0,1,1,
+                    0,1,1,1,1,1,1,1,0,0,1,1,
                     0,0,0,0,0,0,0,0,0,0,0,0,               
-                    0,1,1,1,1,1,1,1,1,0,0,1,
-                    0,1,9,0,0,1,0,0,0,0,0,1,
-                    0,1,0,0,0,0,0,0,0,0,0,1]
+                    0,0,1,1,1,1,1,1,1,0,1,1,
+                    0,1,0,0,0,0,0,9,1,0,0,1,
+                    0,1,9,0,0,0,0,0,0,0,0,1]
     if level == 4:
         num_list = [0,0,0,1,1,1,1,1,1,0,0,9,
                     0,0,0,0,0,1,1,0,0,0,0,0,
@@ -249,7 +248,6 @@ def level_picker():
            ,0,1,2,0,0,0,0,0,2,9,2,0
            ,0,0,1,1,1,1,1,0,2,0,2,0
            ,0,0,0,0,0,0,0,0,2,0,0,0]
-
     if level == 8:
         num_list = [0,1,1,1,1,2,1,2,2,2,2,2,
                     0,2,0,0,0,2,0,0,0,0,0,9,
@@ -281,8 +279,6 @@ def level_picker():
     if level == 12:
         pygame.quit()
         exit()
-    
-    
     if level == 999:
         num_list = [0,0,0,2,2,0,0,0,0,0,0,0
 ,0,0,0,2,1,2,1,2,0,2,1,0
@@ -305,10 +301,11 @@ def reset_rects():
     end_rect = pygame.Rect(-100,0,100,100)
     lava_rect = pygame.Rect(-100,0,100,100)
     lava_hitbox_rect = pygame.Rect(-100,0,75,75)
-    button_rect =  (0,0)
+    button_rect.center =  (-100,-100)
     gravity_direction = False
     player_class.rect.topleft = (50,0)
     buttoning = False
+    player_class.gravity = 0
 def timer(reset):
     global last_run_time
     current_time = pygame.time.get_ticks()
