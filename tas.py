@@ -6,6 +6,7 @@
 # !input-start
 # (here goes the inputs, e.g. "A.S..", ".DS..", ".....", "AD..T", "ADSRT")
 # !input-end
+import json
 import os
 
 
@@ -38,7 +39,10 @@ class TASMovie:
             f.write("!input-end")
             f.close()
 
-    def write_input(self, inputs: list[bool, bool, bool]):
+    def write_input(self, inputs: list[bool, bool, bool, bool, bool]):
+
+        self.inputs.append(TASMovie.Input(inputs))
+
         with open(self.filename, "a") as f:
             f.write(f"{'A' if inputs[0] else '.'}"
                     f"{'D' if inputs[1] else '.'}"
@@ -46,6 +50,37 @@ class TASMovie:
                     f"{'R' if inputs[3] else '.'}"
                     f"{'T' if inputs[4] else '.'}\n")
             f.close()
+
+    def set_inputs(self, inputs):
+
+        with open(self.filename, 'r+') as f:
+
+            lines = f.readlines()
+
+            res = []
+
+            for i in range(len(lines)):
+
+                line = lines[i]
+
+                if i < 3:
+                    res.append(line)
+                else:
+                    break
+
+            f.seek(0)
+            f.truncate()
+            f.writelines(res)
+
+            for i in range(len(inputs)):
+
+                input: TASMovie.Input = inputs[i]
+
+                f.write(f"{input.to_string()}\n")
+
+            f.close()
+
+
 
     def remove_input(self, frame):
         with open(self.filename, 'r+') as f:
@@ -61,6 +96,7 @@ class TASMovie:
             f.seek(0)
             f.truncate()
             f.writelines(res)
+            f.close()
 
     def read_inputs(self):
 
@@ -108,6 +144,75 @@ class TASMovie:
                         self.inputs.append(self.parse(line))
 
 
+    def write_savestate(self, slot: int):
+
+        if not os.path.isdir("saves"):
+            os.mkdir("saves")
+
+        filename = f"{slot}.psv"
+
+        if filename in os.listdir("./saves"):
+            os.remove("saves/" + filename)
+
+        with open("saves/" + filename, "a") as f:
+            f.write("!psv\n")
+            # json.dump(save, f)
+            f.write("!input-start\n")
+
+            for input in self.inputs:
+                f.write(f"{input.to_string()}\n")
+
+            f.write("!input-end")
+            f.close()
+
+    def parse_lines_of_savestate(self, slot: int):
+
+        filename = f"{slot}.psv"
+
+        if filename not in os.listdir("./saves"):
+            return None
+
+        with open("saves/" + filename, "r+") as f:
+
+            lines = f.readlines()
+
+            # print(lines)
+
+            inputs = []
+            started = False
+
+            for i in range(len(lines)):
+
+                line = lines[i]
+
+                if i == 0:
+                    if line.startswith("!psv"):
+                        continue
+                    else:
+                        raise KeyError(f"Platformer savestate file should always start with !psv, instead got {line}")
+
+                if line.startswith("!input-start"):
+                    started = True
+                    print("starting line")
+                    continue
+
+                if line.startswith("!input-end"):
+
+                    print("end line")
+
+                    if self.inputs is None:
+                        print("none??")
+                        assert False, ""
+
+                    self.inputs = inputs
+                    self.set_inputs(self.inputs)
+                    return inputs
+                else:
+
+                    if started:
+                        print(f"parse {line}")
+                        inputs.append(self.parse(line))
+
 
 
     def parse(self, line: str):
@@ -128,6 +233,7 @@ class TASMovie:
             res.append(False)
 
         return TASMovie.Input(res)
+
     class Input:
 
         def __init__(self, inputs: [bool, bool, bool, bool, bool]):
