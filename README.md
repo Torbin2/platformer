@@ -10,8 +10,8 @@ and `space` to switch gravity
 - Recording inputs
 - Playing inputs
 - Frame advance
-- ~Frame depart~ (removed by terukaaz because it was broken and savestates also worked)
-- ~Savestates (beta, save states with key `w` and load it with key `2`)~ (Currently broken, being fixed)
+- Savestates (Read, Write)
+- TAStudio
 
 ## Usage
 - Change the text inside tasconfig.txt to "read" or "write"
