@@ -30,7 +30,7 @@ game_on = True
 last_run_time = 0
 
 font = pygame.font.Font(("font/Pixeltype.ttf"), 50)
-times_new_roman = pygame.font.SysFont('times new roman', 20)
+mono_font = pygame.font.Font('font/NotoSansMono.ttf', 20)
 
 ground_rect = pygame.Rect(-100, 0, 100, 100)
 sky_rect = pygame.Rect(-100, 0, 100, 100)
@@ -477,6 +477,61 @@ def load_savestate(slot): # TODO: fix rendering and allowing saving and loading 
     loading_savestate = "true"
 
 
+def render_studio(move_x: int, move_y: int, update: bool) -> bool:
+    global movie, mx, my
+
+    mx += move_x
+    my += move_y
+
+    if mx < 0:
+        mx = 0
+    elif mx > 4:
+        mx = 4
+
+    if update:
+        if mx == 0:
+            movie.studio[my].a = not movie.studio[my].a
+        if mx == 1:
+            movie.studio[my].d = not movie.studio[my].d
+        if mx == 2:
+            movie.studio[my].s = not movie.studio[my].s
+        if mx == 3:
+            movie.studio[my].r = not movie.studio[my].r
+        if mx == 4:
+            movie.studio[my].t = not movie.studio[my].t
+
+    pygame.draw.rect(screen, (0, 0, 0), (1200, 0, 200, 600))
+
+    for y in range(600 // mono_font.get_height()):
+        i = y + my - 300 // mono_font.get_height()
+        y = y * mono_font.get_height()
+        try:
+            if i < 0:
+                raise IndexError
+
+            s = movie.studio[i].to_string()
+        except IndexError:
+            s = '-'
+        # s += ' ' + str(i)
+        if i == my:
+            b = (100, 100, 100)
+        else:
+            b = None
+        screen.blit(mono_font.render(s, True, (255, 255, 255), b), (1200, y))
+        if b is not None:
+            screen.blit(mono_font.render(' ' * mx + '_', True, (255, 255, 255)), (1200, y))
+
+    if update:
+        load_savestate(None)
+        return True
+
+    pygame.display.update()
+    return False
+
+
+mx = 0
+my = 0
+
 while True:
 
     if frame_advance:
@@ -496,6 +551,24 @@ while True:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_1:
                 load_savestate(None)
                 break
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_i:
+                if render_studio(0, -1, False):
+                    break
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_k:
+                if render_studio(0, 1, False):
+                    break
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_j:
+                if render_studio(-1, 0, False):
+                    break
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_l:
+                if render_studio(1, 0, False):
+                    break
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_o:
+                if render_studio(0, 0, True):
+                    break
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
                 create_savestate(1)
@@ -558,47 +631,18 @@ while True:
     converter()
     player_class.draw()
 
-    screen.blit(times_new_roman.render(
+    screen.blit(mono_font.render(
         str(frame) + ' ' + str(frame - player_class.last_press) + ' ' + str(player_class.grounded), True,
         (255, 255, 255)), (0, 0))
     # if movie.mode == 'read':
     try:
-        screen.blit(times_new_roman.render(str(movie.inputs[frame].to_string()), True, (255, 255, 255)), (0, 20))
+        screen.blit(mono_font.render(str(movie.inputs[frame].to_string()), True, (255, 255, 255)), (0, 20))
     except:
         pass
     # elif movie.mode == 'write':
         # screen.blit(times_new_roman.render())
 
     timer(False)
-
-    if loading_savestate == 'false':
-        pygame.draw.rect(screen, (0, 0, 0), (1200, 0, 200, 600))
-
-        mi = int((mouse_pos[1] / 600) * 600 // times_new_roman.get_height())
-        for y in range(600 // times_new_roman.get_height()):
-            i = y + frame - 300 // times_new_roman.get_height()
-            y = y * times_new_roman.get_height()
-            try:
-                if i < 0:
-                    raise IndexError
-
-                if mouse_press[0]:
-                    print(mi)
-                    movie.studio[mi].a = keys[pygame.K_a]
-                    movie.studio[mi].d = keys[pygame.K_d]
-                    movie.studio[mi].s = keys[pygame.K_s]
-                    movie.studio[mi].r = keys[pygame.K_r]
-                    movie.studio[mi].t = keys[pygame.K_t]
-
-                s = movie.studio[i].to_string()
-            except IndexError:
-                s = '-'
-            # s += ' ' + str(i)
-            if i == 300 // times_new_roman.get_height():
-                b = (100, 100, 100)
-            else:
-                b = None
-            screen.blit(times_new_roman.render(s, True, (255, 255, 255), b), (1200, y))
 
     if loading_savestate == 'false':
         pygame.display.update()
