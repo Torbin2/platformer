@@ -16,6 +16,7 @@ class TASMovie:
         self.gameversion = 1
         self.filename = "test.ptm"
         self.mode = ""
+        self.studio = []
 
         with open("tasconfig.txt", "r") as f:
             self.mode = f.read()
@@ -193,6 +194,10 @@ class TASMovie:
 
                     self.inputs = inputs
                     self.set_inputs(self.inputs)
+
+                    if slot == 0:
+                        self.studio = self.inputs
+
                     return inputs
                 else:
 

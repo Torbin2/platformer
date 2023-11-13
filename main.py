@@ -3,7 +3,7 @@ from sys import exit
 import tas
 
 pygame.init()
-screen = pygame.display.set_mode((1200, 600))
+screen = pygame.display.set_mode((1400, 600))
 pygame.display.set_caption("platformer")
 clock = pygame.time.Clock()
 
@@ -80,7 +80,7 @@ class player:
         global loading_savestate
         global frame_advance
         global clock_speed
-        keys = pygame.key.get_pressed()
+        global keys
         # current_time = pygame.time.get_ticks()
 
         print("upo", frame)
@@ -461,11 +461,12 @@ def create_savestate(slot):
 
 def load_savestate(slot): # TODO: fix rendering and allowing saving and loading from non-frame advance state
 
-    res = movie.parse_lines_of_savestate(slot)
+    if slot is not None:
+        res = movie.parse_lines_of_savestate(slot)
 
-    if res is None:
-        print("Empty savestate recieved.")
-        return
+        if res is None:
+            print("Empty savestate recieved.")
+            return
 
     global loading_savestate, clock_speed, frame_advance
 
@@ -490,6 +491,10 @@ while True:
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_2:
                 load_savestate(0)
+                break
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_1:
+                load_savestate(None)
                 break
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
@@ -542,6 +547,9 @@ while True:
                 frame_advance = True
 
         events = []
+    keys = pygame.key.get_pressed()
+    mouse_pos = pygame.mouse.get_pos()
+    mouse_press = pygame.mouse.get_pressed(3)
 
     screen.fill("#70a5d7")
 
@@ -563,7 +571,37 @@ while True:
 
     timer(False)
 
-    pygame.display.update()
+    if loading_savestate == 'false':
+        pygame.draw.rect(screen, (0, 0, 0), (1200, 0, 200, 600))
+
+        mi = int((mouse_pos[1] / 600) * 600 // times_new_roman.get_height())
+        for y in range(600 // times_new_roman.get_height()):
+            i = y + frame - 300 // times_new_roman.get_height()
+            y = y * times_new_roman.get_height()
+            try:
+                if i < 0:
+                    raise IndexError
+
+                if mouse_press[0]:
+                    print(mi)
+                    movie.studio[mi].a = keys[pygame.K_a]
+                    movie.studio[mi].d = keys[pygame.K_d]
+                    movie.studio[mi].s = keys[pygame.K_s]
+                    movie.studio[mi].r = keys[pygame.K_r]
+                    movie.studio[mi].t = keys[pygame.K_t]
+
+                s = movie.studio[i].to_string()
+            except IndexError:
+                s = '-'
+            # s += ' ' + str(i)
+            if i == 300 // times_new_roman.get_height():
+                b = (100, 100, 100)
+            else:
+                b = None
+            screen.blit(times_new_roman.render(s, True, (255, 255, 255), b), (1200, y))
+
+    if loading_savestate == 'false':
+        pygame.display.update()
 
     clock.tick(clock_speed)
     physics = True
