@@ -6,7 +6,6 @@ pygame.init()
 screen = pygame.display.set_mode((1200, 600))
 pygame.display.set_caption("platformer")
 clock = pygame.time.Clock()
-current_time = 0
 
 frame = 0
 frame_advance = True
@@ -44,10 +43,9 @@ lava_hitbox_rect = pygame.Rect(-100, 0, 75, 75)
 
 def reinitialize():
 
-    global clock, current_time, frame, gravity_direction, num_list, level, game_on, last_run_time, player_class, events, physics
+    global clock, frame, gravity_direction, num_list, level, game_on, last_run_time, player_class, events, physics
 
     clock = pygame.time.Clock()
-    current_time = 0
 
     frame = 0
 
@@ -81,52 +79,19 @@ class player:
         global physics
         global loading_savestate
         global frame_advance
+        global clock_speed
         keys = pygame.key.get_pressed()
         # current_time = pygame.time.get_ticks()
 
-        print(frame)
-
-        if physics:
-            if movie.mode == "write":
-
-                if loading_savestate == "true":
-
-                    frame_advance = False
-
-                    try:
-                        print("reading: ",
-                              movie.inputs[frame].a,
-                              movie.inputs[frame].d,
-                              movie.inputs[frame].s,
-                              movie.inputs[frame].r,
-                              movie.inputs[frame].t)
-                    except IndexError as e:
-                        print(e.__repr__())
-                        on_finish_savestate_load()
-                        global current_time
-                        current_time -= 1  # the save states wil desynchronise if you do not do this
-                        return
-
-                else:
-                    movie.write_input([keys[pygame.K_a],
-                                       keys[pygame.K_d],
-                                       keys[pygame.K_SPACE],
-                                       keys[pygame.K_r],
-                                       keys[pygame.K_t]])
-            elif movie.mode == "read":
-                print(movie.inputs[frame].a,
-                      movie.inputs[frame].d,
-                      movie.inputs[frame].s,
-                      movie.inputs[frame].r,
-                      movie.inputs[frame].t)
+        print("upo", frame)
 
         if (movie.mode != "read" and loading_savestate != "true" and keys[pygame.K_a]) or (movie.mode == "read" and movie.inputs[frame].a) or (movie.mode == "write" and loading_savestate == "true" and movie.inputs[frame].a):
             self.x_speed -= 1
         if (movie.mode != "read" and loading_savestate != "true" and keys[pygame.K_d]) or (movie.mode == "read" and movie.inputs[frame].d) or (movie.mode == "write" and loading_savestate == "true" and movie.inputs[frame].d):
             self.x_speed += 1
-        if ((movie.mode != "read" and loading_savestate != "true" and keys[pygame.K_SPACE]) or (movie.mode == "read" and movie.inputs[frame].s) or (movie.mode == "write" and loading_savestate == "true" and movie.inputs[frame].s)) and current_time - self.last_press > 12 and self.grounded:
+        if ((movie.mode != "read" and loading_savestate != "true" and keys[pygame.K_SPACE]) or (movie.mode == "read" and movie.inputs[frame].s) or (movie.mode == "write" and loading_savestate == "true" and movie.inputs[frame].s)) and frame - self.last_press > 12 and self.grounded:
             gravity_direction = not gravity_direction
-            self.last_press = current_time
+            self.last_press = frame
             self.grounded = False
         # if keys[pygame.K_SPACE] and current_time - self.last_press > 200:
         #     gravity_direction = not gravity_direction
@@ -141,6 +106,49 @@ class player:
             reset_rects()
             level_picker()
             timer(True)
+
+        if physics:
+
+            if movie.mode == "write":
+
+                if loading_savestate == "true":
+
+                    frame_advance = False
+
+                    if frame >= movie.inputs.__len__() - 1:
+                        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
+                        clock_speed = 60
+                        # player_class.draw()
+                        # pygame.display.update()
+                        frame_advance = True
+                        loading_savestate = "false"
+
+                        frame += 1
+                        return
+                    else:
+
+                        print("crashed?", frame, "leng", len(movie.inputs))
+
+                        print("reading: ",
+                              movie.inputs[frame].a,
+                              movie.inputs[frame].d,
+                              movie.inputs[frame].s,
+                              movie.inputs[frame].r,
+                              movie.inputs[frame].t, "at frame", frame)
+
+                else:
+                    movie.write_input([keys[pygame.K_a],
+                                       keys[pygame.K_d],
+                                       keys[pygame.K_SPACE],
+                                       keys[pygame.K_r],
+                                       keys[pygame.K_t]])
+            elif movie.mode == "read":
+                print(movie.inputs[frame].a,
+                      movie.inputs[frame].d,
+                      movie.inputs[frame].s,
+                      movie.inputs[frame].r,
+                      movie.inputs[frame].t)
 
         frame += 1
 
@@ -199,12 +207,11 @@ class player:
             'direction': gravity_direction,
             'ground': self.grounded,
             'last_press': self.last_press,
-            'time': current_time,
             'frame': frame
         }
 
     def load(self, raw: dict):
-        global gravity_direction, level, current_time, frame
+        global gravity_direction, level, frame
         level = raw['level']
         level_picker()
         self.rect.x = raw['x']
@@ -214,7 +221,6 @@ class player:
         gravity_direction = raw['direction']
         self.grounded = raw['ground']
         self.last_press = raw['last_press']
-        current_time = raw['time']
         frame = raw['frame']
 
 
@@ -342,11 +348,11 @@ def level_picker():
             , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     if level == 3:
         num_list = [0, 1, 9, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-                    0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1,
+                    0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1,
                     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1,
-                    0, 1, 9, 0, 0, 1, 0, 0, 0, 0, 0, 1,
-                    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+                    0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1,
+                    0, 1, 0, 0, 0, 0, 0, 9, 1, 0, 0, 1,
+                    0, 1, 9, 0, 0, 0, 0, 0, 0, 0, 0, 1]
     if level == 4:
         num_list = [0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 9,
                     0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0,
@@ -375,7 +381,6 @@ def level_picker():
             , 0, 1, 2, 0, 0, 0, 0, 0, 2, 9, 2, 0
             , 0, 0, 1, 1, 1, 1, 1, 0, 2, 0, 2, 0
             , 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0]
-
     if level == 8:
         num_list = [0, 1, 1, 1, 1, 2, 1, 2, 2, 2, 2, 2,
                     0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 9,
@@ -401,17 +406,19 @@ def level_picker():
         num_list = [0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 2, 2
             , 0, 0, 0, 2, 2, 0, 1, 1, 2, 0, 2, 2
             , 2, 0, 0, 0, 2, 0, 0, 1, 2, 0, 1, 2
-            , 0, 2, 0, 0, 0, 2, 0, 0, 2, 0, 0, 0
-            , 0, 0, 2, 0, 0, 0, 2, 0, 2, 1, 2, 0
-            , 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 2, 9]
-
+            , 2, 2, 0, 0, 0, 2, 0, 0, 2, 0, 0, 0
+            , 2, 2, 2, 0, 0, 0, 2, 0, 2, 1, 2, 0
+            , 2, 2, 2, 2, 0, 0, 0, 0, 2, 0, 2, 9]
+    if level == 12:
+        pygame.quit()
+        exit()
     if level == 999:
-        num_list = [0, 1, 0, 0, 0, 1, 0, 0, 2, 1, 2, 2
-            , 0, 1, 0, 9, 0, 1, 1, 0, 0, 0, 0, 2
-            , 0, 2, 1, 0, 0, 0, 1, 2, 0, 0, 0, 0
-            , 0, 0, 1, 1, 1, 2, 0, 1, 0, 0, 1, 0
-            , 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0
-            , 2, 0, 0, 2, 2, 2, 0, 2, 2, 0, 0, 0]
+        num_list = [0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0
+            , 0, 0, 0, 2, 1, 2, 1, 2, 0, 2, 1, 0
+            , 2, 2, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0
+            , 9, 1, 2, 1, 2, 1, 2, 1, 2, 0, 0, 0
+            , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            , 1, 0, 1, 2, 1, 2, 1, 1, 2, 1, 1, 2]
 
 
 def reset_rects():
@@ -421,12 +428,14 @@ def reset_rects():
     global lava_rect
     global lava_hitbox_rect
     global player_class
+    global gravity_direction
     ground_rect = pygame.Rect(-100, 0, 100, 100)
     sky_rect = pygame.Rect(-100, 0, 100, 100)
     end_rect = pygame.Rect(-100, 0, 100, 100)
     lava_rect = pygame.Rect(-100, 0, 100, 100)
     lava_hitbox_rect = pygame.Rect(-100, 0, 75, 75)
     player_class.rect.topleft = (50, 0)
+    gravity_direction = False
 
 
 def timer(reset):
@@ -458,22 +467,14 @@ def load_savestate(slot): # TODO: fix rendering and allowing saving and loading 
         print("Empty savestate recieved.")
         return
 
-    reinitialize()
+    global loading_savestate, clock_speed, frame_advance
 
-    global loading_savestate, clock_speed
+    clock_speed = 0
+    reinitialize()
+    # frame_advance = True
 
     loading_savestate = "true"
-    clock_speed = 0
 
-
-def on_finish_savestate_load():
-    global clock_speed, loading_savestate, frame_advance
-
-    clock_speed = 60
-    player_class.draw()
-    pygame.display.update()
-    frame_advance = True
-    loading_savestate = "false"
 
 while True:
 
@@ -498,17 +499,17 @@ while True:
                 load_savestate(1)
                 break
 
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_y:
                 create_savestate(2)
 
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_4:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_6:
                 load_savestate(2)
                 break
 
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_t:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_u:
                 create_savestate(3)
 
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_5:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_7:
                 load_savestate(3)
                 break
 
@@ -547,19 +548,23 @@ while True:
     # level_picker()
     player_class.update()
     converter()
+    player_class.draw()
 
-    if loading_savestate != "true":
+    screen.blit(times_new_roman.render(
+        str(frame) + ' ' + str(frame - player_class.last_press) + ' ' + str(player_class.grounded), True,
+        (255, 255, 255)), (0, 0))
+    # if movie.mode == 'read':
+    try:
+        screen.blit(times_new_roman.render(str(movie.inputs[frame].to_string()), True, (255, 255, 255)), (0, 20))
+    except:
+        pass
+    # elif movie.mode == 'write':
+        # screen.blit(times_new_roman.render())
 
-        player_class.draw()
+    timer(False)
 
-        screen.blit(times_new_roman.render(str(frame) + ' ' + str(current_time - player_class.last_press) + ' ' + str(player_class.grounded), True, (255, 255, 255)), (0, 0))
-        if movie.mode == 'read':
-            screen.blit(times_new_roman.render(str(movie.inputs[frame].to_string()), True, (255, 255, 255)), (0, 20))
-
-        timer(False)
-
-        pygame.display.update()
+    pygame.display.update()
 
     clock.tick(clock_speed)
     physics = True
-    current_time += 1
+    print(frame_advance)

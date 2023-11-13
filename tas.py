@@ -53,24 +53,13 @@ class TASMovie:
 
     def set_inputs(self, inputs):
 
-        with open(self.filename, 'r+') as f:
-
-            lines = f.readlines()
-
-            res = []
-
-            for i in range(len(lines)):
-
-                line = lines[i]
-
-                if i < 3:
-                    res.append(line)
-                else:
-                    break
+        with open(self.filename, 'w+') as f:
 
             f.seek(0)
             f.truncate()
-            f.writelines(res)
+            f.write("!ptm\n")
+            f.write("!gameversion 1\n")
+            f.write("!input-start\n")
 
             for i in range(len(inputs)):
 
@@ -78,6 +67,7 @@ class TASMovie:
 
                 f.write(f"{input.to_string()}\n")
 
+            # f.write("!input-end")
             f.close()
 
 
