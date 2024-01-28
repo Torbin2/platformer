@@ -23,6 +23,14 @@ class TASMovie:
 
         self.inputs = []
 
+    def get_inputs(self, frame: int):
+
+        try:
+            return self.inputs[frame]
+        except:
+            return TASMovie.Input([False, False, False, False, False])
+
+
     def write_header(self):
 
         if self.filename in os.listdir("."):
@@ -229,8 +237,6 @@ class TASMovie:
     class Input:
 
         def __init__(self, inputs: [bool, bool, bool, bool, bool]):
-
-            print("inputs", inputs)
 
             self.a = inputs[0]
             self.d = inputs[1]
