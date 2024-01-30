@@ -195,6 +195,9 @@ def colision_side_check(rect):
     abs_delta_x = abs(delta_x)
     abs_delta_y = abs(delta_y)
 
+    pygame.draw.line(screen, (255, 0, 0), rect.bottomleft, rect.topright, 25 // 2)
+    pygame.draw.rect(screen, (255, 0, 0), rect, 1)
+
     if abs(abs_delta_x - abs_delta_y) < 25:
         return
 
