@@ -13,6 +13,14 @@ level = 1
 game_on = True
 last_run_time = 0
 buttoning = False
+test_level = 999+1
+test_level_list = [0,1,2,2,2,2,2,2,2,2,2,2
+,0,1,2,2,2,2,2,2,2,2,2,2
+,0,1,2,1,2,1,2,1,2,1,2,9
+,0,0,0,0,0,0,0,0,0,0,0,0
+,0,2,0,2,0,2,0,2,0,2,0,2
+,2,1,1,1,1,1,1,1,1,1,1,1]
+
 
 font = pygame.font.Font(("font/Pixeltype.ttf"), 50)
 
@@ -55,9 +63,10 @@ class player:
             self.last_press = current_time
             self.grounded = False
         if keys[pygame.K_t]:
-            level = 999
+            level = test_level
             reset_rects()
             level_picker( )
+            timer(True)
         if keys[pygame.K_r]:
             level = 1
             reset_rects()
@@ -322,12 +331,14 @@ def level_picker():
         pygame.quit()
         exit()
     if level == 999:
-        num_list = [0,1,0,2,2,0,0,1,2,2,2,2,
-            0,2,0,2,2,0,0,2,2,2,2,2,
-            0,0,0,1,2,0,0,0,0,0,0,9,               
-            0,0,0,1,2,0,0,0,0,0,0,9,
-            0,2,0,2,2,0,0,0,0,0,0,2,
-            0,1,0,0,0,0,0,2,2,2,2,2]
+        num_list = test_level_list
+    if level == 1000:
+        num_list = [0,1,0,0,0,1,0,0,2,1,2,2
+,0,1,0,9,0,1,1,0,0,0,0,2
+,0,2,1,0,0,0,1,2,0,0,0,0
+,0,0,1,1,1,2,0,1,0,0,1,0
+,0,0,0,0,0,0,0,1,0,0,0,0
+,2,0,0,2,2,2,0,2,2,0,0,0]
 def reset_rects():
     global ground_rect
     global sky_rect
