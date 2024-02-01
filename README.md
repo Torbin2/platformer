@@ -3,4 +3,4 @@
 and `space` to switch gravity\
 `r` to restart and `t` for a test level
 
-V1.0
+V1.0.1
