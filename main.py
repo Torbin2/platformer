@@ -1,4 +1,4 @@
-#V1.0.3
+#V1.1.0
 
 import pygame
 from sys import exit
@@ -15,13 +15,13 @@ level = 1
 game_on = True
 last_run_time = 0
 buttoning = False
-test_level = 17
-test_level_list = [0,1,2,2,2,2,2,2,2,2,2,2
-,0,1,2,2,2,2,2,2,2,2,2,2
-,0,1,2,1,2,1,2,1,2,1,2,9
-,0,0,0,0,0,0,0,0,0,0,0,0
-,0,2,0,2,0,2,0,2,0,2,0,2
-,2,1,1,1,1,1,1,1,1,1,1,1]
+test_level = 999
+test_level_list =  [0,0,0,0,0,1,1,1,0,0,0,0,
+                    0,0,0,0,0,1,1,1,0,0,0,0,
+                    0,0,0,0,0,1,1,1,0,0,0,0,
+                    0,0,0,0,0,1,1,1,0,0,0,0,
+                    2,2,2,1,1,1,1,1,0,0,0,0,
+                    2,9,9,1,1,1,1,1,0,0,0,9,]
 
 
 font = pygame.font.Font(("font/Pixeltype.ttf"), 50)
@@ -30,7 +30,7 @@ ground_rect = pygame.Rect(-100,0,100,100)
 sky_rect = pygame.Rect(-100,0,100,100)
 end_rect = pygame.Rect(-100,0,100,100)
 lava_rect = pygame.Rect(-100,0,100,100)
-lava_hitbox_rect = pygame.Rect(-100,0,75,75)
+lava_hitbox_rect = pygame.Rect(-100,0,50,50)
 button_rect = pygame.Rect(0,0,0,0)
 
 
@@ -60,7 +60,7 @@ class player:
         #    gravity_direction = not gravity_direction
         #    self.last_press = current_time
         #    self.grounded = False
-        if keys[pygame.K_SPACE] and current_time - self.last_press > 200:
+        if keys[pygame.K_SPACE] and current_time - self.last_press > 150:
             gravity_direction = not gravity_direction
             self.last_press = current_time
             self.grounded = False
@@ -74,6 +74,9 @@ class player:
             reset_rects()
             level_picker()
             timer(True)
+        if keys[pygame.K_p]:
+            player_class.rect.topleft = (175,0)
+            player_class.gravity = False
             
     def movement(self):
         global gravity_direction
@@ -192,16 +195,20 @@ def converter():
         if rect == lava_rect:
             pygame.draw.rect(screen, ("#bea925"), rect)
             lava_hitbox_rect.center = rect.center
+            pygame.draw.rect(screen, ("#000000"), lava_hitbox_rect)
             if lava_hitbox_rect.colliderect(player_class.rect):
                 player_class.rect.topleft = 0,0
                 player_class.gravity = 0
                 level_picker()
+                reset_rects()
+                
+                print(f"death at {timer(False)}")
                 #level = 1  
                 #i = rect.x // 100 % 12 + rect.y // 100 * 12
                 #reset_rects()
                 #level_picker()
                 #timer(True)
-                #print("death")
+                
                 #if i >= len(num_list):
                 #     i = len(num_list) - 1
                 #if i < 0:
@@ -306,8 +313,7 @@ def level_picker():
                     0,0,0,0,0,0,0,0,0,0,9,2,               
                     0,0,0,0,0,0,0,0,0,0,9,2,
                     1,0,0,0,0,0,0,0,0,0,9,2,
-                    2,2,2,2,2,2,2,2,2,2,9,2]
-        
+                    2,2,2,2,2,2,2,2,2,2,9,2]     
     if level == 15:
         num_list = [0,1,2,1,0,0,0,0,0,1,1,1
            ,0,1,2,0,0,2,1,1,0,0,0,0
@@ -355,12 +361,13 @@ def reset_rects():
     sky_rect = pygame.Rect(-100,0,100,100)
     end_rect = pygame.Rect(-100,0,100,100)
     lava_rect = pygame.Rect(-100,0,100,100)
-    lava_hitbox_rect = pygame.Rect(-100,0,75,75)
+    lava_hitbox_rect.center = (-100,0)
     button_rect.center =  (-100,-100)
     gravity_direction = False
     player_class.rect.topleft = (50,0)
     buttoning = False
     player_class.gravity = 0
+    player_class.x_speed = 0
 def timer(reset):
     global last_run_time
     current_time = pygame.time.get_ticks()
@@ -375,9 +382,11 @@ def button():
     global button_rect
     global num_list
     global buttoning
-    if level == 1:
-        if buttoning == False:
-            button_rect = pygame.Rect(0,580,100,20)
+    if buttoning == False:
+        if level == 1:          
+                button_rect = pygame.Rect(0,580,100,20)
+        if level == 999:
+            button_rect = pygame.Rect(480,200,20,200)
     pygame.draw.rect(screen,("red"),button_rect)
     if button_rect.colliderect(player_class.rect):
         if level == 1:
@@ -386,9 +395,16 @@ def button():
                         2,2,2,2,2,2,2,1,1,9,9,2,               
                         2,2,2,2,2,2,2,1,1,1,1,2,
                         2,2,2,2,2,2,2,1,1,1,1,2,
-                        0,2,2,2,2,2,2,2,1,2,1,2] 
-            button_rect = pygame.Rect(0,0,0,0)
-            buttoning = True  
+                        0,2,2,2,2,2,2,2,1,2,1,2]
+        if level == 999:
+            num_list = [0,0,0,0,0,0,0,0,0,0,0,0,
+                        0,0,0,0,0,0,1,1,2,2,2,0,
+                        0,0,0,0,0,1,1,2,2,1,1,0,
+                        0,0,0,0,0,1,1,2,2,2,2,0,
+                        2,2,2,1,1,1,1,2,2,2,2,0,
+                        2,9,9,1,1,1,1,1,2,1,2,9,]
+        button_rect = pygame.Rect(0,0,0,0)
+        buttoning = True  
 reset_rects()
 level_picker()
 while True:
