@@ -10,23 +10,8 @@ current_time = pygame.time.get_ticks()
 
 # ====================================================
 
-frame = 0
-frame_advance = True
-frame_saves = []
-
-loading_savestate = "false"
-
-clock_speed = 60
-
-movie = tas.TASMovie()  # TODO: go back in file
-
-if movie.mode == "write":
-    movie.write_header()
-elif movie.mode == "read":
-    frame_advance = False
-    movie.read_inputs()
-
-physics = True
+t = tas.TASHandler()
+t.init_movie()
 
 # ====================================================
 
@@ -53,11 +38,11 @@ button_rect = pygame.Rect(0,0,0,0)
 
 def reinitialize():
 
-    global clock, frame, gravity_direction, num_list, level, game_on, last_run_time, player_class, events, physics
+    global clock, gravity_direction, num_list, level, game_on, last_run_time, player_class, events
 
     clock = pygame.time.Clock()
 
-    frame = 0
+    t.frame = 0
 
     gravity_direction = True
     num_list = []
@@ -69,7 +54,7 @@ def reinitialize():
     reset_rects()
     level_picker()
     events = []
-    physics = True
+    t.physics = True
 
 # ====================================================
 
@@ -87,31 +72,26 @@ class player:
     def input(self):
         global gravity_direction
         global level
-        global frame
-        global physics
-        global loading_savestate
-        global frame_advance
-        global clock_speed
         # global keys
         keys = pygame.key.get_pressed()
-        current_time = frame
-        if (movie.mode != "read" and loading_savestate != "true" and keys[pygame.K_a]) or (movie.mode == "read" and movie.get_inputs(frame).a) or (movie.mode == "write" and loading_savestate == "true" and movie.get_inputs(frame).a):
+
+        if t.pressed(keys[pygame.K_a], "a"):
             self.x_speed -=1
-        if (movie.mode != "read" and loading_savestate != "true" and keys[pygame.K_d]) or (movie.mode == "read" and movie.get_inputs(frame).d) or (movie.mode == "write" and loading_savestate == "true" and movie.get_inputs(frame).d):
+        if t.pressed(keys[pygame.K_d], "d"):
             self.x_speed +=1
         # if keys[pygame.K_SPACE] and current_time - self.last_press > 200 and self.grounded:
         #    gravity_direction = not gravity_direction
         #    self.last_press = current_time
         #    self.grounded = False
-        if ((movie.mode != "read" and loading_savestate != "true" and keys[pygame.K_SPACE]) or (movie.mode == "read" and movie.get_inputs(frame).s) or (movie.mode == "write" and loading_savestate == "true" and movie.get_inputs(frame).s)) and current_time - self.last_press > 12:
+        if (t.pressed(keys[pygame.K_SPACE], "s")) and t.frame - self.last_press > 12:
             gravity_direction = not gravity_direction
-            self.last_press = frame
+            self.last_press = t.frame
             self.grounded = False
-        if (movie.mode != "read" and loading_savestate != "true" and keys[pygame.K_t]) or (movie.mode == "read" and movie.get_inputs(frame).t) or (movie.mode == "write" and loading_savestate == "true" and movie.get_inputs(frame).t):
+        if t.pressed(keys[pygame.K_t], "t"):
             level = 999
             reset_rects()
             level_picker( )
-        if (movie.mode != "read" and loading_savestate != "true" and keys[pygame.K_r]) or (movie.mode == "read" and movie.get_inputs(frame).r) or (movie.mode == "write" and loading_savestate == "true" and movie.get_inputs(frame).r):
+        if t.pressed(keys[pygame.K_t], "r"):
             level = 1
             reset_rects()
             level_picker()
@@ -119,33 +99,7 @@ class player:
 
         # ====================================================
 
-        if physics:
-
-            if movie.mode == "write":
-
-                if loading_savestate == "true":
-
-                    frame_advance = False
-
-                    if frame >= movie.inputs.__len__() - 1:
-
-                        clock_speed = 60
-                        frame_advance = True
-                        loading_savestate = "false"
-                        frame += 1
-
-                        return
-
-                else:
-                    movie.write_input([keys[pygame.K_a],
-                                       keys[pygame.K_d],
-                                       keys[pygame.K_SPACE],
-                                       keys[pygame.K_r],
-                                       keys[pygame.K_t]])
-            elif movie.mode == "read":
-                pass
-
-        frame += 1
+        t.handle_input(keys)
 
         # ====================================================
 
@@ -471,67 +425,43 @@ level_picker()
 
 events = []
 
-def create_savestate(slot):
-    movie.write_savestate(slot)
-    print(f"Created savestate at slot {slot}")
-
-def load_savestate(slot): # TODO: fix rendering and allowing saving and loading from non-frame advance state
-
-    if slot is not None:
-        res = movie.parse_lines_of_savestate(slot)
-
-        if res is None:
-            print("Empty savestate recieved.")
-            return
-
-    global loading_savestate, clock_speed, frame_advance
-
-    clock_speed = 0
-    reinitialize()
-    # frame_advance = True
-
-    loading_savestate = "true"
+# def create_savestate(slot):
+#     movie.write_savestate(slot)
+#     print(f"Created savestate at slot {slot}")
+#
+# def load_savestate(slot): # TODO: fix rendering and allowing saving and loading from non-frame advance state
+#
+#     if slot is not None:
+#         res = movie.parse_lines_of_savestate(slot)
+#
+#         if res is None:
+#             print("Empty savestate recieved.")
+#             return
+#
+#     global loading_savestate, clock_speed, frame_advance
+#
+#     clock_speed = 0
+#     reinitialize()
+#     # frame_advance = True
+#
+#     loading_savestate = "true"
 
 # ====================================================
 
 while 1:
-    if frame_advance:
+
+    if t.frame_advance:
         event = pygame.event.wait()
         while not (event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT):
             if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
-                frame_advance = False
+                t.frame_advance = False
                 break
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_w:
-                create_savestate(0)
+                t.create_savestate(0)
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_2:
-                load_savestate(0)
-                break
-
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_1:
-                load_savestate(None)
-                break
-
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
-                create_savestate(1)
-
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_3:
-                load_savestate(1)
-                break
-
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_y:
-                create_savestate(2)
-
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_6:
-                load_savestate(2)
-                break
-
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_u:
-                create_savestate(3)
-
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_7:
-                load_savestate(3)
+                t.load_savestate(0, reinitialize)
                 break
 
             events.append(event)
@@ -540,16 +470,16 @@ while 1:
 
             event = pygame.event.wait()
 
-    if physics:
+    if t.physics:
         for event in events + pygame.event.get():
 
             if event.type == pygame.QUIT:
-                if movie.mode == "write":
-                    movie.write_end()
+                if t.mode == "write":
+                    t.finish_movie()
                 pygame.quit()
                 exit()
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
-                frame_advance = True
+                t.frame_advance = True
 
         events = []
     screen.fill(("#70a5d7"))
@@ -561,9 +491,10 @@ while 1:
     player_class.draw()
     timer(False)
 
-    if loading_savestate != "true":
+    if t.loading_savestate != "true":
         pygame.display.update()
-    clock.tick(clock_speed)
+
+    clock.tick(t.clock_speed)
     physics = True
 
-    print(frame)
+    # print(frame)

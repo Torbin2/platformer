@@ -6,20 +6,103 @@
 # !input-start
 # (here goes the inputs, e.g. "A.S..", ".DS..", ".....", "AD..T", "ADSRT")
 # !input-end
-import json
+
+import pygame
 import os
+from enum import Enum, auto
+
+class MovieMode(Enum):
+    WRITE = auto()
+    READ = auto()
+
+class TASHandler:
+
+    def __init__(self):
+
+        self.movie = TASMovie()
+        self.mode = "write"
+        self.frame = 0
+        self.frame_advance = False
+        self.loading_savestate = False
+        self.default_clock_speed = 60
+        self.clock_speed = self.default_clock_speed
+        self.physics = True
+
+        with open("tasconfig.txt", "r") as f:
+            self.mode = f.read()
+
+    def init_movie(self):
+        if self.mode == "write":
+            self.movie.write_header()
+        elif self.mode == "read":
+            self.frame_advance = False
+            self.movie.read_inputs()
+
+    def finish_movie(self):
+        if self.mode == "write":
+            self.movie.write_end()
+
+    def pressed(self, normal_pressed: bool, key: str):
+        # print(f'key: {key}, normal_pressed: {normal_pressed}, p: {(self.mode != "read" and not self.loading_savestate and normal_pressed) or (self.mode == "read" and eval(f"self.movie.get_inputs(self.frame).{key}")) or (self.mode == "write" and self.loading_savestate and eval(f"self.movie.get_inputs(self.frame).{key}"))}')
+        return (self.mode != "read" and not self.loading_savestate and normal_pressed) or (self.mode == "read" and eval(f"self.movie.get_inputs(self.frame).{key}")) or (self.mode == "write" and self.loading_savestate and eval(f"self.movie.get_inputs(self.frame).{key}"))
+
+
+
+
+    def handle_input(self, keys):
+
+        if self.physics:
+
+            if self.mode == "write":
+
+                if self.loading_savestate:
+
+                    self.frame_advance = False
+
+                    if self.frame >= self.movie.inputs.__len__() - 1:
+                        self.clock_speed = self.default_clock_speed
+                        self.frame_advance = True
+                        self.loading_savestate = False
+                        self.frame += 1
+                        return
+
+                else:
+                    self.movie.write_input([keys[pygame.K_a],
+                                       keys[pygame.K_d],
+                                       keys[pygame.K_SPACE],
+                                       keys[pygame.K_r],
+                                       keys[pygame.K_t]])
+
+            elif self.mode == "read":
+                pass
+
+        self.frame += 1
+
+    def create_savestate(self, slot: int):
+        self.movie.write_savestate(slot)
+        print(f"Created savestate at slot {slot}")
+
+    def load_savestate(self, slot: int, reinit_func):
+
+        if slot is not None:
+            res = self.movie.parse_lines_of_savestate(slot)
+
+            if res is None:
+                print("Empty savestate received, ignoring...")
+                return
+
+        self.clock_speed = 0
+        reinit_func()
+
+        self.loading_savestate = True
 
 
 class TASMovie:
 
     def __init__(self):
-        self.gameversion = 1
+        self.gameversion = 102
         self.filename = "test.ptm"
-        self.mode = ""
-        self.studio = []
-
-        with open("tasconfig.txt", "r") as f:
-            self.mode = f.read()
+        # self.studio = []
 
         self.inputs = []
 
@@ -203,8 +286,8 @@ class TASMovie:
                     self.inputs = inputs
                     self.set_inputs(self.inputs)
 
-                    if slot == 0:
-                        self.studio = self.inputs
+                    # if slot == 0:
+                    #     self.studio = self.inputs
 
                     return inputs
                 else:
