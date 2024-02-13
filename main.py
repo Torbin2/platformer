@@ -1,4 +1,6 @@
-#V1.1.0
+#V1.2.0
+
+show_hitboxes = True
 
 import pygame
 from sys import exit
@@ -21,7 +23,7 @@ test_level_list =  [0,0,0,0,0,1,1,1,0,0,0,0,
                     0,0,0,0,0,1,1,1,0,0,0,0,
                     0,0,0,0,0,1,1,1,0,0,0,0,
                     2,2,2,1,1,1,1,1,0,0,0,0,
-                    2,9,9,1,1,1,1,1,0,0,0,9,]
+                    2,2,2,1,1,1,1,1,0,0,0,9,]
 
 
 font = pygame.font.Font(("font/Pixeltype.ttf"), 50)
@@ -53,9 +55,9 @@ class player:
         keys = pygame.key.get_pressed()        
         current_time = pygame.time.get_ticks()
         if keys[pygame.K_a]:
-            self.x_speed -=1
+            self.x_speed = max( -100, self.x_speed -10)
         if keys[pygame.K_d]:
-            self.x_speed +=1
+            self.x_speed = min(100,self.x_speed +10)
         # if keys[pygame.K_SPACE] and current_time - self.last_press > 200 and self.grounded:
         #    gravity_direction = not gravity_direction
         #    self.last_press = current_time
@@ -75,8 +77,7 @@ class player:
             level_picker()
             timer(True)
         if keys[pygame.K_p]:
-            player_class.rect.topleft = (175,0)
-            player_class.gravity = False
+            print(self.x_speed)
             
     def movement(self):
         global gravity_direction
@@ -195,7 +196,8 @@ def converter():
         if rect == lava_rect:
             pygame.draw.rect(screen, ("#bea925"), rect)
             lava_hitbox_rect.center = rect.center
-            pygame.draw.rect(screen, ("#000000"), lava_hitbox_rect)
+            if show_hitboxes:
+                pygame.draw.rect(screen, ("#000000"), lava_hitbox_rect)
             if lava_hitbox_rect.colliderect(player_class.rect):
                 player_class.rect.topleft = 0,0
                 player_class.gravity = 0
@@ -224,23 +226,23 @@ def level_picker():
                     0,0,0,0,0,0,0,0,0,0,0,0,
                     0,0,0,0,0,0,0,0,0,0,0,0]
     if level == 2:
-        num_list = [0,1,1,0,0,0,0,0,0,0,0,9
-            ,0,0,1,0,0,0,0,1,1,1,1,1
-           ,0,0,1,1,1,1,0,0,0,0,0,0               
-           ,0,0,1,0,0,0,0,0,0,0,0,0
-            ,0,0,1,0,0,0,1,1,1,0,0,0
-           ,0,0,0,0,0,0,0,0,0,0,0,0]
+        num_list = [0,0,1,0,0,0,0,0,0,0,0,9
+                    ,0,0,1,0,0,0,0,0,1,1,1,1
+                    ,0,0,1,1,1,0,0,0,0,0,0,0               
+                    ,0,0,1,0,0,0,0,0,0,0,0,0
+                    ,1,0,0,0,0,0,1,1,1,0,0,0
+                    ,1,1,0,0,0,0,0,0,0,0,0,0]
     if level == 3:
-        num_list = [0,1,9,0,0,0,0,0,0,0,0,1,
-                    0,1,1,1,1,1,1,1,0,0,1,1,
+        num_list = [0,1,9,9,0,0,0,0,0,0,0,1,
+                    0,0,1,1,1,1,1,1,0,0,1,1,
                     0,0,0,0,0,0,0,0,0,0,0,0,               
-                    0,0,1,1,1,1,1,1,1,0,1,1,
+                    0,1,1,1,1,1,1,1,1,0,1,1,
                     0,1,0,0,0,0,0,9,1,0,0,1,
                     0,1,9,0,0,0,0,0,0,0,0,1]
     if level == 4:
         num_list = [0,0,0,1,1,0,0,0,0,1,0,9,
-                    0,1,0,0,1,0,1,0,0,1,0,0,
-                    0,0,1,0,0,0,1,0,0,0,1,0,               
+                    0,1,0,0,0,0,1,0,0,1,0,0,
+                    0,0,1,1,0,0,1,0,0,0,1,0,               
                     0,0,0,1,1,0,1,1,0,1,1,0,
                     1,0,0,0,0,0,0,1,0,0,1,0,
                     9,1,0,1,1,1,0,0,0,0,0,0] 
@@ -250,7 +252,7 @@ def level_picker():
                     1,1,1,1,0,0,1,0,0,0,0,0,               
                     1,1,2,0,0,0,1,0,0,1,1,1,
                     9,0,0,0,0,0,0,0,0,0,1,1,
-                    1,2,1,1,0,0,0,0,0,0,0,1]
+                    1,2,1,1,1,0,0,0,0,0,0,1]
     if level == 6:
         num_list = [0,1,1,2,2,0,0,0,0,0,0,9,
                     0,1,1,1,2,0,0,0,1,2,1,1,
@@ -367,7 +369,6 @@ def reset_rects():
     player_class.rect.topleft = (50,0)
     buttoning = False
     player_class.gravity = 0
-    player_class.x_speed = 0
 def timer(reset):
     global last_run_time
     current_time = pygame.time.get_ticks()
