@@ -1,4 +1,4 @@
-#V1.2.0
+#V1.2.1
 
 show_hitboxes = True
 
@@ -17,7 +17,7 @@ level = 0
 game_on = True
 last_run_time = 0
 buttoning = False
-test_level = 16
+test_level = 1000
 test_level_list =  [0,0,0,0,0,1,1,1,0,0,0,0,
                     0,0,0,0,0,1,1,1,0,0,0,0,
                     0,0,0,0,0,1,1,1,0,0,0,0,
@@ -49,7 +49,7 @@ class player:
         self.gravity = 0
         self.last_press = 0
         self.grounded = False
-        self.hat_rect = pygame.Rect(0,0,50,35)
+        self.rock_rect = pygame.Rect(0,0,50,35)
 
     def input(self):
         global gravity_direction
@@ -91,6 +91,18 @@ class player:
         if gravity_direction: self.gravity+= 1
         else: self.gravity-=1
         self.rect.y += self.gravity
+    
+    def rock(self):
+        self.rock_rect.centery += self.gravity / 2
+
+        if self.rock_rect.top <= self.rect.top:
+            self.rock_rect.top = self.rect.top
+        elif self.rock_rect.bottom >= self.rect.bottom:
+            self.rock_rect.bottom = self.rect.bottom
+        if self.rock_rect.left <= self.rect.left-5:
+            self.rock_rect.left = self.rect.left-4
+        if self.rock_rect.right >= self.rect.right+5:
+            self.rock_rect.right = self.rect.right+4
 
     def screen_side_check(self):
         #side of the screen colisions
@@ -114,11 +126,10 @@ class player:
         self.input()
         self.movement()
         self.screen_side_check()
+        self.rock()
     def draw(self):
         pygame.draw.rect(screen, ('#18232d'), self.rect)
-        if gravity_direction: self.hat_rect.midtop = self.rect.midtop
-        else: self.hat_rect.midbottom = self.rect.midbottom
-        pygame.draw.rect(screen,('#747b81'), self.hat_rect)
+        pygame.draw.rect(screen,('#747b81'), self.rock_rect)
 player_class = player()
 def colision_side_check(rect):
     delta_x = rect.centerx - player_class.rect.centerx
@@ -348,12 +359,12 @@ def level_picker():
     elif level == 999:
         num_list = test_level_list
     elif level >= 1000:
-        num_list = [0,0,0,0,0,0,0,0,0,0,0,9
-                    ,0,1,0,9,0,1,1,0,0,0,0,2
-                    ,0,2,1,0,0,0,1,2,0,0,0,0
-                    ,0,0,1,1,1,2,0,1,0,0,1,0
-                    ,0,0,0,0,0,0,0,1,0,0,0,0
-                    ,2,0,0,2,2,2,0,2,2,0,0,0]
+        num_list = [0,1,0,0,0,0,1,0,0,0,1,0,
+                    0,1,0,0,1,0,1,0,1,0,1,0,
+                    0,1,0,0,1,0,1,0,1,0,1,0,               
+                    0,1,0,0,1,0,1,0,1,0,1,0,
+                    0,1,0,0,1,0,1,0,1,0,1,0,
+                    0,0,0,0,1,0,0,0,1,0,0,0]
     else:
         num_list = levels[level]  
     
