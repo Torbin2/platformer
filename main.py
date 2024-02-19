@@ -1,9 +1,9 @@
-#V1.2.1
+#V1.3
 
 show_hitboxes = True
 
 import pygame
-from sys import exit
+from Levels import level_picker
 
 pygame.init()
 screen = pygame.display.set_mode((1200,600))
@@ -16,8 +16,8 @@ num_list = []
 level = 0
 game_on = True
 last_run_time = 0
-buttoning = False
-test_level = 1000
+
+test_level = 17
 test_level_list =  [0,0,0,0,0,1,1,1,0,0,0,0,
                     0,0,0,0,0,1,1,1,0,0,0,0,
                     0,0,0,0,0,1,1,1,0,0,0,0,
@@ -32,9 +32,13 @@ ground_rect = pygame.Rect(-100,0,100,100)
 sky_rect = pygame.Rect(-100,0,100,100)
 end_rect = pygame.Rect(-100,0,100,100)
 lava_rect = pygame.Rect(-100,0,100,100)
+level_building_rects = [sky_rect,ground_rect,lava_rect,end_rect]
 lava_hitbox_rect = pygame.Rect(-100,0,50,50)
+#button
 button_rect = pygame.Rect(0,0,0,0)
-
+b_long = 80
+b_short = 35
+button_clicks = 0
 
 #colour scheme, #446482, #70a5d7, #18232d
 
@@ -49,7 +53,10 @@ class player:
         self.gravity = 0
         self.last_press = 0
         self.grounded = False
+        self.colour = ('#47602d')
+        #rock
         self.rock_rect = pygame.Rect(0,0,50,35)
+        self.rock_grav = 0
 
     def input(self):
         global gravity_direction
@@ -71,12 +78,10 @@ class player:
         if keys[pygame.K_t]:
             level = test_level
             reset_rects()
-            level_picker( )
             timer(True)
         if keys[pygame.K_r]:
             level = 0
             reset_rects()
-            level_picker()
             timer(True)
         if keys[pygame.K_p]:
             print(self.x_speed)
@@ -93,16 +98,23 @@ class player:
         self.rect.y += self.gravity
     
     def rock(self):
-        self.rock_rect.centery += self.gravity / 2
+        self.rock_rect.y += self.rock_grav
+        self.rock_rect.x += self.x_speed
 
-        if self.rock_rect.top <= self.rect.top:
-            self.rock_rect.top = self.rect.top
-        elif self.rock_rect.bottom >= self.rect.bottom:
-            self.rock_rect.bottom = self.rect.bottom
-        if self.rock_rect.left <= self.rect.left-5:
-            self.rock_rect.left = self.rect.left-4
-        if self.rock_rect.right >= self.rect.right+5:
-            self.rock_rect.right = self.rect.right+4
+        if gravity_direction: self.rock_grav+= 0.5
+        else: self.rock_grav-=0.5
+
+        if self.rock_rect.top <= self.rect.top-10:
+            self.rock_rect.top = self.rect.top-8
+            self.rock_grav = 0
+        elif self.rock_rect.bottom >= self.rect.bottom+10:
+            self.rock_rect.bottom = self.rect.bottom+8
+            self.rock_grav = 0
+        if self.rock_rect.left < self.rect.left-10:
+            self.rock_rect.left = self.rect.left-10
+        if self.rock_rect.right > self.rect.right+10:
+            self.rock_rect.right = self.rect.right+10
+
 
     def screen_side_check(self):
         #side of the screen colisions
@@ -128,7 +140,9 @@ class player:
         self.screen_side_check()
         self.rock()
     def draw(self):
-        pygame.draw.rect(screen, ('#18232d'), self.rect)
+        pygame.draw.rect(screen, self.colour, self.rect)
+        pygame.draw.line(screen,self.colour,self.rect.midright,self.rock_rect.midright,10)
+        pygame.draw.line(screen,self.colour,self.rect.midleft,self.rock_rect.midleft,10)
         pygame.draw.rect(screen,('#747b81'), self.rock_rect)
 player_class = player()
 def colision_side_check(rect):
@@ -172,21 +186,13 @@ def colisions(rect):
         if collision_side == "right":
             player_class.rect.right = rect.left
             player_class.x_speed = 0
-def converter():
+def game_funciton():
     global level
     global gravity_direction
-    rect_list = []
+    global rect_list
     y_pos = 1
-    for number in num_list:
-        if number == 1:
-            rect_list.append(ground_rect)
-        elif number == 0:
-            rect_list.append(sky_rect)
-        elif number == 2:
-            rect_list.append(lava_rect)
-        elif number == 9:
-            rect_list.append(end_rect)
     for pos, rect in enumerate(rect_list):
+        real_pos = pos
         if pos == y_pos * 12:
             y_pos+=1
         pos -= (y_pos*12)-12
@@ -197,16 +203,17 @@ def converter():
         if rect == ground_rect:
             pygame.draw.rect(screen, ("#446482"), rect)
             colisions(rect)
-        if rect == sky_rect:
+        elif rect == sky_rect:
             pygame.draw.rect(screen,("#70a5d7"), rect) 
-        if rect == end_rect:
+        elif rect == end_rect:
             pygame.draw.rect(screen,('#6c25be'), rect)
             if end_rect.colliderect(player_class.rect):
-                print(f"level: {level} time: {timer(False)}")
+                print(f"level: {level - button_clicks} time: {timer(False)}")
                 level+=1
+                button_clicks = 0
                 reset_rects()
-                level_picker()
-        if rect == lava_rect:
+                break
+        elif rect == lava_rect:
             pygame.draw.rect(screen, ("#bea925"), rect)
             lava_hitbox_rect.center = rect.center
             if show_hitboxes:
@@ -214,161 +221,36 @@ def converter():
             if lava_hitbox_rect.colliderect(player_class.rect):
                 player_class.rect.topleft = 0,0
                 player_class.gravity = 0
-                level_picker()
                 reset_rects()
-                
                 print(f"death at {timer(False)}")
-                #level = 1  
-                #i = rect.x // 100 % 12 + rect.y // 100 * 12
-                #reset_rects()
-                #level_picker()
-                #timer(True)
-                
-                #if i >= len(num_list):
-                #     i = len(num_list) - 1
-                #if i < 0:
-                #     i = 0
-                #num_list[i] = 2
-def level_picker():
-    global num_list
-    levels = [      [0,0,0,0,0,9,9,0,0,0,0,0,
-                    0,0,0,0,0,0,0,0,0,0,0,0,
-                    0,0,0,0,0,0,0,0,0,0,0,0,               
-                    0,0,0,0,0,0,0,0,0,0,0,0,
-                    0,0,0,0,0,0,0,0,0,0,0,0,
-                    0,0,0,0,0,0,0,0,0,0,0,0],#0
-                    
-                    [0,0,1,0,0,0,0,0,0,0,0,9
-                    ,0,0,1,0,0,0,0,0,1,1,1,1
-                    ,0,0,1,1,1,0,0,0,0,0,0,0               
-                    ,0,0,1,0,0,0,0,0,0,0,0,0
-                    ,1,0,0,0,0,0,1,1,1,0,0,0
-                    ,1,1,0,0,0,0,0,0,0,0,0,0],#1
-                    
-                    [0,1,9,9,0,0,0,0,0,0,0,1,
-                    0,0,1,1,1,1,1,1,0,0,1,1,
-                    0,0,0,0,0,0,0,0,0,0,0,0,               
-                    0,1,1,1,1,1,1,1,1,0,1,1,
-                    0,1,0,0,0,0,0,9,1,0,0,1,
-                    0,1,9,0,0,0,0,0,0,0,0,1],#2
-                    
-                    
-                    [0,0,0,1,1,0,0,0,0,1,0,9,
-                    0,1,0,0,0,0,1,0,0,1,0,0,
-                    0,0,1,1,0,0,1,0,0,0,1,0,               
-                    0,0,0,1,1,0,1,1,0,1,1,0,
-                    1,0,0,0,0,0,0,1,0,0,1,0,
-                    9,1,0,1,1,1,0,0,0,0,0,0],#4
-                    
-                    [0,0,0,1,1,1,1,1,1,0,0,9,
-                    0,0,0,0,0,1,1,0,0,0,0,0,
-                    1,1,1,1,0,0,1,0,0,0,0,0,               
-                    1,1,2,0,0,0,1,0,0,1,1,1,
-                    9,0,0,0,0,0,0,0,0,0,1,1,
-                    1,2,1,1,1,0,0,0,0,0,0,1],#5
-                    
-                    [0,1,1,2,2,0,0,0,0,0,0,9,
-                    0,1,1,1,2,0,0,0,1,2,1,1,
-                    0,1,0,0,0,0,0,0,0,0,1,1,               
-                    0,1,0,0,1,1,1,2,0,0,1,2,
-                    0,0,0,0,0,1,0,0,0,0,2,2,
-                    0,0,0,0,0,1,9,0,0,1,1,2],#6
-                    
-                    [0,1,0,1,1,1,1,1,1,1,1,9,
-                    0,1,0,0,0,0,0,0,0,0,1,0,
-                    0,1,0,0,1,1,1,1,1,0,1,0,               
-                    0,2,0,1,9,2,2,2,1,0,2,0,
-                    0,0,0,1,0,1,0,0,0,0,0,0,
-                    0,0,0,1,0,0,0,0,0,0,0,1],#7
-                    
-                    [0,1,2,0,0,0,0,0,1,0,0,1,
-                    0,1,2,0,1,1,0,0,0,0,0,1,
-                    0,1,1,0,2,2,1,0,0,1,0,1,               
-                    0,0,0,0,0,2,2,2,1,9,9,9,
-                    0,0,0,0,0,0,0,0,0,1,9,9,    
-                    1,1,2,2,0,0,0,0,0,0,1,1],#8
-                    
-                    [0,1,1,1,1,2,1,2,2,2,2,2,
-                    0,2,0,0,0,2,0,0,0,0,0,9,
-                    0,0,0,1,0,2,0,1,1,0,0,9,               
-                    0,0,0,0,0,0,0,0,2,0,0,9,
-                    1,0,0,0,0,0,0,0,2,0,0,9,
-                    1,1,2,0,0,1,0,0,2,2,2,1,],#9
-                    
-                    [0,0,0,0,0,0,0,2,2,2,2,9,
-                    1,1,2,2,0,0,0,2,2,2,2,0,
-                    0,0,1,2,0,0,0,0,2,1,1,0,               
-                    0,0,0,0,2,2,0,0,2,1,0,0,
-                    0,1,0,0,0,0,0,0,0,0,0,0,
-                    9,1,0,0,0,0,1,1,0,0,0,1],#10
-                    
-                    [0,0,0,0,1,9,0,0,2,1,0,2,
-                    1,1,0,0,1,1,0,0,0,0,0,2,
-                    2,9,2,0,0,0,1,0,0,0,0,2,               
-                    2,0,2,1,0,0,0,1,1,1,0,2,
-                    2,0,2,2,1,0,0,0,0,0,0,2,
-                    0,0,0,0,0,0,2,1,1,1,1,2],#11
-                    
-                    [0,1,0,1,0,1,0,0,0,1,0,9,
-                    0,0,0,1,0,1,0,0,0,1,0,0,
-                    0,0,0,1,0,0,0,1,0,0,0,0,               
-                    0,0,0,0,0,0,0,1,0,0,0,0,
-                    0,0,0,0,0,0,0,1,0,0,0,0,
-                    2,2,2,2,2,2,2,1,2,2,2,2],#12
-                    
-                    [0,0,1,0,0,9,9,0,0,1,0,9,
-                    0,0,1,0,0,0,0,0,1,0,0,0,
-                    0,0,0,1,0,0,0,0,1,0,0,0,               
-                    0,0,0,0,1,1,1,1,0,0,0,0,
-                    0,0,0,0,0,0,0,0,0,0,0,0,
-                    2,2,2,1,0,0,0,0,1,2,2,2],#13
-                    
-                    [0,1,2,2,2,2,2,2,2,2,9,2,
-                    0,0,0,0,0,0,0,0,0,0,9,2,
-                    0,0,0,0,0,0,0,0,0,0,9,2,               
-                    0,0,0,0,0,0,0,0,0,0,9,2,
-                    1,0,0,0,0,0,0,0,0,0,9,2,
-                    2,2,2,2,2,2,2,2,2,2,9,2],#14
-                    
-                    [0,1,2,1,0,0,0,0,0,1,1,1
-                    ,0,1,2,0,0,2,1,1,0,0,0,0
-                    ,0,1,1,0,1,1,0,0,1,2,2,0               
-                    ,0,2,0,0,0,0,0,0,2,9,2,0
-                    ,0,0,1,1,1,1,1,0,2,0,2,0
-                    ,0,0,0,0,0,0,0,0,2,0,0,0],#15
-           
-                    [0,0,2,2,2,0,0,0,0,0,2,2
-                    ,0,0,0,2,2,0,1,1,2,0,2,2
-                    ,0,0,0,0,2,0,0,1,2,0,1,2
-                    ,2,0,0,0,0,1,0,0,2,0,0,0
-                    ,2,2,0,0,0,0,2,0,2,1,2,0
-                    ,2,2,2,0,0,0,0,0,1,2,2,9],#16
-            
-                    [0,2,0,2,2,0,0,2,2,2,2,2,
-                    0,0,0,2,2,0,0,2,2,2,2,2,
-                    0,0,0,1,2,0,0,0,0,0,0,9,               
-                    0,0,0,1,2,0,0,0,0,0,0,9,
-                    0,2,0,2,2,0,0,0,0,0,0,2,
-                    0,1,0,0,0,0,0,0,1,2,2,2],#17
-                    
-                    ]
-
-    if level >= len(levels) and level <= 900:
-        pygame.quit()
-        exit()
-    elif level == 999:
-        num_list = test_level_list
-    elif level >= 1000:
-        num_list = [0,1,0,0,0,0,1,0,0,0,1,0,
-                    0,1,0,0,1,0,1,0,1,0,1,0,
-                    0,1,0,0,1,0,1,0,1,0,1,0,               
-                    0,1,0,0,1,0,1,0,1,0,1,0,
-                    0,1,0,0,1,0,1,0,1,0,1,0,
-                    0,0,0,0,1,0,0,0,1,0,0,0]
+                break
+        
+        #button
+        else:       
+            if rect.width in (3,4,5,6):
+                rect = create_button(rect.width, rect)
+                rect_list[real_pos] = rect
+            pygame.draw.rect(screen,("#824464"),rect)
+            if button_rect.colliderect(player_class.rect):
+                button_clicks +=1
+                reset_rects(True)       
+def create_button(b_type, rect):
+    #button(b_type) directions:
+    #  3
+    #6   4
+    #  5
+    if b_type == 3 or b_type == 5:
+        rect.size = (b_long,b_short)
+        if b_type == 5:
+            rect.top += 100-b_short
+        rect.left += (100-b_long) / 2
     else:
-        num_list = levels[level]  
-    
-def reset_rects():
+        rect.size = (b_short,b_long)
+        if b_type == 4:
+            rect.left += 100-b_short
+        rect.top += (100-b_long) / 2
+    return rect
+def reset_rects(button = False):
     global ground_rect
     global sky_rect
     global end_rect
@@ -377,17 +259,21 @@ def reset_rects():
     global player_class
     global button_rect
     global gravity_direction
-    global buttoning
+    global rect_list
     ground_rect = pygame.Rect(-100,0,100,100)
     sky_rect = pygame.Rect(-100,0,100,100)
     end_rect = pygame.Rect(-100,0,100,100)
     lava_rect = pygame.Rect(-100,0,100,100)
     lava_hitbox_rect.center = (-100,0)
     button_rect.center =  (-100,-100)
-    gravity_direction = False
-    player_class.rect.topleft = (50,0)
-    buttoning = False
-    player_class.gravity = 0
+    button_rect = pygame.Rect(-100,0,100,100)
+    if button == False:
+        gravity_direction = False
+        player_class.rect.topleft = (50,0)
+        player_class.gravity = 0
+        player_class.rock_rect.midtop = player_class.rect.midtop
+
+    rect_list = level_picker(level, button_clicks, level_building_rects, test_level_list)
 def timer(reset):
     global last_run_time
     current_time = pygame.time.get_ticks()
@@ -398,35 +284,8 @@ def timer(reset):
     score_rect = score_display.get_rect(midtop = (600,0))
     screen.blit(score_display,score_rect)
     return run_time
-def button():
-    global button_rect
-    global num_list
-    global buttoning
-    if buttoning == False:
-        if level == 0:          
-                button_rect = pygame.Rect(0,580,100,20)
-        if level == 999:
-            button_rect = pygame.Rect(480,200,20,200)
-    pygame.draw.rect(screen,("red"),button_rect)
-    if button_rect.colliderect(player_class.rect):
-        if level == 0:
-            num_list = [2,2,2,2,2,9,9,2,2,2,2,2,
-                        2,2,2,2,2,2,2,2,1,1,1,2,
-                        2,2,2,2,2,2,2,1,1,9,9,2,               
-                        2,2,2,2,2,2,2,1,1,1,1,2,
-                        2,2,2,2,2,2,2,1,1,1,1,2,
-                        0,2,2,2,2,2,2,2,1,2,1,2]
-        if level == 999:
-            num_list = [0,0,0,0,0,0,0,0,0,0,0,0,
-                        0,0,0,0,0,0,1,1,2,2,2,0,
-                        0,0,0,0,0,1,1,2,2,1,1,0,
-                        0,0,0,0,0,1,1,2,2,2,2,0,
-                        2,2,2,1,1,1,1,2,2,2,2,0,
-                        2,9,9,1,1,1,1,1,2,1,2,9,]
-        button_rect = pygame.Rect(0,0,0,0)
-        buttoning = True  
+
 reset_rects()
-level_picker()
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -434,10 +293,8 @@ while True:
             exit()
     screen.fill(("#70a5d7"))
 
-    # level_picker()
     player_class.update()
-    converter()
-    button()
+    game_funciton()
     player_class.draw()
     timer(False)
 
