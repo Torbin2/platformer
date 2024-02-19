@@ -1,6 +1,12 @@
 from sys import exit
 import pygame
-def level_picker(level, button_clicks, level_building_rects, test_level_list):
+def level_picker(level, button_clicks):
+    test_level_list =  [0,0,0,0,0,1,1,1,0,0,0,0,
+                    0,0,0,0,0,1,1,1,0,0,0,0,
+                    0,0,0,0,0,1,1,1,0,0,0,0,
+                    0,0,0,0,0,1,1,1,0,0,0,0,
+                    2,2,2,1,1,1,1,1,0,0,0,0,
+                    2,2,2,1,1,1,1,1,0,0,0,9,]
     levels = [      [[0,0,0,0,0,9,9,0,0,0,0,0,
                     0,0,0,0,0,0,0,0,0,0,0,0,
                     0,0,0,0,0,0,0,0,0,0,0,0,               
@@ -129,40 +135,40 @@ def level_picker(level, button_clicks, level_building_rects, test_level_list):
                      1,1,1,1,1,1,1,1,1,1,1,9,],#17-1
                     [1,1,1,1,1,1,1,1,1,1,1,1,
                      1,1,1,0,0,4,1,1,1,1,1,1,
-                     1,1,0,0,0,1,1,1,1,1,1,1,
-                     1,0,0,0,1,1,1,1,1,1,1,1,
+                     1,1,1,0,1,1,1,1,1,1,1,1,
+                     1,1,1,0,1,1,1,1,1,1,1,1,
                      1,1,1,1,1,1,1,1,1,1,1,1,
                      1,1,1,1,1,1,1,1,1,1,1,9,],#17-2
                     [1,1,1,1,1,1,1,1,1,1,1,1,
                      1,1,1,0,0,0,1,1,1,1,1,1,
                      1,1,1,1,1,0,1,1,1,1,1,1,
-                     1,1,1,1,0,0,1,1,1,1,1,1,
+                     1,1,1,1,1,0,1,1,1,1,1,1,
                      1,1,1,6,0,0,1,1,1,1,1,1,
                      1,1,1,1,1,1,1,1,1,1,1,9,],#17-3
                     [1,1,1,1,1,1,0,0,0,1,1,1,
                      1,1,1,1,1,0,0,0,0,1,1,1,
-                     1,1,1,1,0,0,0,2,0,0,1,1,
-                     1,1,1,1,0,0,0,2,1,0,1,1,
+                     1,1,1,1,1,0,0,2,0,0,1,1,
+                     1,1,1,1,1,0,0,2,1,0,1,1,
                      1,1,1,0,0,0,2,2,1,5,1,1,
                      1,1,1,1,1,1,2,2,1,1,1,9,],#17-4
                     [1,1,1,1,1,1,1,1,1,3,1,1,
-                     1,1,1,1,1,1,1,1,0,0,1,1,
-                     1,1,1,1,1,1,1,1,0,0,1,1,
                      1,1,1,1,1,1,1,1,1,0,1,1,
                      1,1,1,1,1,1,1,1,1,0,1,1,
-                     1,1,1,1,1,1,2,2,1,1,1,9,],#17-5
+                     1,1,1,1,1,1,1,1,1,0,1,1,
+                     1,1,1,1,1,1,1,1,1,0,1,1,
+                     1,1,1,1,1,1,1,1,1,1,1,9,],#17-5
                     [1,1,1,1,1,1,1,1,1,0,0,0,
                      1,1,1,1,1,1,1,1,1,0,1,0,
                      1,1,1,1,1,1,1,1,1,0,1,0,
                      1,1,1,1,1,1,1,1,1,1,1,5,
                      1,1,1,1,1,1,1,1,1,1,1,1,
-                     1,1,1,1,1,1,2,2,1,1,1,9,],#17-6
+                     1,1,1,1,1,1,1,1,1,1,1,9,],#17-6
                     [1,1,1,1,1,1,1,1,1,0,0,0,
                      1,1,1,1,1,1,1,1,1,0,1,0,
                      1,1,1,1,1,1,1,1,1,0,1,0,
                      1,1,1,1,1,1,1,1,1,1,1,0,
                      1,1,1,1,1,1,1,1,1,1,1,0,
-                     1,1,1,1,1,1,2,2,1,1,1,9,]#17-7
+                     1,1,1,1,1,1,1,1,1,1,1,9,]#17-7
                      ]
                      
                      ]
@@ -181,23 +187,24 @@ def level_picker(level, button_clicks, level_building_rects, test_level_list):
                     0,0,0,0,1,0,0,0,1,0,0,0]
     else:
         num_list = levels[level][button_clicks] 
+    
+    return num_list
          
 
-    rect_list = []
+    # rect_list = []
 
-    for number in num_list:
+    # for number in num_list:
         
-        if number == 0:
-            rect_list.append(level_building_rects[0])
-        elif number == 1:
-            rect_list.append(level_building_rects[1])
-        elif number == 2:
-            rect_list.append(level_building_rects[2])
-        elif number == 9:
-            rect_list.append(level_building_rects[3])
+    #     if number == 0:
+    #         rect_list.append(level_building_rects[0])
+    #     elif number == 1:
+    #         rect_list.append(level_building_rects[1])
+    #     elif number == 2:
+    #         rect_list.append(level_building_rects[2])
+    #     elif number == 9:
+    #         rect_list.append(level_building_rects[3])
 
-        #button, width is used as clasification of direction
-        else:
-            rect_list.append(pygame.Rect(-100,-100,number,0))
-
-    return rect_list
+    #     #button, width is used as clasification of direction
+    #     else:
+    #         rect_list.append(pygame.Rect(-100,-100,number,0))
+    # return rect_list

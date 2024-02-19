@@ -18,12 +18,6 @@ game_on = True
 last_run_time = 0
 
 test_level = 17
-test_level_list =  [0,0,0,0,0,1,1,1,0,0,0,0,
-                    0,0,0,0,0,1,1,1,0,0,0,0,
-                    0,0,0,0,0,1,1,1,0,0,0,0,
-                    0,0,0,0,0,1,1,1,0,0,0,0,
-                    2,2,2,1,1,1,1,1,0,0,0,0,
-                    2,2,2,1,1,1,1,1,0,0,0,9,]
 
 
 font = pygame.font.Font(("font/Pixeltype.ttf"), 50)
@@ -189,31 +183,25 @@ def colisions(rect):
 def game_funciton():
     global level
     global gravity_direction
-    global rect_list
+    global num_list
+    global button_clicks
     y_pos = 1
-    for pos, rect in enumerate(rect_list):
-        real_pos = pos
+    for pos, num in enumerate(num_list):
+        rect = pygame.Rect(0,0,100,100)
         if pos == y_pos * 12:
             y_pos+=1
         pos -= (y_pos*12)-12
 
         rect.top = (y_pos*100) -100
         rect.left = pos  * 100
-        
-        if rect == ground_rect:
-            pygame.draw.rect(screen, ("#446482"), rect)
-            colisions(rect)
-        elif rect == sky_rect:
+        if num == 0:
             pygame.draw.rect(screen,("#70a5d7"), rect) 
-        elif rect == end_rect:
-            pygame.draw.rect(screen,('#6c25be'), rect)
-            if end_rect.colliderect(player_class.rect):
-                print(f"level: {level - button_clicks} time: {timer(False)}")
-                level+=1
-                button_clicks = 0
-                reset_rects()
-                break
-        elif rect == lava_rect:
+        
+        elif num == 1:
+            pygame.draw.rect(screen, ("#446482"), rect)
+            colisions(rect) 
+        
+        elif num == 2:
             pygame.draw.rect(screen, ("#bea925"), rect)
             lava_hitbox_rect.center = rect.center
             if show_hitboxes:
@@ -223,17 +211,27 @@ def game_funciton():
                 player_class.gravity = 0
                 reset_rects()
                 print(f"death at {timer(False)}")
+                break       
+        elif  num in (3,4,5,6):
+            rect = create_button(num, rect)
+            pygame.draw.rect(screen,("#824464"),rect)
+            if rect.colliderect(player_class.rect):
+                button_clicks +=1
+                reset_rects(True)  
+                print(f"button {button_clicks} hit at {timer(False)}")               
+        elif num == 9:
+            pygame.draw.rect(screen,('#6c25be'), rect)
+            if rect.colliderect(player_class.rect):
+                print(f"level: {level} time: {timer(False)}")
+                level+=1
+                button_clicks = 0
+                reset_rects()
                 break
+        else:
+            print("something wrong")
         
         #button
-        else:       
-            if rect.width in (3,4,5,6):
-                rect = create_button(rect.width, rect)
-                rect_list[real_pos] = rect
-            pygame.draw.rect(screen,("#824464"),rect)
-            if button_rect.colliderect(player_class.rect):
-                button_clicks +=1
-                reset_rects(True)       
+           
 def create_button(b_type, rect):
     #button(b_type) directions:
     #  3
@@ -259,7 +257,8 @@ def reset_rects(button = False):
     global player_class
     global button_rect
     global gravity_direction
-    global rect_list
+    global num_list
+    global button_clicks
     ground_rect = pygame.Rect(-100,0,100,100)
     sky_rect = pygame.Rect(-100,0,100,100)
     end_rect = pygame.Rect(-100,0,100,100)
@@ -272,8 +271,9 @@ def reset_rects(button = False):
         player_class.rect.topleft = (50,0)
         player_class.gravity = 0
         player_class.rock_rect.midtop = player_class.rect.midtop
+        button_clicks = 0
 
-    rect_list = level_picker(level, button_clicks, level_building_rects, test_level_list)
+    num_list = level_picker(level, button_clicks)
 def timer(reset):
     global last_run_time
     current_time = pygame.time.get_ticks()
