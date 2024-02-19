@@ -1,4 +1,4 @@
-#V1.3
+#V1.3.2
 
 show_hitboxes = True
 
@@ -218,7 +218,7 @@ def game_funciton():
             if rect.colliderect(player_class.rect):
                 button_clicks +=1
                 reset_rects(True)  
-                print(f"button {button_clicks} hit at {timer(False)}")               
+                print(f"button {button_clicks} hit at {timer(False)} in level {level}")               
         elif num == 9:
             pygame.draw.rect(screen,('#6c25be'), rect)
             if rect.colliderect(player_class.rect):
