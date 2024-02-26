@@ -33,7 +33,7 @@ button_rect = pygame.Rect(0, 0, 0, 0)
 b_long = 80
 b_short = 35
 button_clicks = 0
-
+death_sound_factor = 1.0
 
 # colour scheme, #446482, #70a5d7, #18232d
 
@@ -225,6 +225,7 @@ def game_funciton():
                 player_class.gravity = 0
                 reset_rects()
                 print(f"death at {timer(False)}")
+                play_sound("death")
                 break
         elif num in (3, 4, 5, 6):
             rect = create_button(num, rect)
