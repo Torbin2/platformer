@@ -106,9 +106,17 @@ class player:
 
         if self.rock_rect.top <= self.rect.top - 10:
             self.rock_rect.top = self.rect.top - 8
+
+            if abs(self.rock_grav) > 2:
+                play_sound('rock')
+
             self.rock_grav = 0
         elif self.rock_rect.bottom >= self.rect.bottom + 10:
             self.rock_rect.bottom = self.rect.bottom + 8
+
+            if abs(self.rock_grav) > 2:
+                play_sound('rock')
+
             self.rock_grav = 0
         if self.rock_rect.left < self.rect.left - 10:
             self.rock_rect.left = self.rect.left - 10
@@ -308,7 +316,7 @@ def timer(reset):
     return run_time
 
 def play_sound(name):
-    pygame.mixer.music.stop()
+    # pygame.mixer.music.stop()
     pygame.mixer.Sound.play(pygame.mixer.Sound(f"sounds/{name}.wav"))
 
 
