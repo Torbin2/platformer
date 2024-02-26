@@ -1,5 +1,6 @@
 # V1.3.3
 import os
+import random
 
 show_hitboxes = True
 
@@ -22,6 +23,16 @@ last_run_time = 0
 sounds = {}
 for sound in os.listdir("sounds"):
     sounds[sound.split('.')[0]] = pygame.mixer.Sound(f"sounds/{sound}")
+
+musics = []
+for music in os.listdir('music'):
+    musics.append(f'music/{music}')
+random.shuffle(musics)
+
+pygame.mixer.music.load(musics[0])
+for music in musics[1:]:
+    pygame.mixer.music.queue(music)
+pygame.mixer.music.play()
 
 stone_slide = pygame.mixer.Sound('sounds/stone_slide.wav')
 
