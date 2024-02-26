@@ -192,20 +192,3 @@ def level_picker(level, button_clicks):
 
     return num_list
 
-    # rect_list = []
-
-    # for number in num_list:
-
-    #     if number == 0:
-    #         rect_list.append(level_building_rects[0])
-    #     elif number == 1:
-    #         rect_list.append(level_building_rects[1])
-    #     elif number == 2:
-    #         rect_list.append(level_building_rects[2])
-    #     elif number == 9:
-    #         rect_list.append(level_building_rects[3])
-
-    #     #button, width is used as clasification of direction
-    #     else:
-    #         rect_list.append(pygame.Rect(-100,-100,number,0))
-    # return rect_list
