@@ -34,8 +34,6 @@ for music in musics[1:]:
     pygame.mixer.music.queue(music)
 pygame.mixer.music.play()
 
-stone_slide = sounds['stone_slide']
-
 test_level = 17
 
 font = pygame.font.Font(("font/Pixeltype.ttf"), 50)
@@ -70,7 +68,6 @@ class player:
         # rock
         self.rock_rect = pygame.Rect(0, 0, 50, 35)
         self.rock_grav = 0
-        self.slide_state = False
 
     def input(self):
         global gravity_direction
@@ -118,15 +115,6 @@ class player:
         self.rock_rect.y += self.rock_grav
         self.rock_rect.x += self.x_speed
 
-        if abs(self.rock_grav) > 2:
-            if not self.slide_state:
-                stone_slide.play()
-                self.slide_state = True
-        else:
-            if self.slide_state:
-                stone_slide.stop()
-                self.slide_state = False
-
         if gravity_direction:
             self.rock_grav += 0.5
         else:
@@ -136,14 +124,12 @@ class player:
             self.rock_rect.top = self.rect.top - 8
 
             if abs(self.rock_grav) > 2 and self.grounded:
-                play_sound('rock')
 
             self.rock_grav = 0
         elif self.rock_rect.bottom >= self.rect.bottom + 10:
             self.rock_rect.bottom = self.rect.bottom + 8
 
             if abs(self.rock_grav) > 2 and self.grounded:
-                play_sound('rock')
 
             self.rock_grav = 0
         if self.rock_rect.left < self.rect.left - 10:
