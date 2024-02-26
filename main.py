@@ -34,7 +34,7 @@ for music in musics[1:]:
     pygame.mixer.music.queue(music)
 pygame.mixer.music.play()
 
-stone_slide = pygame.mixer.Sound('sounds/stone_slide.wav')
+stone_slide = sounds['stone_slide']
 
 test_level = 17
 
@@ -135,14 +135,14 @@ class player:
         if self.rock_rect.top <= self.rect.top - 10:
             self.rock_rect.top = self.rect.top - 8
 
-            if abs(self.rock_grav) > 2:
+            if abs(self.rock_grav) > 2 and self.grounded:
                 play_sound('rock')
 
             self.rock_grav = 0
         elif self.rock_rect.bottom >= self.rect.bottom + 10:
             self.rock_rect.bottom = self.rect.bottom + 8
 
-            if abs(self.rock_grav) > 2:
+            if abs(self.rock_grav) > 2 and self.grounded:
                 play_sound('rock')
 
             self.rock_grav = 0
