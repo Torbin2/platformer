@@ -122,15 +122,9 @@ class player:
 
         if self.rock_rect.top <= self.rect.top - 10:
             self.rock_rect.top = self.rect.top - 8
-
-            if abs(self.rock_grav) > 2 and self.grounded:
-
             self.rock_grav = 0
         elif self.rock_rect.bottom >= self.rect.bottom + 10:
             self.rock_rect.bottom = self.rect.bottom + 8
-
-            if abs(self.rock_grav) > 2 and self.grounded:
-
             self.rock_grav = 0
         if self.rock_rect.left < self.rect.left - 10:
             self.rock_rect.left = self.rect.left - 10
