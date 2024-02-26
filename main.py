@@ -22,25 +22,25 @@ scroll = [0,0]
 
 gravity_direction = True
 num_list = []
-new_levels =[[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
+new_levels =[[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8,
 ]]
 level = 0
 game_on = True
 last_run_time = 0
 
 test_level = 22
-    
+
 
 if music:
     sounds = {}
@@ -89,6 +89,8 @@ class player:
         # rock
         self.rock_rect = pygame.Rect(0, 0, 50, 35)
         self.rock_grav = 0
+
+        self.walk_delay = 0
 
     def input(self):
         global gravity_direction
@@ -153,11 +155,11 @@ class player:
 
     def screen_side_check(self):
         # side of the screen colisions
-        
+
         if self.rect.top <= 0:
             self.rect.top = 0
             self.gravity = 0
-     
+
         if self.rect.left <= 0:
             self.rect.left = 0
             self.x_speed = 0
@@ -176,10 +178,17 @@ class player:
         self.screen_side_check()
         self.rock()
 
-    def draw(self, scroll):
+        walk_speed = 2
+        self.walk_delay += 1
+        speed = 30
+        if self.grounded and self.walk_delay * walk_speed > speed - abs(self.x_speed) and abs(self.x_speed) > 1:
+            self.walk_delay = 0
+            play_sound('walk')
+
+    def draw(self):
         drawing_rect = pygame.Rect(self.rect.left - scroll[0], self.rect.top - scroll[1],self.rect.width,self.rect.height)
         drawing_rock_rect = pygame.Rect(self.rock_rect.left - scroll[0], self.rock_rect.top - scroll[1],self.rock_rect.width,self.rock_rect.height)
-        
+
         pygame.draw.rect(big_display, self.colour, drawing_rect)
         pygame.draw.line(big_display, self.colour, drawing_rect.midright,  drawing_rock_rect.midright , 10)
         pygame.draw.line(big_display, self.colour, drawing_rect.midleft,  drawing_rock_rect.midleft, 10)
@@ -243,10 +252,10 @@ def game_funciton(scroll):
     y = 0
     for num in num_list:
         rect = pygame.Rect(0, 0, 100, 100)
-        
+
         rect.topleft = (x,y)
         x+=100
-        
+
         if num == 0:
             pygame.draw.rect(big_display, ("#70a5d7"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
 
@@ -264,9 +273,9 @@ def game_funciton(scroll):
                 player_class.gravity = 0
                 reset_rects()
                 print(f"death at {timer(False)}")
-                if music: 
+                if music:
                     play_sound("death")
-                
+
                 break
         elif num in (3, 4, 5, 6):
             pygame.draw.rect(big_display, ("#70a5d7"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
@@ -375,7 +384,7 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
-        
+
     big_display.fill(("#446482"))
 
     if level > 22:
