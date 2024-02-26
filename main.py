@@ -1,4 +1,5 @@
 # V1.3.3
+import os
 
 show_hitboxes = True
 
@@ -18,7 +19,11 @@ level = 0
 game_on = True
 last_run_time = 0
 
-pygame.mixer.music.load('sounds/stone_slide.wav')
+sounds = {}
+for sound in os.listdir("sounds"):
+    sounds[sound.split('.')[0]] = pygame.mixer.Sound(f"sounds/{sound}")
+
+stone_slide = pygame.mixer.Sound('sounds/stone_slide.wav')
 
 test_level = 17
 
@@ -104,12 +109,11 @@ class player:
 
         if abs(self.rock_grav) > 2:
             if not self.slide_state:
-                pygame.mixer.music.play()
+                stone_slide.play()
                 self.slide_state = True
         else:
             if self.slide_state:
-                pygame.mixer.music.stop()
-                pygame.mixer.music.rewind()
+                stone_slide.stop()
                 self.slide_state = False
 
         if gravity_direction:
@@ -330,7 +334,8 @@ def timer(reset):
 
 def play_sound(name):
     # pygame.mixer.music.stop()
-    pygame.mixer.Sound.play(pygame.mixer.Sound(f"sounds/{name}.wav"))
+    pygame.mixer.Sound.play(sounds[name])
+    # pygame.mixer.Sound.play(pygame.mixer.Sound(f"sounds/{name}.wav"))
 
 
 
