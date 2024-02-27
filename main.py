@@ -1,4 +1,4 @@
-# V1.3.3
+# V1.4.0
 import os
 import random
 
@@ -20,6 +20,8 @@ level = 0
 game_on = True
 last_run_time = 0
 
+test_level = 16
+
 sounds = {}
 for sound in os.listdir("sounds"):
     sounds[sound.split('.')[0]] = pygame.mixer.Sound(f"sounds/{sound}")
@@ -32,9 +34,8 @@ random.shuffle(musics)
 pygame.mixer.music.load(musics[0])
 for music in musics[1:]:
     pygame.mixer.music.queue(music)
-pygame.mixer.music.play()
+pygame.mixer.music.play(loops = -1)
 
-test_level = 17
 
 font = pygame.font.Font(("font/Pixeltype.ttf"), 50)
 
