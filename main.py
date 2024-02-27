@@ -1,4 +1,4 @@
-# V1.4.0
+# V1.4.1
 import os
 import random
 
@@ -23,12 +23,12 @@ last_run_time = 0
 test_level = 16
 
 sounds = {}
-for sound in os.listdir("sounds"):
-    sounds[sound.split('.')[0]] = pygame.mixer.Sound(f"sounds/{sound}")
+for sound in os.listdir("assets/sounds"):
+    sounds[sound.split('.')[0]] = pygame.mixer.Sound(f"assets/sounds/{sound}")
 
 musics = []
-for music in os.listdir('music'):
-    musics.append(f'music/{music}')
+for music in os.listdir('assets/music'):
+    musics.append(f'assets/music/{music}')
 random.shuffle(musics)
 
 pygame.mixer.music.load(musics[0])
@@ -37,7 +37,7 @@ for music in musics[1:]:
 pygame.mixer.music.play(loops = -1)
 
 
-font = pygame.font.Font(("font/Pixeltype.ttf"), 50)
+font = pygame.font.Font(("assets/Pixeltype.ttf"), 50)
 
 ground_rect = pygame.Rect(-100, 0, 100, 100)
 sky_rect = pygame.Rect(-100, 0, 100, 100)
