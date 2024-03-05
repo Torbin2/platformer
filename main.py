@@ -20,7 +20,7 @@ level = 0
 game_on = True
 last_run_time = 0
 
-test_level = 16
+test_level = 15
 
 sounds = {}
 for sound in os.listdir("assets/sounds"):
