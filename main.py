@@ -1,8 +1,8 @@
-# V1.4.1
+# V1.4.3
 import os
 import random
 
-show_hitboxes = True
+show_hitboxes = False
 
 import pygame
 from Levels import level_picker
@@ -20,7 +20,7 @@ level = 0
 game_on = True
 last_run_time = 0
 
-test_level = 15
+test_level = 999
 
 sounds = {}
 for sound in os.listdir("assets/sounds"):
