@@ -160,8 +160,7 @@ class player:
     def update(self):
         self.input()
         self.movement()
-        if level <= 18:
-            self.screen_side_check()
+        self.screen_side_check()
         self.rock()
 
     def draw(self, scroll):
@@ -360,15 +359,18 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
+        
     big_display.fill(("#446482"))
 
-    scroll = camera(scroll)
+    if level > 20:
+        scroll = camera(scroll)
     player_class.update()
     game_funciton(scroll)
     player_class.draw(scroll)
     timer(False)
-
-    screen.blit(pygame.transform.scale(big_display,(1200,600)), (0,0))
+    if level > 20:
+        screen.blit(pygame.transform.scale(big_display,(1200,600)), (0,0))
+    else: screen.blit(big_display, (0,0))
 
     pygame.display.update()
     clock.tick(60)
