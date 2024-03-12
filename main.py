@@ -266,6 +266,8 @@ def game_funciton(scroll):
                 if music:
                     play_sound("button_hit")
         elif num == 8:
+            if player_class.rect.colliderect(rect):
+                player_class.rect.right = rect.left
             y += 100
             x = 0
         elif num == 9:
