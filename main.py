@@ -1,4 +1,4 @@
-# V1.4.3
+# V1.5.0
 import os
 import random
 
@@ -13,6 +13,7 @@ screen = pygame.display.set_mode((1200, 600))
 pygame.display.set_caption("platformer")
 clock = pygame.time.Clock()
 current_time = pygame.time.get_ticks()
+scroll = [0,0]
 
 gravity_direction = True
 num_list = []
@@ -20,7 +21,7 @@ level = 0
 game_on = True
 last_run_time = 0
 
-test_level = 999
+test_level = 17
 
 sounds = {}
 for sound in os.listdir("assets/sounds"):
@@ -156,11 +157,14 @@ class player:
         self.screen_side_check()
         self.rock()
 
-    def draw(self):
-        pygame.draw.rect(screen, self.colour, self.rect)
-        pygame.draw.line(screen, self.colour, self.rect.midright, self.rock_rect.midright, 10)
-        pygame.draw.line(screen, self.colour, self.rect.midleft, self.rock_rect.midleft, 10)
-        pygame.draw.rect(screen, ('#747b81'), self.rock_rect)
+    def draw(self, scroll):
+        drawing_rect = pygame.Rect(self.rect.left - scroll[0], self.rect.top - scroll[1],self.rect.width,self.rect.height)
+        drawing_rock_rect = pygame.Rect(self.rock_rect.left - scroll[0], self.rock_rect.top - scroll[1],self.rock_rect.width,self.rock_rect.height)
+        
+        pygame.draw.rect(screen, self.colour, drawing_rect)
+        pygame.draw.line(screen, self.colour, drawing_rect.midright,  drawing_rock_rect.midright , 10)
+        pygame.draw.line(screen, self.colour, drawing_rect.midleft,  drawing_rock_rect.midleft, 10)
+        pygame.draw.rect(screen, ('#747b81'), drawing_rock_rect )
 
 
 player_class = player()
@@ -211,32 +215,29 @@ def colisions(rect):
             player_class.x_speed = 0
 
 
-def game_funciton():
+def game_funciton(scroll):
     global level
     global gravity_direction
     global num_list
     global button_clicks
-    y_pos = 1
     for pos, num in enumerate(num_list):
         rect = pygame.Rect(0, 0, 100, 100)
-        if pos == y_pos * 12:
-            y_pos += 1
-        pos -= (y_pos * 12) - 12
-
-        rect.top = (y_pos * 100) - 100
-        rect.left = pos * 100
+        
+        rect.top = 100*(pos // 12)
+        rect.left = 100*(pos % 12)
+        
         if num == 0:
-            pygame.draw.rect(screen, ("#70a5d7"), rect)
+            pygame.draw.rect(screen, ("#70a5d7"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
 
         elif num == 1:
-            pygame.draw.rect(screen, ("#446482"), rect)
+            pygame.draw.rect(screen, ("#446482"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
             colisions(rect)
 
         elif num == 2:
-            pygame.draw.rect(screen, ("#bea925"), rect)
+            pygame.draw.rect(screen, ("#bea925"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
             lava_hitbox_rect.center = rect.center
             if show_hitboxes:
-                pygame.draw.rect(screen, ("#000000"), lava_hitbox_rect)
+                pygame.draw.rect(screen, ("#000000"), lava_hitbox_rect)#fix
             if lava_hitbox_rect.colliderect(player_class.rect):
                 player_class.rect.topleft = 0, 0
                 player_class.gravity = 0
@@ -245,15 +246,16 @@ def game_funciton():
                 play_sound("death")
                 break
         elif num in (3, 4, 5, 6):
+            pygame.draw.rect(screen, ("#70a5d7"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
             rect = create_button(num, rect)
-            pygame.draw.rect(screen, ("#824464"), rect)
+            pygame.draw.rect(screen, ("#824464"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
             if rect.colliderect(player_class.rect):
                 button_clicks += 1
                 reset_rects(True)
                 print(f"button {button_clicks} hit at {timer(False)} in level {level}")
                 play_sound("button_hit")
         elif num == 9:
-            pygame.draw.rect(screen, ('#6c25be'), rect)
+            pygame.draw.rect(screen, ('#6c25be'), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
             if rect.colliderect(player_class.rect):
                 print(f"level: {level} time: {timer(False)}")
                 level += 1
@@ -329,6 +331,10 @@ def play_sound(name):
     pygame.mixer.Sound.play(sounds[name])
     # pygame.mixer.Sound.play(pygame.mixer.Sound(f"sounds/{name}.wav"))
 
+def camera(scroll):
+    scroll[0] += (player_class.rect.centerx- screen.get_width() / 2- scroll[0]) /2
+    scroll[1] += (player_class.rect.centery- screen.get_height() / 2- scroll[1]) /2
+    return [int(scroll[0]), int(scroll[1])]
 
 
 reset_rects()
@@ -337,11 +343,12 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
-    screen.fill(("#70a5d7"))
-
+    screen.fill(("#446482"))
+    if level >= 18:
+        scroll = camera(scroll)
     player_class.update()
-    game_funciton()
-    player_class.draw()
+    game_funciton(scroll)
+    player_class.draw(scroll)
     timer(False)
 
     pygame.display.update()
