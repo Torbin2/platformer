@@ -7,6 +7,7 @@ music = False
 
 import pygame
 from Levels import level_picker
+from level_editor import Level_editor
 
 pygame.init()
 pygame.mixer.init()
@@ -102,8 +103,9 @@ class player:
             level = 0
             reset_rects()
             timer(True)
-        if keys[pygame.K_p]:
-            print(self.x_speed)
+        if keys[pygame.K_l]:
+            x = Level_editor()
+            x.update()
 
     def movement(self):
         global gravity_direction
