@@ -2,8 +2,8 @@
 import os
 import random
 
-show_hitboxes = False
-music = False
+show_hitboxes = True
+music = True
 
 import pygame
 from Levels import level_picker
@@ -22,11 +22,25 @@ scroll = [0,0]
 
 gravity_direction = True
 num_list = []
+new_levels =[[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
+]]
 level = 0
 game_on = True
 last_run_time = 0
 
-test_level = 999
+test_level = 22
+    
 
 if music:
     sounds = {}
@@ -42,7 +56,6 @@ if music:
     for music in musics[1:]:
         pygame.mixer.music.queue(music)
     pygame.mixer.music.play(loops = -1)
-
 
 font = pygame.font.Font(("assets/Pixeltype.ttf"), 50)
 
@@ -80,16 +93,13 @@ class player:
     def input(self):
         global gravity_direction
         global level
+        global new_levels
         keys = pygame.key.get_pressed()
         current_time = pygame.time.get_ticks()
         if keys[pygame.K_a]:
             self.x_speed = max(-30 * self.speed_mult, self.x_speed - 1 * self.speed_mult)
         if keys[pygame.K_d]:
             self.x_speed = min(30 * self.speed_mult, self.x_speed + 1 * self.speed_mult)
-        # if keys[pygame.K_SPACE] and current_time - self.last_press > 200 and self.grounded:
-        #    gravity_direction = not gravity_direction
-        #    self.last_press = current_time
-        #    self.grounded = False
         if keys[pygame.K_SPACE] and current_time - self.last_press > 150:
             gravity_direction = not gravity_direction
             self.last_press = current_time
@@ -104,8 +114,9 @@ class player:
             reset_rects()
             timer(True)
         if keys[pygame.K_l]:
-            x = Level_editor()
-            x.update()
+            x = Level_editor(new_levels[0])
+            print(new_levels)
+            new_levels = [x.update()]
 
     def movement(self):
         global gravity_direction
@@ -151,7 +162,7 @@ class player:
             self.rect.left = 0
             self.x_speed = 0
 
-        if level <= 20:
+        if level <= 22:
             if self.rect.right >= 1200:
                 self.rect.right = 1200
                 self.x_speed = 0
@@ -247,7 +258,7 @@ def game_funciton(scroll):
             pygame.draw.rect(big_display, ("#bea925"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
             lava_hitbox_rect.center = rect.center
             if show_hitboxes:
-                pygame.draw.rect(big_display, ("#000000"), lava_hitbox_rect)#fix
+                pygame.draw.rect(big_display, ("#000000"), pygame.Rect(lava_hitbox_rect.left - scroll[0], lava_hitbox_rect.top - scroll[1],lava_hitbox_rect.width,lava_hitbox_rect.height))#fix
             if lava_hitbox_rect.colliderect(player_class.rect):
                 player_class.rect.topleft = 0, 0
                 player_class.gravity = 0
@@ -318,6 +329,7 @@ def reset_rects(button=False):
     global gravity_direction
     global num_list
     global button_clicks
+    global scroll
     ground_rect = pygame.Rect(-100, 0, 100, 100)
     sky_rect = pygame.Rect(-100, 0, 100, 100)
     end_rect = pygame.Rect(-100, 0, 100, 100)
@@ -332,7 +344,8 @@ def reset_rects(button=False):
         player_class.rock_rect.midtop = player_class.rect.midtop
         button_clicks = 0
 
-    num_list = level_picker(level, button_clicks)
+    num_list = level_picker(level, button_clicks, new_levels)
+    scroll = [0,0]
 
 
 def timer(reset):
@@ -356,7 +369,6 @@ def camera(scroll):
     scroll[1] += (player_class.rect.centery- big_display.get_height() / 2- scroll[1]) /2
     return [int(scroll[0]), int(scroll[1])]
 
-
 reset_rects()
 while True:
     for event in pygame.event.get():
@@ -366,13 +378,13 @@ while True:
         
     big_display.fill(("#446482"))
 
-    if level > 20:
+    if level > 22:
         scroll = camera(scroll)
     player_class.update()
     game_funciton(scroll)
     player_class.draw(scroll)
     timer(False)
-    if level > 20:
+    if level > 22:
         screen.blit(pygame.transform.scale(big_display,(1200,600)), (0,0))
     else: screen.blit(big_display, (0,0))
 
