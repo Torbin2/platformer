@@ -2,7 +2,8 @@
 import os
 import random
 
-show_hitboxes = True
+show_hitboxes = False
+sound_effects = True
 music = True
 
 import pygame
@@ -42,19 +43,20 @@ last_run_time = 0
 test_level = 22
 
 
-if music:
+if sound_effects:
     sounds = {}
     for sound in os.listdir("assets/sounds"):
         sounds[sound.split('.')[0]] = pygame.mixer.Sound(f"assets/sounds/{sound}")
 
     musics = []
-    for music in os.listdir('assets/music'):
-        musics.append(f'assets/music/{music}')
+    for sound_effects in os.listdir('assets/music'):
+        musics.append(f'assets/music/{sound_effects}')
     random.shuffle(musics)
 
+if music:
     pygame.mixer.music.load(musics[0])
-    for music in musics[1:]:
-        pygame.mixer.music.queue(music)
+    for sound_effects in musics[1:]:
+        pygame.mixer.music.queue(sound_effects)
     pygame.mixer.music.play(loops = -1)
 
 font = pygame.font.Font(("assets/Pixeltype.ttf"), 50)
@@ -266,7 +268,7 @@ def game_funciton(scroll):
                 player_class.gravity = 0
                 reset_rects()
                 print(f"death at {timer(False)}")
-                if music:
+                if sound_effects:
                     play_sound("death")
 
                 break
@@ -278,7 +280,7 @@ def game_funciton(scroll):
                 button_clicks += 1
                 reset_rects(True)
                 print(f"button {button_clicks} hit at {timer(False)} in level {level}")
-                if music:
+                if sound_effects:
                     play_sound("button_hit")
         elif num == 8:
             if player_class.rect.colliderect(rect):
@@ -292,7 +294,7 @@ def game_funciton(scroll):
                 level += 1
                 button_clicks = 0
                 reset_rects()
-                if music:
+                if sound_effects:
                     play_sound("finish_level")
                 break
         else:
