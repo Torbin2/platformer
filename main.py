@@ -4,6 +4,7 @@ import random
 
 show_hitboxes = False
 sound_effects = True
+rock_sound_effects = False
 music = True
 
 import pygame
@@ -23,19 +24,7 @@ scroll = [0,0]
 
 gravity_direction = True
 num_list = []
-new_levels =[[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8,
-]]
+new_levels =[([0] * 12 + [8]) * 12 + [8] * 13]
 level = 0
 game_on = True
 last_run_time = 0
@@ -47,13 +36,14 @@ if sound_effects:
     sounds = {}
     for sound in os.listdir("assets/sounds"):
         sounds[sound.split('.')[0]] = pygame.mixer.Sound(f"assets/sounds/{sound}")
+    stone_slide = sounds['stone_slide']
 
+if music:
     musics = []
     for sound_effects in os.listdir('assets/music'):
         musics.append(f'assets/music/{sound_effects}')
     random.shuffle(musics)
 
-if music:
     pygame.mixer.music.load(musics[0])
     for sound_effects in musics[1:]:
         pygame.mixer.music.queue(sound_effects)
@@ -93,6 +83,7 @@ class player:
         self.rock_grav = 0
 
         self.walk_delay = 0
+        self.slide_state = False
 
     def input(self):
         global gravity_direction
@@ -139,6 +130,15 @@ class player:
         self.rock_rect.y += self.rock_grav
         self.rock_rect.x += self.x_speed
 
+        if abs(self.rock_grav) > 2:
+            if rock_sound_effects and not self.slide_state:
+                stone_slide.play()
+                self.slide_state = True
+        else:
+            if rock_sound_effects and self.slide_state:
+                stone_slide.stop()
+                self.slide_state = False
+
         if gravity_direction:
             self.rock_grav += 0.5
         else:
@@ -146,9 +146,13 @@ class player:
 
         if self.rock_rect.top <= self.rect.top - 10:
             self.rock_rect.top = self.rect.top - 8
+            if abs(self.rock_grav) > 2 and rock_sound_effects:
+                play_sound('rock')
             self.rock_grav = 0
         elif self.rock_rect.bottom >= self.rect.bottom + 10:
             self.rock_rect.bottom = self.rect.bottom + 8
+            if abs(self.rock_grav) > 2 and rock_sound_effects:
+                play_sound('rock')
             self.rock_grav = 0
         if self.rock_rect.left < self.rect.left - 10:
             self.rock_rect.left = self.rect.left - 10
