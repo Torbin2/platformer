@@ -178,19 +178,12 @@ class player:
         self.screen_side_check()
         self.rock()
 
-        walk_speed = 2
-        self.walk_delay += 1
-        speed = 30
-        if self.grounded and self.walk_delay * walk_speed > speed - abs(self.x_speed) and abs(self.x_speed) > 1:
-            self.walk_delay = 0
-            play_sound('walk')
-
-    def draw(self):
+    def draw(self, scroll):
         drawing_rect = pygame.Rect(self.rect.left - scroll[0], self.rect.top - scroll[1],self.rect.width,self.rect.height)
         drawing_rock_rect = pygame.Rect(self.rock_rect.left - scroll[0], self.rock_rect.top - scroll[1],self.rock_rect.width,self.rock_rect.height)
 
         pygame.draw.rect(big_display, self.colour, drawing_rect)
-        pygame.draw.line(big_display, self.colour, drawing_rect.midright,  drawing_rock_rect.midright , 10)
+        pygame.draw.line(big_display, self.colour, drawing_rect.midright,  drawing_rock_rect.midright, 10)
         pygame.draw.line(big_display, self.colour, drawing_rect.midleft,  drawing_rock_rect.midleft, 10)
         pygame.draw.rect(big_display, ('#747b81'), drawing_rock_rect )
 
