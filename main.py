@@ -1,6 +1,11 @@
 # V1.5.0
 import os
 import random
+import time
+import typing
+import threading
+
+start = time.time()
 
 show_hitboxes = False
 sound_effects = True
@@ -31,12 +36,26 @@ last_run_time = 0
 
 test_level = 22
 
+stone_slide: typing.Union[None, pygame.mixer.Sound] = None
+
+
+if rock_sound_effects and not sound_effects:
+    raise ValueError('rock_sound_effects can only be enabled with the other sound effects (sound_effects)')
 
 if sound_effects:
     sounds = {}
     for sound in os.listdir("assets/sounds"):
+        if sound == 'stone_slide.wav':
+            continue
+
         sounds[sound.split('.')[0]] = pygame.mixer.Sound(f"assets/sounds/{sound}")
-    stone_slide = sounds['stone_slide']
+    if rock_sound_effects:
+        def load_stone_slide():
+            global stone_slide
+            stone_slide = pygame.mixer.Sound("assets/sounds/stone_slide.wav")
+
+        load_stone_slide_thread = threading.Thread(name='load_stone_slide_thread', target=load_stone_slide)
+        load_stone_slide_thread.start()
 
 if music:
     musics = []
@@ -131,11 +150,11 @@ class player:
         self.rock_rect.x += self.x_speed
 
         if abs(self.rock_grav) > 2:
-            if rock_sound_effects and not self.slide_state:
+            if rock_sound_effects and not self.slide_state and stone_slide is not None:
                 stone_slide.play()
                 self.slide_state = True
         else:
-            if rock_sound_effects and self.slide_state:
+            if rock_sound_effects and self.slide_state and stone_slide is not None:
                 stone_slide.stop()
                 self.slide_state = False
 
@@ -376,6 +395,9 @@ def camera(scroll):
     scroll[0] += (player_class.rect.centerx- big_display.get_width() / 2- scroll[0]) /2
     scroll[1] += (player_class.rect.centery- big_display.get_height() / 2- scroll[1]) /2
     return [int(scroll[0]), int(scroll[1])]
+
+
+print(f'loading took: {time.time() - start}')
 
 reset_rects()
 while True:
