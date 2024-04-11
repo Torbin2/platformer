@@ -1,8 +1,15 @@
 # V1.5.0
 import os
 import random
+import time
+import typing
+import threading
 
-show_hitboxes = True
+start = time.time()
+
+show_hitboxes = False
+sound_effects = True
+rock_sound_effects = False
 music = True
 MAX_SPEED = True
 
@@ -41,23 +48,38 @@ level = 0
 game_on = True
 last_run_time = 0
 
-test_level = 999
-#test_level = 26
-    
+test_level = 22
 
-if music:
+stone_slide: typing.Union[None, pygame.mixer.Sound] = None
+
+
+if rock_sound_effects and not sound_effects:
+    raise ValueError('rock_sound_effects can only be enabled with the other sound effects (sound_effects)')
+
+if sound_effects:
     sounds = {}
     for sound in os.listdir("assets/sounds"):
-        sounds[sound.split('.')[0]] = pygame.mixer.Sound(f"assets/sounds/{sound}")
+        if sound == 'stone_slide.wav':
+            continue
 
+        sounds[sound.split('.')[0]] = pygame.mixer.Sound(f"assets/sounds/{sound}")
+    if rock_sound_effects:
+        def load_stone_slide():
+            global stone_slide
+            stone_slide = pygame.mixer.Sound("assets/sounds/stone_slide.wav")
+
+        load_stone_slide_thread = threading.Thread(name='load_stone_slide_thread', target=load_stone_slide)
+        load_stone_slide_thread.start()
+
+if music:
     musics = []
-    for music in os.listdir('assets/music'):
-        musics.append(f'assets/music/{music}')
+    for sound_effects in os.listdir('assets/music'):
+        musics.append(f'assets/music/{sound_effects}')
     random.shuffle(musics)
 
     pygame.mixer.music.load(musics[0])
-    for music in musics[1:]:
-        pygame.mixer.music.queue(music)
+    for sound_effects in musics[1:]:
+        pygame.mixer.music.queue(sound_effects)
     pygame.mixer.music.play(loops = -1)
 
 font = pygame.font.Font(("assets/Pixeltype.ttf"), 50)
@@ -92,6 +114,9 @@ class player:
         # rock
         self.rock_rect = pygame.Rect(0, 0, 50, 35)
         self.rock_grav = 0
+
+        self.walk_delay = 0
+        self.slide_state = False
 
     def input(self):
         global gravity_direction
@@ -141,6 +166,15 @@ class player:
         self.rock_rect.y += self.rock_grav
         self.rock_rect.x += self.x_speed
 
+        if abs(self.rock_grav) > 2:
+            if rock_sound_effects and not self.slide_state and stone_slide is not None:
+                stone_slide.play()
+                self.slide_state = True
+        else:
+            if rock_sound_effects and self.slide_state and stone_slide is not None:
+                stone_slide.stop()
+                self.slide_state = False
+
         if gravity_direction:
             self.rock_grav += 0.5
         else:
@@ -148,9 +182,13 @@ class player:
 
         if self.rock_rect.top <= self.rect.top - 10:
             self.rock_rect.top = self.rect.top - 8
+            if abs(self.rock_grav) > 2 and rock_sound_effects:
+                play_sound('rock')
             self.rock_grav = 0
         elif self.rock_rect.bottom >= self.rect.bottom + 10:
             self.rock_rect.bottom = self.rect.bottom + 8
+            if abs(self.rock_grav) > 2 and rock_sound_effects:
+                play_sound('rock')
             self.rock_grav = 0
         if self.rock_rect.left < self.rect.left - 10:
             self.rock_rect.left = self.rect.left - 10
@@ -159,11 +197,11 @@ class player:
 
     def screen_side_check(self):
         # side of the screen colisions
-        
+
         if self.rect.top <= 0:
             self.rect.top = 0
             self.gravity = 0
-     
+
         if self.rect.left <= 0:
             self.rect.left = 0
             self.x_speed = 0
@@ -185,9 +223,9 @@ class player:
     def draw(self, scroll):
         drawing_rect = pygame.Rect(self.rect.left - scroll[0], self.rect.top - scroll[1],self.rect.width,self.rect.height)
         drawing_rock_rect = pygame.Rect(self.rock_rect.left - scroll[0], self.rock_rect.top - scroll[1],self.rock_rect.width,self.rock_rect.height)
-        
+
         pygame.draw.rect(big_display, self.colour, drawing_rect)
-        pygame.draw.line(big_display, self.colour, drawing_rect.midright,  drawing_rock_rect.midright , 10)
+        pygame.draw.line(big_display, self.colour, drawing_rect.midright,  drawing_rock_rect.midright, 10)
         pygame.draw.line(big_display, self.colour, drawing_rect.midleft,  drawing_rock_rect.midleft, 10)
         pygame.draw.rect(big_display, ('#747b81'), drawing_rock_rect )
 
@@ -249,10 +287,10 @@ def game_funciton(scroll):
     y = 0
     for num in num_list:
         rect = pygame.Rect(0, 0, 100, 100)
-        
+
         rect.topleft = (x,y)
         x+=100
-        
+
         if num == 0:
             pygame.draw.rect(big_display, ("#70a5d7"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
 
@@ -270,9 +308,9 @@ def game_funciton(scroll):
                 player_class.gravity = 0
                 reset_rects()
                 print(f"death at {timer(False)}")
-                if music: 
+                if sound_effects:
                     play_sound("death")
-                
+
                 break
         elif num in (3, 4, 5, 6):
             pygame.draw.rect(big_display, ("#70a5d7"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
@@ -282,7 +320,7 @@ def game_funciton(scroll):
                 button_clicks += 1
                 reset_rects(True)
                 print(f"button {button_clicks} hit at {timer(False)} in level {level}")
-                if music:
+                if sound_effects:
                     play_sound("button_hit")
         elif num == 8:
             if player_class.rect.colliderect(rect):
@@ -296,7 +334,7 @@ def game_funciton(scroll):
                 level += 1
                 button_clicks = 0
                 reset_rects()
-                if music:
+                if sound_effects:
                     play_sound("finish_level")
                 break
         else:
@@ -375,13 +413,16 @@ def camera(scroll):
     scroll[1] += (player_class.rect.centery- big_display.get_height() / 2- scroll[1]) /2
     return [int(scroll[0]), int(scroll[1])]
 
+
+print(f'loading took: {time.time() - start}')
+
 reset_rects()
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
-        
+
     big_display.fill(("#446482"))
 
     if level > 22:
