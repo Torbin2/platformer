@@ -400,7 +400,7 @@ def timer(reset):
     run_time = float((current_time - last_run_time) / 1000)
     score_display = font.render(f"{run_time}", False, ("#8f5a28"))
     score_rect = score_display.get_rect(midtop=(600, 0))
-    big_display.blit(score_display, score_rect)
+    screen.blit(score_display, score_rect)
     return run_time
 
 def play_sound(name):
@@ -430,10 +430,10 @@ while True:
     player_class.update()
     game_funciton(scroll)
     player_class.draw(scroll)
-    timer(False)
     if level > 22:
         screen.blit(pygame.transform.scale(big_display,(1200,600)), (0,0))
     else: screen.blit(big_display, (0,0))
+    timer(False)
 
     pygame.display.update()
     clock.tick(60)
