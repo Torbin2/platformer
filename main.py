@@ -1,4 +1,4 @@
-# V1.5.0
+# V1.7.0
 import os
 import random
 import time
@@ -8,10 +8,11 @@ import threading
 start = time.time()
 
 SHOW_HITBOXES = True
-SFX = False
+SFX = True
 ROCK_SFX = False
-MUSIC = False
+MUSIC = True
 MAX_SPEED = True
+FRAMES_TIMER = True
 
 import pygame
 from Levels import level_picker
@@ -30,7 +31,8 @@ scroll = [0,0]
 
 gravity_direction = True
 num_list = []
-new_levels =[[0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,
+new_levels =[
+            [0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,
               0,0,0,3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,
               0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,
               0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,
@@ -50,10 +52,15 @@ new_levels =[[0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,
               0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,
               0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,
               0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,
-              1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,8]]
+              1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,8],
+
+              [0,0,0,8,
+            0,1,0,8,
+            0,0,0,8]
+              ]
 level = 0
 game_on = True
-last_run_time = 0
+
 
 test_level = 999
 
@@ -402,12 +409,25 @@ def reset_rects(button=False):
     num_list = level_picker(level, button_clicks, new_levels)
 
 
+last_run_time = 0
+frames_timer = 0
 def timer(reset):
     global last_run_time
-    current_time = pygame.time.get_ticks()
-    if reset:
-        last_run_time = current_time
-    run_time = float((current_time - last_run_time) / 1000)
+    global frames_timer
+    
+    if FRAMES_TIMER == False:
+        current_time = pygame.time.get_ticks()
+        if reset:
+            last_run_time = current_time
+        run_time = float((current_time - last_run_time) / 1000)
+    else:
+        frames_timer += 1
+        run_time = frames_timer
+        if reset:
+            frames_timer = 0
+
+    
+    
     if level > 22:
         score_display = big_font.render(f"{run_time}", False, ("#8f5a28"))
         score_rect = score_display.get_rect(midtop=(1200, 0))
