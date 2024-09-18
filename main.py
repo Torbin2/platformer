@@ -1,156 +1,240 @@
+# V1.5.0
+import os
+import random
+import time
+import typing
+import threading
+
+start = time.time()
+
+show_hitboxes = True
+sound_effects = True
+rock_sound_effects = True
+music = False
+MAX_SPEED = True
+
 import pygame
-import tas
-from sys import exit
+from Levels import level_picker
 
 pygame.init()
-screen = pygame.display.set_mode((1200,600))
+pygame.mixer.init()
+
+big_display = pygame.Surface((2400,1200))
+screen = pygame.display.set_mode((1200, 600))
+
 pygame.display.set_caption("platformer")
 clock = pygame.time.Clock()
 current_time = pygame.time.get_ticks()
-
-# ====================================================
-
-t = tas.TASHandler()
-t.init_movie()
-
-# ====================================================
+scroll = [0,0]
 
 gravity_direction = True
 num_list = []
-level = 1
+new_levels =[[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,8]]
+#new_levels =[[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
+#0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
+#0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
+#0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
+#0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
+#0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
+#0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
+#0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
+#0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
+#0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
+#0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
+#0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
+#]]
+level = 0
 game_on = True
 last_run_time = 0
-buttoning = False
 
-font = pygame.font.Font(("font/Pixeltype.ttf"), 50)
+test_level = 24
 
-ground_rect = pygame.Rect(-100,0,100,100)
-sky_rect = pygame.Rect(-100,0,100,100)
-end_rect = pygame.Rect(-100,0,100,100)
-lava_rect = pygame.Rect(-100,0,100,100)
-lava_hitbox_rect = pygame.Rect(-100,0,75,75)
-button_rect = pygame.Rect(0,0,0,0)
+stone_slide: typing.Union[None, pygame.mixer.Sound] = None
 
 
-#colour scheme, #446482, #70a5d7, #18232d
+if rock_sound_effects and not sound_effects:
+    raise ValueError('rock_sound_effects can only be enabled with the other sound effects (sound_effects)')
 
-# ====================================================
+if sound_effects:
+    sounds = {}
+    for sound in os.listdir("assets/sounds"):
+        if sound == 'stone_slide.wav':
+            continue
 
-def reinitialize():
+        sounds[sound.split('.')[0]] = pygame.mixer.Sound(f"assets/sounds/{sound}")
+    if rock_sound_effects:
+        def load_stone_slide():
+            global stone_slide
+            stone_slide = pygame.mixer.Sound("assets/sounds/stone_slide.wav")
 
-    global clock, gravity_direction, num_list, level, game_on, last_run_time, player_class, events
+        load_stone_slide_thread = threading.Thread(name='load_stone_slide_thread', target=load_stone_slide)
+        load_stone_slide_thread.start()
 
-    clock = pygame.time.Clock()
+if music:
+    musics = []
+    for sound_effects in os.listdir('assets/music'):
+        musics.append(f'assets/music/{sound_effects}')
+    random.shuffle(musics)
 
-    t.frame = 0
+    pygame.mixer.music.load(musics[0])
+    for sound_effects in musics[1:]:
+        pygame.mixer.music.queue(sound_effects)
+    pygame.mixer.music.play(loops = -1)
 
-    gravity_direction = True
-    num_list = []
-    level = 1
-    game_on = True
-    last_run_time = 0
-    player_class = player()
+font = pygame.font.Font(("assets/Pixeltype.ttf"), 50)
+big_font = pygame.font.Font(("assets/Pixeltype.ttf"), 100)
 
-    reset_rects()
-    level_picker()
-    events = []
-    t.physics = True
+ground_rect = pygame.Rect(-100, 0, 100, 100)
+sky_rect = pygame.Rect(-100, 0, 100, 100)
+end_rect = pygame.Rect(-100, 0, 100, 100)
+lava_rect = pygame.Rect(-100, 0, 100, 100)
+level_building_rects = [sky_rect, ground_rect, lava_rect, end_rect]
+lava_hitbox_rect = pygame.Rect(-100, 0, 50, 50)
+# button
+button_rect = pygame.Rect(0, 0, 0, 0)
+b_long = 80
+b_short = 35
+button_clicks = 0
+death_sound_factor = 1.0
 
-# ====================================================
+# colour scheme, #446482, #70a5d7, #18232d
 
 class player:
 
     def __init__(self):
         super().__init__()
-        self.rect = pygame.Rect(100,100,50,100)
+        self.speed_mult = 1.0
+
+        self.rect = pygame.Rect(100, 100, 50, 100)
         self.x_speed = 0
         self.gravity = 0
         self.last_press = 0
         self.grounded = False
-        self.hat_rect = pygame.Rect(0,0,50,35)
+        self.colour = ('#47602d')
+        # rock
+        self.rock_rect = pygame.Rect(0, 0, 50, 35)
+        self.rock_grav = 0
+
+        self.walk_delay = 0
+        self.slide_state = False
 
     def input(self):
         global gravity_direction
         global level
-        # global keys
+        global new_levels
         keys = pygame.key.get_pressed()
-
-        if t.pressed(keys[pygame.K_a], "a"):
-            self.x_speed -=1
-        if t.pressed(keys[pygame.K_d], "d"):
-            self.x_speed +=1
-        # if keys[pygame.K_SPACE] and current_time - self.last_press > 200 and self.grounded:
-        #    gravity_direction = not gravity_direction
-        #    self.last_press = current_time
-        #    self.grounded = False
-        if (t.pressed(keys[pygame.K_SPACE], "s")) and t.frame - self.last_press > 12:
+        current_time = pygame.time.get_ticks()
+        if keys[pygame.K_a]:
+            if MAX_SPEED: self.x_speed = max(-30 * self.speed_mult, self.x_speed - 1 * self.speed_mult)
+            else: self.x_speed = self.x_speed - 1 * self.speed_mult
+        if keys[pygame.K_d]:
+            if MAX_SPEED: self.x_speed = min(30 * self.speed_mult, self.x_speed + 1 * self.speed_mult)
+            else: self.x_speed = self.x_speed + 1 * self.speed_mult
+            #print(self.x_speed)
+        if keys[pygame.K_SPACE] and current_time - self.last_press > 150:
             gravity_direction = not gravity_direction
-            self.last_press = t.frame
+            self.last_press = current_time
             self.grounded = False
-        if t.pressed(keys[pygame.K_t], "t"):
-            level = 999
+            # play_sound("switch_gravity")
+        if keys[pygame.K_t]:
+            level = test_level
             reset_rects()
-            level_picker( )
-        if t.pressed(keys[pygame.K_t], "r"):
-            level = 1
-            reset_rects()
-            level_picker()
             timer(True)
-
-        # ====================================================
-
-        t.handle_input(keys)
-
-        # ====================================================
+        if keys[pygame.K_r]:
+            level = 0
+            reset_rects()
+            timer(True)
 
     def movement(self):
         global gravity_direction
-        #left and right
+        # left and right
         self.rect.x += self.x_speed
-        if self.x_speed >= 0:self.x_speed -=0.5
-        if self.x_speed < 0:self.x_speed +=0.5
-        #gravity
-        if gravity_direction: self.gravity+= 1
-        else: self.gravity-=1
+        if self.x_speed >= 0: self.x_speed -= 0.5 * self.speed_mult
+        if self.x_speed < 0: self.x_speed += 0.5 * self.speed_mult
+        # gravity
+        if gravity_direction:
+            self.gravity += 1
+        else:
+            self.gravity -= 1
         self.rect.y += self.gravity
 
+    def rock(self):
+        self.rock_rect.y += self.rock_grav
+        self.rock_rect.x += self.x_speed
+
+        if abs(self.rock_grav) > 2:
+            if rock_sound_effects and not self.slide_state and stone_slide is not None:
+                stone_slide.play()
+                self.slide_state = True
+        else:
+            if rock_sound_effects and self.slide_state and stone_slide is not None:
+                stone_slide.stop()
+                self.slide_state = False
+
+        if gravity_direction:
+            self.rock_grav += 0.5
+        else:
+            self.rock_grav -= 0.5
+
+        if self.rock_rect.top <= self.rect.top - 10:
+            self.rock_rect.top = self.rect.top - 8
+            if abs(self.rock_grav) > 2 and rock_sound_effects:
+                play_sound('rock')
+            self.rock_grav = 0
+        elif self.rock_rect.bottom >= self.rect.bottom + 10:
+            self.rock_rect.bottom = self.rect.bottom + 8
+            if abs(self.rock_grav) > 2 and rock_sound_effects:
+                play_sound('rock')
+            self.rock_grav = 0
+        if self.rock_rect.left < self.rect.left - 10:
+            self.rock_rect.left = self.rect.left - 10
+        if self.rock_rect.right > self.rect.right + 10:
+            self.rock_rect.right = self.rect.right + 10
+
     def screen_side_check(self):
-        #side of the screen colisions
-        if self.rect.bottom >= 600:
-            self.rect.bottom = 600
-            self.grounded = True
-            self.gravity = 0
+        # side of the screen colisions
+
         if self.rect.top <= 0:
             self.rect.top = 0
-            self.grounded = True
             self.gravity = 0
 
-        if self.rect.right >= 1200:
-            self.rect.right = 1200
-            self.x_speed = 0
         if self.rect.left <= 0:
             self.rect.left = 0
             self.x_speed = 0
 
+        if level <= 22:
+            if self.rect.right >= 1200:
+                self.rect.right = 1200
+                self.x_speed = 0
+
+            if self.rect.bottom >= 600:
+                self.rect.bottom = 600
+                self.gravity = 0
     def update(self):
         self.input()
         self.movement()
         self.screen_side_check()
-    def draw(self):
-        pygame.draw.rect(screen, ('#18232d'), self.rect)
-        if gravity_direction: self.hat_rect.midtop = self.rect.midtop
-        else: self.hat_rect.midbottom = self.rect.midbottom
-        pygame.draw.rect(screen,('#747b81'), self.hat_rect)
+        self.rock()
+
+    def draw(self, scroll):
+        drawing_rect = pygame.Rect(self.rect.left - scroll[0], self.rect.top - scroll[1],self.rect.width,self.rect.height)
+        drawing_rock_rect = pygame.Rect(self.rock_rect.left - scroll[0], self.rock_rect.top - scroll[1],self.rock_rect.width,self.rock_rect.height)
+
+        pygame.draw.rect(big_display, self.colour, drawing_rect)
+        pygame.draw.line(big_display, self.colour, drawing_rect.midright,  drawing_rock_rect.midright, 10)
+        pygame.draw.line(big_display, self.colour, drawing_rect.midleft,  drawing_rock_rect.midleft, 10)
+        pygame.draw.rect(big_display, ('#747b81'), drawing_rock_rect )
+
+
 player_class = player()
+
+
 def colision_side_check(rect):
     delta_x = rect.centerx - player_class.rect.centerx
     delta_y = rect.centery - player_class.rect.centery
 
     abs_delta_x = abs(delta_x)
     abs_delta_y = abs(delta_y)
-
-    pygame.draw.line(screen, (255, 0, 0), rect.bottomleft, rect.topright, 25 // 2)
-    pygame.draw.rect(screen, (255, 0, 0), rect, 1)
 
     if abs(abs_delta_x - abs_delta_y) < 25:
         return
@@ -165,6 +249,8 @@ def colision_side_check(rect):
             return "bottom"
         else:
             return "top"
+
+
 def colisions(rect):
     if rect.colliderect(player_class.rect):
         collision_side = colision_side_check(rect)
@@ -186,191 +272,93 @@ def colisions(rect):
         if collision_side == "right":
             player_class.rect.right = rect.left
             player_class.x_speed = 0
-def converter():
+
+
+def game_funciton(scroll):
     global level
     global gravity_direction
-    rect_list = []
-    y_pos = 1
-    for number in num_list:
-        if number == 1:
-            rect_list.append(ground_rect)
-        elif number == 0:
-            rect_list.append(sky_rect)
-        elif number == 2:
-            rect_list.append(lava_rect)
-        elif number == 9:
-            rect_list.append(end_rect)
-    for pos, rect in enumerate(rect_list):
-        if pos == y_pos * 12:
-            y_pos+=1
-        pos -= (y_pos*12)-12
-
-        rect.top = (y_pos*100) -100
-        rect.left = pos  * 100
-
-        if rect == ground_rect:
-            pygame.draw.rect(screen, ("#446482"), rect)
-            colisions(rect)
-        if rect == sky_rect:
-            pygame.draw.rect(screen,("#70a5d7"), rect)
-        if rect == end_rect:
-            pygame.draw.rect(screen,('#6c25be'), rect)
-            if end_rect.colliderect(player_class.rect):
-                print(f"level: {level} time: {timer(False)}")
-                level+=1
-                reset_rects()
-                level_picker()
-        if rect == lava_rect:
-            pygame.draw.rect(screen, ("#bea925"), rect)
-            lava_hitbox_rect.center = rect.center
-            if lava_hitbox_rect.colliderect(player_class.rect):
-                player_class.rect.topleft = 0,0
-                player_class.gravity = 0
-                level_picker()
-                #level = 1
-                #i = rect.x // 100 % 12 + rect.y // 100 * 12
-                #reset_rects()
-                #level_picker()
-                #timer(True)
-                #print("death")
-                #if i >= len(num_list):
-                #     i = len(num_list) - 1
-                #if i < 0:
-                #     i = 0
-                #num_list[i] = 2
-def level_picker():
     global num_list
-    if level == 1:
-        num_list = [0, 0, 0, 0, 0, 9, 9, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    if level == 2:
-        num_list = [0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 9
-            , 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1
-            , 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0
-            , 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0
-            , 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0
-            , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    if level == 3:
-        num_list = [0, 1, 9, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-                    0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1,
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1,
-                    0, 1, 0, 0, 0, 0, 0, 9, 1, 0, 0, 1,
-                    0, 1, 9, 0, 0, 0, 0, 0, 0, 0, 0, 1]
-    if level == 4:
-        num_list = [0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 9,
-                    0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0,
-                    0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0,
-                    0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0,
-                    1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0,
-                    9, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0]
-    if level == 5:
-        num_list = [0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 9,
-                    0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0,
-                    1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0,
-                    1, 1, 2, 0, 0, 0, 1, 0, 0, 1, 1, 1,
-                    9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
-                    1, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1]
-    if level == 6:
-        num_list = [0, 1, 1, 2, 2, 0, 0, 0, 0, 0, 0, 9,
-                    0, 1, 1, 1, 2, 0, 0, 0, 1, 2, 1, 1,
-                    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
-                    0, 1, 0, 0, 1, 1, 1, 2, 0, 0, 1, 2,
-                    0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2, 2,
-                    0, 0, 0, 0, 0, 1, 9, 0, 0, 1, 1, 2]
-    if level == 7:
-        num_list = [0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 9,
-                    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-                    0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0,
-                    0, 2, 0, 1, 9, 2, 2, 2, 1, 0, 2, 0,
-                    0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1]
-    if level == 8:
-        num_list = [0, 1, 2, 0, 0, 0, 0, 0, 1, 0, 0, 1,
-                    0, 1, 2, 0, 1, 1, 0, 0, 0, 0, 0, 1,
-                    0, 1, 1, 0, 2, 2, 1, 0, 0, 1, 0, 1,
-                    0, 0, 0, 0, 0, 2, 2, 2, 1, 9, 9, 9,
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 9, 9,
-                    1, 1, 2, 2, 0, 0, 0, 0, 0, 0, 1, 1]
-    if level == 9:
-        num_list = [0, 1, 1, 1, 1, 2, 1, 2, 2, 2, 2, 2,
-                    0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 9,
-                    0, 0, 0, 1, 0, 2, 0, 1, 1, 0, 0, 9,
-                    0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 9,
-                    1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 9,
-                    1, 1, 2, 0, 0, 1, 0, 0, 2, 2, 2, 1, ]
-    if level == 10:
-        num_list = [0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 9,
-                    1, 1, 2, 2, 0, 0, 0, 2, 2, 2, 2, 0,
-                    0, 0, 1, 2, 0, 0, 0, 0, 2, 1, 1, 0,
-                    0, 0, 0, 0, 2, 2, 0, 0, 2, 1, 0, 0,
-                    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    9, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1]
-    if level == 11:
-        num_list = [0, 0, 0, 0, 1, 9, 0, 0, 2, 1, 0, 2,
-                    1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 2,
-                    2, 9, 2, 0, 0, 0, 1, 0, 0, 0, 0, 2,
-                    2, 0, 2, 1, 0, 0, 0, 1, 1, 1, 0, 2,
-                    2, 0, 2, 2, 1, 0, 0, 0, 0, 0, 0, 2,
-                    0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 1, 2]
-    if level == 12:
-        num_list = [0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 9,
-                    0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0,
-                    0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
-                    2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2]
-    if level == 13:
-        num_list = [0, 0, 1, 0, 0, 9, 9, 0, 0, 1, 0, 9,
-                    0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0,
-                    0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0,
-                    0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    2, 2, 2, 1, 0, 0, 0, 0, 1, 2, 2, 2]
-    if level == 14:
-        num_list = [0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 9, 2,
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 2,
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 2,
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 2,
-                    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 2,
-                    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 9, 2]
+    global button_clicks
+    x = 0
+    y = 0
+    for num in num_list:
+        rect = pygame.Rect(0, 0, 100, 100)
 
-    if level == 15:
-        num_list = [0, 1, 2, 1, 0, 0, 0, 0, 0, 1, 1, 1
-            , 0, 1, 2, 0, 0, 2, 1, 1, 0, 0, 0, 0
-            , 0, 1, 1, 0, 1, 1, 0, 0, 1, 2, 2, 0
-            , 0, 2, 0, 0, 0, 0, 0, 0, 2, 9, 2, 0
-            , 0, 0, 1, 1, 1, 1, 1, 0, 2, 0, 2, 0
-            , 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0]
-    if level == 16:
-        num_list = [0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 2, 2
-            , 0, 0, 0, 2, 2, 0, 1, 1, 2, 0, 2, 2
-            , 0, 0, 0, 0, 2, 0, 0, 1, 2, 0, 1, 2
-            , 2, 0, 0, 0, 0, 1, 0, 0, 2, 0, 0, 0
-            , 2, 2, 0, 0, 0, 0, 2, 0, 2, 1, 2, 0
-            , 2, 2, 2, 0, 0, 0, 0, 0, 1, 2, 2, 9]
-    if level == 17:
-        num_list = [0, 2, 0, 2, 2, 0, 0, 2, 2, 2, 2, 2,
-                    0, 0, 0, 2, 2, 0, 0, 2, 2, 2, 2, 2,
-                    0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 9,
-                    0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 9,
-                    0, 2, 0, 2, 2, 0, 0, 0, 0, 0, 0, 9,
-                    0, 1, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2]
-    if level == 18:
-        pygame.quit()
-        exit()
-    if level == 999:
-        num_list = [0,1,0,2,2,0,0,1,2,2,2,2,
-            0,2,0,2,2,0,0,2,2,2,2,2,
-            0,0,0,1,2,0,0,0,0,0,0,9,
-            0,0,0,1,2,0,0,0,0,0,0,9,
-            0,2,0,2,2,0,0,0,0,0,0,2,
-            0,1,0,0,0,0,0,2,2,2,2,2]
-def reset_rects():
+        rect.topleft = (x,y)
+        x+=100
+
+        if num == 0:
+            pygame.draw.rect(big_display, ("#70a5d7"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
+
+        elif num == 1:
+            pygame.draw.rect(big_display, ("#446482"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
+            colisions(rect)
+
+        elif num == 2:
+            pygame.draw.rect(big_display, ("#bea925"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
+            lava_hitbox_rect.center = rect.center
+            if show_hitboxes:
+                pygame.draw.rect(big_display, ("#000000"), pygame.Rect(lava_hitbox_rect.left - scroll[0], lava_hitbox_rect.top - scroll[1],lava_hitbox_rect.width,lava_hitbox_rect.height))#fix
+            if lava_hitbox_rect.colliderect(player_class.rect):
+                player_class.rect.topleft = 0, 0
+                player_class.gravity = 0
+                reset_rects()
+                print(f"death at {timer(False)}")
+                if sound_effects:
+                    play_sound("death")
+
+                break
+        elif num in (3, 4, 5, 6):
+            pygame.draw.rect(big_display, ("#70a5d7"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
+            rect = create_button(num, rect)
+            pygame.draw.rect(big_display, ("#824464"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
+            if rect.colliderect(player_class.rect):
+                button_clicks += 1
+                reset_rects(True)
+                print(f"button {button_clicks} hit at {timer(False)} in level {level}")
+                if sound_effects:
+                    play_sound("button_hit")
+        elif num == 8:
+            if player_class.rect.colliderect(rect):
+                player_class.rect.right = rect.left
+            y += 100
+            x = 0
+        elif num == 9:
+            pygame.draw.rect(big_display, ('#6c25be'), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
+            if rect.colliderect(player_class.rect):
+                print(f"level: {level} time: {timer(False)}")
+                level += 1
+                button_clicks = 0
+                reset_rects()
+                if sound_effects:
+                    play_sound("finish_level")
+                break
+        else:
+            print("something wrong")
+            print(num)
+
+        # button
+
+
+def create_button(b_type, rect):
+    # button(b_type) directions:
+    #  3
+    # 6   4
+    #  5
+    if b_type == 3 or b_type == 5:
+        rect.size = (b_long, b_short)
+        if b_type == 5:
+            rect.top += 100 - b_short
+        rect.left += (100 - b_long) / 2
+    else:
+        rect.size = (b_short, b_long)
+        if b_type == 4:
+            rect.left += 100 - b_short
+        rect.top += (100 - b_long) / 2
+    return rect
+
+
+def reset_rects(button=False):
     global ground_rect
     global sky_rect
     global end_rect
@@ -379,122 +367,76 @@ def reset_rects():
     global player_class
     global button_rect
     global gravity_direction
-    global buttoning
-    ground_rect = pygame.Rect(-100,0,100,100)
-    sky_rect = pygame.Rect(-100,0,100,100)
-    end_rect = pygame.Rect(-100,0,100,100)
-    lava_rect = pygame.Rect(-100,0,100,100)
-    lava_hitbox_rect = pygame.Rect(-100,0,75,75)
-    button_rect.center =  (-100,-100)
-    gravity_direction = False
-    player_class.rect.topleft = (50,0)
-    buttoning = False
-    player_class.gravity = 0
+    global num_list
+    global button_clicks
+    global scroll
+    ground_rect = pygame.Rect(-100, 0, 100, 100)
+    sky_rect = pygame.Rect(-100, 0, 100, 100)
+    end_rect = pygame.Rect(-100, 0, 100, 100)
+    lava_rect = pygame.Rect(-100, 0, 100, 100)
+    lava_hitbox_rect.center = (-100, 0)
+    button_rect.center = (-100, -100)
+    button_rect = pygame.Rect(-100, 0, 100, 100)
+    if button == False:
+        gravity_direction = False
+        player_class.rect.topleft = (50, 0)
+        player_class.gravity = 0
+        player_class.rock_rect.midtop = player_class.rect.midtop
+        button_clicks = 0
+        scroll = [0,0]
+
+
+    num_list = level_picker(level, button_clicks, new_levels)
+
+
 def timer(reset):
     global last_run_time
     current_time = pygame.time.get_ticks()
     if reset:
         last_run_time = current_time
-    run_time = float((current_time - last_run_time)/1000)
-    score_display = font.render(f"{run_time}", False,("#8f5a28"))
-    score_rect = score_display.get_rect(midtop = (600,0))
-    screen.blit(score_display,score_rect)
+    run_time = float((current_time - last_run_time) / 1000)
+    if level > 22:
+        score_display = big_font.render(f"{run_time}", False, ("#8f5a28"))
+        score_rect = score_display.get_rect(midtop=(1200, 0))
+    else:              
+        score_display = font.render(f"{run_time}", False, ("#8f5a28"))
+        score_rect = score_display.get_rect(midtop=(600, 0))
+    
+    big_display.blit(score_display, score_rect)
     return run_time
-def button():
-    global button_rect
-    global num_list
-    global buttoning
-    if level == 1:
-        if buttoning == False:
-            button_rect = pygame.Rect(0,580,100,20)
-    pygame.draw.rect(screen,("red"),button_rect)
-    if button_rect.colliderect(player_class.rect):
-        if level == 1:
-            num_list = [2,2,2,2,2,9,9,2,2,2,2,2,
-                        2,2,2,2,2,2,2,2,1,1,1,2,
-                        2,2,2,2,2,2,2,1,1,9,9,2,
-                        2,2,2,2,2,2,2,1,1,1,1,2,
-                        2,2,2,2,2,2,2,1,1,1,1,2,
-                        0,2,2,2,2,2,2,2,1,2,1,2]
-            button_rect = pygame.Rect(0,0,0,0)
-            buttoning = True
+
+def play_sound(name):
+    # pygame.mixer.music.stop()
+    pygame.mixer.Sound.play(sounds[name])
+    # pygame.mixer.Sound.play(pygame.mixer.Sound(f"sounds/{name}.wav"))
+
+def camera(scroll):
+    scroll[0] += (player_class.rect.centerx- big_display.get_width() / 2- scroll[0]) /2
+    scroll[1] += (player_class.rect.centery- big_display.get_height() / 2- scroll[1]) /2
+    return [int(scroll[0]), int(scroll[1])]
+
+
+print(f'loading took: {time.time() - start}')
+
 reset_rects()
-level_picker()
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            exit()
 
-# ====================================================
+    big_display.fill(("#446482"))
 
-events = []
-
-# def create_savestate(slot):
-#     movie.write_savestate(slot)
-#     print(f"Created savestate at slot {slot}")
-#
-# def load_savestate(slot): # TODO: fix rendering and allowing saving and loading from non-frame advance state
-#
-#     if slot is not None:
-#         res = movie.parse_lines_of_savestate(slot)
-#
-#         if res is None:
-#             print("Empty savestate recieved.")
-#             return
-#
-#     global loading_savestate, clock_speed, frame_advance
-#
-#     clock_speed = 0
-#     reinitialize()
-#     # frame_advance = True
-#
-#     loading_savestate = "true"
-
-# ====================================================
-
-while 1:
-
-    if t.frame_advance:
-        event = pygame.event.wait()
-        while not (event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT):
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
-                t.frame_advance = False
-                break
-
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_w:
-                t.create_savestate(0)
-
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_2:
-                t.load_savestate(0, reinitialize)
-                break
-
-            events.append(event)
-            if event.type == pygame.QUIT:
-                break
-
-            event = pygame.event.wait()
-
-    if t.physics:
-        for event in events + pygame.event.get():
-
-            if event.type == pygame.QUIT:
-                if t.mode == "write":
-                    t.finish_movie()
-                pygame.quit()
-                exit()
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
-                t.frame_advance = True
-
-        events = []
-    screen.fill(("#70a5d7"))
-
-    # level_picker()
+    if level > 22:
+        scroll = camera(scroll)
     player_class.update()
-    converter()
-    button()
-    player_class.draw()
+    game_funciton(scroll)
+    player_class.draw(scroll)
     timer(False)
+    if level > 22:
+        screen.blit(pygame.transform.scale(big_display,(1200,600)), (0,0))
+    else: screen.blit(big_display, (0,0))
 
-    if t.loading_savestate != "true":
-        pygame.display.update()
+    pygame.display.update()
+    clock.tick(60)
 
-    clock.tick(t.clock_speed)
-    physics = True
-
-    # print(frame)
