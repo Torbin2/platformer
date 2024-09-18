@@ -7,10 +7,10 @@ import threading
 
 start = time.time()
 
-show_hitboxes = True
-sound_effects = False
-rock_sound_effects = False
-music = False
+SHOW_HITBOXES = True
+SFX = False
+ROCK_SFX = False
+MUSIC = False
 MAX_SPEED = True
 
 import pygame
@@ -30,40 +30,47 @@ scroll = [0,0]
 
 gravity_direction = True
 num_list = []
-new_levels =[[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,8]]
-#new_levels =[[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
-#0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
-#0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
-#0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
-#0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
-#0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
-#0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
-#0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
-#0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
-#0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
-#0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
-#0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 
-#]]
+new_levels =[[0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,
+              0,0,0,3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,
+              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,
+              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,
+              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,8,
+              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,8,
+              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,8,
+              0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,8,
+              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,8,
+              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,
+              0,0,0,0,0,0,1,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,
+              0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,
+              0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,
+              0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,
+              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,8,
+              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,
+              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,
+              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,
+              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,
+              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,
+              1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,8]]
 level = 0
 game_on = True
 last_run_time = 0
 
-test_level = 24
+test_level = 999
 
 stone_slide: typing.Union[None, pygame.mixer.Sound] = None
 
 
-if rock_sound_effects and not sound_effects:
+if ROCK_SFX and not SFX:
     raise ValueError('rock_sound_effects can only be enabled with the other sound effects (sound_effects)')
 
-if sound_effects:
+if SFX:
     sounds = {}
     for sound in os.listdir("assets/sounds"):
         if sound == 'stone_slide.wav':
             continue
 
         sounds[sound.split('.')[0]] = pygame.mixer.Sound(f"assets/sounds/{sound}")
-    if rock_sound_effects:
+    if ROCK_SFX:
         def load_stone_slide():
             global stone_slide
             stone_slide = pygame.mixer.Sound("assets/sounds/stone_slide.wav")
@@ -71,15 +78,15 @@ if sound_effects:
         load_stone_slide_thread = threading.Thread(name='load_stone_slide_thread', target=load_stone_slide)
         load_stone_slide_thread.start()
 
-if music:
+if MUSIC:
     musics = []
-    for sound_effects in os.listdir('assets/music'):
-        musics.append(f'assets/music/{sound_effects}')
+    for SFX in os.listdir('assets/music'):
+        musics.append(f'assets/music/{SFX}')
     random.shuffle(musics)
 
     pygame.mixer.music.load(musics[0])
-    for sound_effects in musics[1:]:
-        pygame.mixer.music.queue(sound_effects)
+    for SFX in musics[1:]:
+        pygame.mixer.music.queue(SFX)
     pygame.mixer.music.play(loops = -1)
 
 font = pygame.font.Font(("assets/Pixeltype.ttf"), 50)
@@ -168,11 +175,11 @@ class player:
         self.rock_rect.x += self.x_speed
 
         if abs(self.rock_grav) > 2:
-            if rock_sound_effects and not self.slide_state and stone_slide is not None:
+            if ROCK_SFX and not self.slide_state and stone_slide is not None:
                 stone_slide.play()
                 self.slide_state = True
         else:
-            if rock_sound_effects and self.slide_state and stone_slide is not None:
+            if ROCK_SFX and self.slide_state and stone_slide is not None:
                 stone_slide.stop()
                 self.slide_state = False
 
@@ -183,12 +190,12 @@ class player:
 
         if self.rock_rect.top <= self.rect.top - 10:
             self.rock_rect.top = self.rect.top - 8
-            if abs(self.rock_grav) > 2 and rock_sound_effects:
+            if abs(self.rock_grav) > 2 and ROCK_SFX:
                 play_sound('rock')
             self.rock_grav = 0
         elif self.rock_rect.bottom >= self.rect.bottom + 10:
             self.rock_rect.bottom = self.rect.bottom + 8
-            if abs(self.rock_grav) > 2 and rock_sound_effects:
+            if abs(self.rock_grav) > 2 and ROCK_SFX:
                 play_sound('rock')
             self.rock_grav = 0
         if self.rock_rect.left < self.rect.left - 10:
@@ -291,39 +298,40 @@ def game_funciton(scroll):
 
         rect.topleft = (x,y)
         x+=100
+        #if  100 < rect.centerx - scroll[0] < 2500 and 100 < rect.centery - scroll[1] < 1100:
+        if  -50 < rect.centerx - scroll[0] < 2650 and -50 < rect.centery - scroll[1] < 1250: #optimization?
+            if num == 0:
+                pygame.draw.rect(big_display, ("#70a5d7"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
 
-        if num == 0:
-            pygame.draw.rect(big_display, ("#70a5d7"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
+            elif num == 1:
+                pygame.draw.rect(big_display, ("#446482"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
+                colisions(rect)
 
-        elif num == 1:
-            pygame.draw.rect(big_display, ("#446482"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
-            colisions(rect)
+            elif num == 2:
+                pygame.draw.rect(big_display, ("#bea925"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
+                lava_hitbox_rect.center = rect.center
+                if SHOW_HITBOXES:
+                    pygame.draw.rect(big_display, ("#000000"), pygame.Rect(lava_hitbox_rect.left - scroll[0], lava_hitbox_rect.top - scroll[1],lava_hitbox_rect.width,lava_hitbox_rect.height))#fix
+                if lava_hitbox_rect.colliderect(player_class.rect):
+                    player_class.rect.topleft = 0, 0
+                    player_class.gravity = 0
+                    reset_rects()
+                    print(f"death at {timer(False)}")
+                    if SFX:
+                        play_sound("death")
 
-        elif num == 2:
-            pygame.draw.rect(big_display, ("#bea925"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
-            lava_hitbox_rect.center = rect.center
-            if show_hitboxes:
-                pygame.draw.rect(big_display, ("#000000"), pygame.Rect(lava_hitbox_rect.left - scroll[0], lava_hitbox_rect.top - scroll[1],lava_hitbox_rect.width,lava_hitbox_rect.height))#fix
-            if lava_hitbox_rect.colliderect(player_class.rect):
-                player_class.rect.topleft = 0, 0
-                player_class.gravity = 0
-                reset_rects()
-                print(f"death at {timer(False)}")
-                if sound_effects:
-                    play_sound("death")
-
-                break
-        elif num in (3, 4, 5, 6):
-            pygame.draw.rect(big_display, ("#70a5d7"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
-            rect = create_button(num, rect)
-            pygame.draw.rect(big_display, ("#824464"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
-            if rect.colliderect(player_class.rect):
-                button_clicks += 1
-                reset_rects(True)
-                print(f"button {button_clicks} hit at {timer(False)} in level {level}")
-                if sound_effects:
-                    play_sound("button_hit")
-        elif num == 8:
+                    break
+            elif num in (3, 4, 5, 6):
+                pygame.draw.rect(big_display, ("#70a5d7"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
+                rect = create_button(num, rect)
+                pygame.draw.rect(big_display, ("#824464"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
+                if rect.colliderect(player_class.rect):
+                    button_clicks += 1
+                    reset_rects(True)
+                    print(f"button {button_clicks} hit at {timer(False)} in level {level}")
+                    if SFX:
+                        play_sound("button_hit")
+        if num == 8:
             if player_class.rect.colliderect(rect):
                 player_class.rect.right = rect.left
             y += 100
@@ -335,12 +343,12 @@ def game_funciton(scroll):
                 level += 1
                 button_clicks = 0
                 reset_rects()
-                if sound_effects:
+                if SFX:
                     play_sound("finish_level")
                 break
-        else:
+        if num not in (0,1,2,3,4,5,6,8,9):
             print("something wrong")
-            print(num)
+            print(num, scroll, rect.center)
 
         # button
 
