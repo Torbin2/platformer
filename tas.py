@@ -17,10 +17,9 @@ class MovieMode(Enum):
 
 class TASHandler:
 
-    def __init__(self):
+    def __init__(self, gameversion):
 
-        self.movie = TASMovie()
-        self.mode = "write"
+        self.movie = TASMovie(gameversion)
         self.frame = 0
         self.frame_advance = False
         self.loading_savestate = False
@@ -29,34 +28,35 @@ class TASHandler:
         self.physics = True
 
         with open("tasconfig.txt", "r") as f:
-            self.mode = f.read()
+            mode = f.read()
+            if mode == 'write':
+                self.mode = MovieMode.WRITE
+            elif mode == 'read':
+                self.mode = MovieMode.READ
+            else:
+                raise ValueError(f"unsupported mode: {mode} (tasconfig.txt)")
 
     def init_movie(self):
-        if self.mode == "write":
+        if self.mode == MovieMode.WRITE:
             self.movie.write_header()
-        elif self.mode == "read":
+        elif self.mode == MovieMode.READ:
             self.frame_advance = False
             self.movie.read_inputs()
 
     def finish_movie(self):
-        if self.mode == "write":
+        if self.mode == MovieMode.WRITE:
             self.movie.write_end()
 
     def pressed(self, normal_pressed: bool, key: str):
-        # print(f'key: {key}, normal_pressed: {normal_pressed}, p: {(self.mode != "read" and not self.loading_savestate and normal_pressed) or (self.mode == "read" and eval(f"self.movie.get_inputs(self.frame).{key}")) or (self.mode == "write" and self.loading_savestate and eval(f"self.movie.get_inputs(self.frame).{key}"))}')
-        return (self.mode != "read" and not self.loading_savestate and normal_pressed) or (self.mode == "read" and eval(f"self.movie.get_inputs(self.frame).{key}")) or (self.mode == "write" and self.loading_savestate and eval(f"self.movie.get_inputs(self.frame).{key}"))
-
-
-
+        if self.mode == MovieMode.WRITE and self.loading_savestate:
+            return normal_pressed
+        else:
+            return getattr(self.movie.get_inputs(self.frame), key)
 
     def handle_input(self, keys):
-
         if self.physics:
-
-            if self.mode == "write":
-
+            if self.mode == MovieMode.WRITE:
                 if self.loading_savestate:
-
                     self.frame_advance = False
 
                     if self.frame >= self.movie.inputs.__len__() - 1:
@@ -73,9 +73,10 @@ class TASHandler:
                                        keys[pygame.K_r],
                                        keys[pygame.K_t]])
 
-            elif self.mode == "read":
+            elif self.mode == MovieMode.READ:
                 pass
 
+        # TODO: should this increment when self.physics is False ?
         self.frame += 1
 
     def create_savestate(self, slot: int):
@@ -99,8 +100,8 @@ class TASHandler:
 
 class TASMovie:
 
-    def __init__(self):
-        self.gameversion = 102
+    def __init__(self, gameversion: int):
+        self.gameversion = gameversion  # abc = Va.b.c
         self.filename = "test.ptm"
         # self.studio = []
 
@@ -204,7 +205,9 @@ class TASMovie:
                 if i == 1:
                     if contents[1].startswith("!gameversion"):
                         try:
-                            self.gameversion = contents[1].split(" ")[1]
+                            gameversion = contents[1].split(" ")[1]
+                            if gameversion != self.gameversion:
+                                raise ValueError("TAS not for this version of platformer")
                             continue
                         except:
                             raise ValueError("Malformed Platformer TAS Movie file found! check !gameversion line 1")

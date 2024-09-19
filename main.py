@@ -8,8 +8,8 @@ import threading
 start = time.time()
 
 show_hitboxes = True
-sound_effects = True
-rock_sound_effects = True
+sound_effects = False
+rock_sound_effects = False
 music = False
 MAX_SPEED = True
 
