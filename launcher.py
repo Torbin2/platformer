@@ -24,7 +24,7 @@ keys = None
 platformer = None
 
 with open(to_run_module_file_name, 'r') as file:
-    version = file.readline()
+    version = file.readline()[:-1]
     if version[:3] != '# V':
         raise ValueError()
     version = version[3:]
@@ -33,10 +33,11 @@ with open(to_run_module_file_name, 'r') as file:
     out = ''
     for s in split:
         if len(s) > 1:
-            raise ValueError()
+            raise ValueError(repr(s))
         out += s
     gameversion = int(out)
 
+print(f'Parsed game version: {gameversion}')
 tas_handler = tas.TASHandler(gameversion)
 tas_handler.init_movie()
 our_clock = pygame.time.Clock()

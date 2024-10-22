@@ -205,15 +205,17 @@ class TASMovie:
                 if i == 1:
                     if contents[1].startswith("!gameversion"):
                         try:
-                            gameversion = contents[1].split(" ")[1]
+                            try:
+                                gameversion = int(contents[1].split(" ")[1])
+                            except ValueError:
+                                raise ValueError("Malformed Platformer TAS Movie file found! check !gameversion line 1 (Version is not an int)")
                             if gameversion != self.gameversion:
                                 raise ValueError("TAS not for this version of platformer")
                             continue
-                        except:
+                        except IndexError:
                             raise ValueError("Malformed Platformer TAS Movie file found! check !gameversion line 1")
                     else:
                         raise KeyError("Platformer TAS Movie should include gameversion attribute")
-
 
                 if line.startswith("!input-start"):
                     print("Start of the inputs")
