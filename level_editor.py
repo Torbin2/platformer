@@ -20,7 +20,7 @@ class Block:
                 return ("#824464")
             elif num == 8:
                 return ("green")
-            elif num == 9 or num == 7:
+            elif num == 9:
                 return ('#6c25be')
             else:
                 print("eror", num)
@@ -41,12 +41,14 @@ class Level_editor:
         with open("new_levels.json", "r") as f:
 
             self.levels = json.load(f)
-        self.num_list = self.levels[self.button_depth]
+        self.num_list = self.convert(self.levels[self.button_depth])
 
     def convert(self, nums):
         new_list = []
-        for num in nums:
-            new_list.append(num)
+        for num, type in enumerate(nums):
+            new_list.append(Block(num, type))
+
+        return new_list
 
         
 
@@ -70,33 +72,37 @@ class Level_editor:
                 #             print(print_list + "],")
                 #         print("]")
 
-                    if event.key == pygame.K_s:
-                        num_list = []
-                        for i in self.num_list:
-                            num_list.append(int(i.type))
+                    if event.key == pygame.K_a:
+                        nlist = []
+                        for num,i in enumerate(self.num_list):
+                            nlist.append(int(i.type))
+                            if num % 13 == 12:
+                                nlist.append(8)
 
-                        print(num_list)
-                        self.levels.append(num_list)
+                        # print(nlist)
+                        self.levels.append(nlist)
                         print("saved")
                     
-                    elif event.key == pygame.K_c:
-                        self.levels = []
-                        print("cleared")
-
-                    elif event.key == pygame.K_n:
+                    elif event.key == pygame.K_s:
                         with open("new_levels.json", "w") as file:
-                            x = [[0] * (12 * 6)]
+                            json.dump(self.levels, file)
+
+                    elif event.key == pygame.K_n: #refresh level
+                        with open("new_levels.json", "w") as file:
+                            x = [[]]
                             json.dump(x, file)
-                            self.levels = [[0] * (12 * 6)]
+                            self.levels = [[]]
                             self.button_depth = 0
-                            self.num_list = self.levels[self.button_depth]
+                            self.num_list = self.convert(self.levels[self.button_depth])
+
 
                     elif event.key == pygame.K_b:
-                        if self.button_depth < self.levels.len() - 1:
+                        if self.button_depth < self.levels.__len__() - 1:
                             self.button_depth +=1
                         else : self.button_depth = 0
 
-                        self.num_list = self.levels[self.button_depth]
+                        self.num_list = self.convert(self.levels[self.button_depth])
+
                                             
                     elif event.key == pygame.K_l:
                         self.offset +=100
@@ -115,9 +121,14 @@ class Level_editor:
             self.screen.fill("black")
             self.mous()
             if self.key_press[0]:
-                self.num_list[self.selected_rect].type = self.key_press[1]
+                if self.selected_rect < self.num_list.__len__():
+                    self.num_list[self.selected_rect].type = self.key_press[1]
+                else:
+                    over = self.selected_rect - self.num_list.__len__() + 1
+                    for i in range(over):
+                        self.num_list.append(Block( self.num_list.__len__(), 0))
+                                
 
-            print(self.num_list)
             for rect in self.num_list:
                 rect.update(self.screen)
             
