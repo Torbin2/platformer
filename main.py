@@ -112,7 +112,7 @@ class player:
         global gravity_direction
         global level
         keys = pygame.key.get_pressed()
-        current_time = pygame.time.get_ticks()
+         # current_time = pygame.time.get_ticks()
         if keys[pygame.K_a]:
             if MAX_SPEED: self.x_speed = max(-30 * self.speed_mult, self.x_speed - 1 * self.speed_mult)
             else: self.x_speed = self.x_speed - 1 * self.speed_mult
