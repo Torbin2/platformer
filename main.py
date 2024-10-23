@@ -85,6 +85,8 @@ b_short = 35
 button_clicks = 0
 death_sound_factor = 1.0
 
+total_frames = 0
+
 # colour scheme, #446482, #70a5d7, #18232d
 
 class player:
@@ -118,9 +120,9 @@ class player:
             if MAX_SPEED: self.x_speed = min(30 * self.speed_mult, self.x_speed + 1 * self.speed_mult)
             else: self.x_speed = self.x_speed + 1 * self.speed_mult
             #print(self.x_speed)
-        if keys[pygame.K_SPACE] and current_time - self.last_press > 150:
+        if keys[pygame.K_SPACE] and frames_timer - self.last_press > 9:
             gravity_direction = not gravity_direction
-            self.last_press = current_time
+            self.last_press = frames_timer
             self.grounded = False
             # play_sound("switch_gravity")
         if keys[pygame.K_t]:
@@ -440,6 +442,8 @@ while True:
     if level > 22:
         screen.blit(pygame.transform.scale(big_display,(1200,600)), (0,0))
     else: screen.blit(big_display, (0,0))
+
+    total_frames += 1
 
     pygame.display.update()
     clock.tick(60)
