@@ -2,7 +2,7 @@ from sys import exit
 import pygame
 
 
-def level_picker(level, button_clicks, new_levels):
+def level_picker(level, button_clicks):
 
 
   levels = [[[0, 0, 0, 0, 0, 9, 9, 0, 0, 0, 0, 0,8,
@@ -328,8 +328,6 @@ def level_picker(level, button_clicks, new_levels):
   if level >= len(levels) and level <= 900:
       pygame.quit()
       exit()
-  elif level >= 999:
-      num_list = new_levels[button_clicks]
       
   else:
       num_list = levels[level][button_clicks]
