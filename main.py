@@ -120,9 +120,9 @@ class player:
             if MAX_SPEED: self.x_speed = min(30 * self.speed_mult, self.x_speed + 1 * self.speed_mult)
             else: self.x_speed = self.x_speed + 1 * self.speed_mult
             #print(self.x_speed)
-        if keys[pygame.K_SPACE] and frames_timer - self.last_press > 9:
+        if keys[pygame.K_SPACE] and total_frames - self.last_press > 9:
             gravity_direction = not gravity_direction
-            self.last_press = frames_timer
+            self.last_press = total_frames
             self.grounded = False
             # play_sound("switch_gravity")
         if keys[pygame.K_t]:
@@ -388,18 +388,16 @@ def timer(reset):
     global last_run_time
     global frames_timer
     
-    if FRAMES_TIMER == False:
-        current_time = pygame.time.get_ticks()
-        if reset:
-            last_run_time = current_time
-        run_time = float((current_time - last_run_time) / 1000)
-    else:
+    if FRAMES_TIMER:
         frames_timer += 1
         run_time = frames_timer
         if reset:
             frames_timer = 0
-
-    
+    else:
+        current_time = pygame.time.get_ticks()
+        if reset:
+            last_run_time = current_time
+        run_time = float((current_time - last_run_time) / 1000)
     
     if level > 22:
         score_display = big_font.render(f"{run_time}", False, ("#8f5a28"))
@@ -425,7 +423,8 @@ def camera(scroll):
 print(f'loading took: {time.time() - start}')
 
 reset_rects()
-while True:
+while 1:
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -443,7 +442,7 @@ while True:
         screen.blit(pygame.transform.scale(big_display,(1200,600)), (0,0))
     else: screen.blit(big_display, (0,0))
 
-    total_frames += 1
-
     pygame.display.update()
     clock.tick(60)
+
+    total_frames += 1
