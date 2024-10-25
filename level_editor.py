@@ -4,6 +4,8 @@ import json
 class Block:
         def __init__(self,num, type ):
             self.rect = pygame.Rect((num % 13)*100, (num//13)*100, 100,100)
+            if type in (3,4,5,6):
+                self.rect = self.create_button(type ,self.rect)
             self.type = type
             self.num = num
         def update(self, screen):
@@ -19,12 +21,31 @@ class Block:
             elif num in (3,4,5,6):
                 return ("#824464")
             elif num == 8:
-                return ("#3fd847")
+                return ("#a3ef90")
             elif num == 9:
                 return ('#6c25be')
             else:
                 print("eror", num)
                 return("red")
+            
+        def create_button(self, b_type, rect):
+            # button(b_type) directions:
+            #  3
+            # 6   4
+            #  5
+            if b_type == 3 or b_type == 5:
+                rect.size = (80, 35)
+                if b_type == 5:
+                    rect.top += 100 - 35
+                rect.left += (100 - 80) / 2
+            else:
+                rect.size = (35, 80)
+                if b_type == 4:
+                    rect.left += 100 - 35
+                rect.top += (100 - 80) / 2
+
+
+            return rect
             
 
 class Level_editor:
@@ -124,11 +145,13 @@ class Level_editor:
                     self.key_press = [False,0]
                     
                     
-            self.screen.fill("black")
+            self.screen.fill("#296d18")
             self.mous()
             if self.key_press[0]:
                 if self.selected_rect < self.num_list.__len__():
-                    self.num_list[self.selected_rect].type = self.key_press[1]
+                    self.num_list[self.selected_rect] = Block(self.selected_rect, self.key_press[1])
+
+
                 else:
                     over = self.selected_rect - self.num_list.__len__() + 1
                     for i in range(over):
