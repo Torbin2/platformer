@@ -7,8 +7,8 @@ import threading
 
 start = time.time()
 
-SHOW_HITBOXES = True
-SFX = True
+SHOW_HITBOXES = False
+SFX = False
 ROCK_SFX = False
 MUSIC = False
 MAX_SPEED = True
@@ -60,14 +60,14 @@ if SFX:
 
 if MUSIC:
     musics = []
-    for SFX in os.listdir('assets/music'):
-        musics.append(f'assets/music/{SFX}')
+    for music in os.listdir('assets/music'):
+        musics.append(f'assets/music/{music}')
     random.shuffle(musics)
 
     pygame.mixer.music.load(musics[0])
-    for SFX in musics[1:]:
-        pygame.mixer.music.queue(SFX)
-    pygame.mixer.music.play(loops = -1)
+    for music in musics[1:]:
+        pygame.mixer.music.queue(music)
+    pygame.mixer.music.play(loops=-1)
 
 font = pygame.font.Font(("assets/Pixeltype.ttf"), 50)
 big_font = pygame.font.Font(("assets/Pixeltype.ttf"), 100)
