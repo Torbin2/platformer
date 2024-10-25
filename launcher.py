@@ -4,6 +4,7 @@ import sys
 import pygame
 
 import tas
+# from main import big_display
 
 TO_RUN_MODULE = 'main'
 to_run_module_file_name = TO_RUN_MODULE + '.py'
@@ -87,12 +88,20 @@ def update(*args, **kwargs):
                     run = False
 
         rect = platformer.player_class.rect
-        pygame.draw.rect(platformer.screen, (255, 0, 0), rect)
+
+        drawing_rect = pygame.Rect(rect.left - platformer.scroll[0], rect.top - platformer.scroll[1], rect.width, rect.height)
+        pygame.draw.rect(platformer.big_display,  (255, 0, 0), drawing_rect)
 
         height = rect.height // 3
-        t = (rect.bottomleft[0], rect.bottomleft[1] - height) if platformer.gravity_direction else rect.topleft
-        pygame.draw.rect(platformer.screen, (255, 255, 255), (t[0], t[1], rect.width, height))
-        print(platformer.gravity_direction)
+        t = (rect.bottomleft[0] - platformer.scroll[0], rect.bottomleft[1] - height - platformer.scroll[1]) if platformer.gravity_direction else (rect.topleft[0] - platformer.scroll[0], rect.topleft[1] - platformer.scroll[1])
+        pygame.draw.rect(platformer.big_display, (255, 255, 255), (t[0], t[1], rect.width, height))
+
+        print("direction", platformer.gravity_direction)
+
+        if platformer.level > 22:
+            platformer.screen.blit(pygame.transform.scale(platformer.big_display, (1200, 600)), (0, 0))
+        else:
+            platformer.screen.blit(platformer.big_display, (0, 0))
 
         pygame.display.update()
 
