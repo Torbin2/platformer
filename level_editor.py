@@ -114,13 +114,16 @@ class Level_editor:
                         with open("new_levels.json", "w") as file:
                             json.dump(self.levels, file)
 
-                    elif event.key == pygame.K_n: #refresh level
+                    elif event.key == pygame.K_n: #refresh levels
                         with open("new_levels.json", "w") as file:
                             x = [[]]
                             json.dump(x, file)
                             self.levels = [[]]
                             self.button_depth = 0
                             self.num_list = self.convert(self.levels[self.button_depth])
+
+                    elif event.key == pygame.K_r: #refresh level
+                        num_list = []
 
 
                     elif event.key == pygame.K_b:
