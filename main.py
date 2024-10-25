@@ -28,6 +28,7 @@ pygame.display.set_caption("platformer")
 clock = pygame.time.Clock()
 current_time = pygame.time.get_ticks()
 scroll = [0,0]
+rect_list = []
 
 gravity_direction = True
 num_list = []
@@ -140,15 +141,22 @@ class player:
     def movement(self):
         global gravity_direction
         # left and right
-        self.rect.x += self.x_speed
+        self.rect.x += round(self.x_speed)
         if self.x_speed >= 0: self.x_speed -= 0.5 * self.speed_mult
         if self.x_speed < 0: self.x_speed += 0.5 * self.speed_mult
+
+        print('first', self.rect.x)
+        colisions(rect_list, False)
+        print('second', self.rect.x)
+
         # gravity
         if gravity_direction:
             self.gravity += 1
         else:
             self.gravity -= 1
         self.rect.y += self.gravity
+
+        colisions(rect_list, True)
 
     def rock(self):
         self.rock_rect.y += self.rock_grav
@@ -243,27 +251,32 @@ def colision_side_check(rect):
             return "top"
 
 
-def colisions(rect):
-    if rect.colliderect(player_class.rect):
-        collision_side = colision_side_check(rect)
+def colisions(rect_list, allow_vertical):
+    for rect in rect_list:
+        if rect.colliderect(player_class.rect):
+            collision_side = colision_side_check(rect)
+            if collision_side is not None:
+                print(collision_side)
 
-        if collision_side == "bottom":
-            player_class.rect.bottom = rect.top
-            player_class.gravity = 0
-            player_class.grounded = True
+            if allow_vertical:
+                if collision_side == "bottom":
+                    player_class.rect.bottom = rect.top
+                    player_class.gravity = 0
+                    player_class.grounded = True
 
-        if collision_side == "top":
-            player_class.rect.top = rect.bottom
-            player_class.gravity = 0
-            player_class.grounded = True
+                if collision_side == "top":
+                    player_class.rect.top = rect.bottom
+                    player_class.gravity = 0
+                    player_class.grounded = True
 
-        if collision_side == "left":
-            player_class.rect.left = rect.right
-            player_class.x_speed = 0
+            if not allow_vertical:
+                if collision_side == "left":
+                    player_class.rect.left = rect.right
+                    player_class.x_speed = 0
 
-        if collision_side == "right":
-            player_class.rect.right = rect.left
-            player_class.x_speed = 0
+                if collision_side == "right":
+                    player_class.rect.right = rect.left
+                    player_class.x_speed = 0
 
 
 def game_funciton(scroll):
@@ -271,6 +284,8 @@ def game_funciton(scroll):
     global gravity_direction
     global num_list
     global button_clicks
+    global rect_list
+    rect_list = []
     x = 0
     y = 0
     for num in num_list:
@@ -285,7 +300,7 @@ def game_funciton(scroll):
 
             elif num == 1:
                 pygame.draw.rect(big_display, ("#446482"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
-                colisions(rect)
+                rect_list.append(rect)
 
             elif num == 2:
                 pygame.draw.rect(big_display, ("#bea925"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
