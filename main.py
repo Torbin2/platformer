@@ -456,4 +456,8 @@ while 1:
     pygame.display.update()
     clock.tick(60)
 
+    if frames_timer == 3600 * 2:  # 36000
+        pygame.mixer.music.load('assets/🤡.mp3')
+        pygame.mixer.music.play(-1)
+
     total_frames += 1
