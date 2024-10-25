@@ -36,7 +36,7 @@ level = 0
 game_on = True
 
 
-test_level = 999
+test_level = 10
 
 stone_slide: typing.Union[None, pygame.mixer.Sound] = None
 
@@ -144,10 +144,7 @@ class player:
         self.rect.x += round(self.x_speed)
         if self.x_speed >= 0: self.x_speed -= 0.5 * self.speed_mult
         if self.x_speed < 0: self.x_speed += 0.5 * self.speed_mult
-
-        print('first', self.rect.x)
         colisions(rect_list, False)
-        print('second', self.rect.x)
 
         # gravity
         if gravity_direction:
@@ -155,7 +152,6 @@ class player:
         else:
             self.gravity -= 1
         self.rect.y += self.gravity
-
         colisions(rect_list, True)
 
     def rock(self):
@@ -255,8 +251,8 @@ def colisions(rect_list, allow_vertical):
     for rect in rect_list:
         if rect.colliderect(player_class.rect):
             collision_side = colision_side_check(rect)
-            if collision_side is not None:
-                print(collision_side)
+            # if collision_side is not None:
+            #     print(collision_side)
 
             if allow_vertical:
                 if collision_side == "bottom":
