@@ -1,4 +1,4 @@
-# V1.7.1
+# V1.8.0
 import os
 import random
 import time
@@ -10,7 +10,7 @@ start = time.time()
 SHOW_HITBOXES = False
 SFX = False
 ROCK_SFX = False
-MUSIC = False
+MUSIC = True
 MAX_SPEED = True
 FRAMES_TIMER = True
 
