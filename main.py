@@ -10,7 +10,7 @@ start = time.time()
 SHOW_HITBOXES = True
 SFX = True
 ROCK_SFX = False
-MUSIC = True
+MUSIC = False
 MAX_SPEED = True
 FRAMES_TIMER = True
 

@@ -19,7 +19,7 @@ class Block:
             elif num in (3,4,5,6):
                 return ("#824464")
             elif num == 8:
-                return ("green")
+                return ("#3fd847")
             elif num == 9:
                 return ('#6c25be')
             else:
@@ -45,8 +45,12 @@ class Level_editor:
 
     def convert(self, nums):
         new_list = []
+        x = 0
         for num, type in enumerate(nums):
-            new_list.append(Block(num, type))
+            if type != 8:
+                new_list.append(Block(num - x, type))
+            else: x += 1 #removes 8
+            
 
         return new_list
 
@@ -77,7 +81,9 @@ class Level_editor:
                         for num,i in enumerate(self.num_list):
                             nlist.append(int(i.type))
                             if num % 13 == 12:
+                                print(nlist)
                                 nlist.append(8)
+                                print(nlist)
 
                         # print(nlist)
                         self.levels.append(nlist)
