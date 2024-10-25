@@ -1,58 +1,85 @@
 import pygame
 import json
 
-
 class Block:
-    def __init__(self, num, type):
-        self.rect = pygame.Rect((num % 13) * 100, (num // 13) * 100, 100, 100)
-        self.type = type
-        self.num = num
+        def __init__(self,num, type ):
+            self.rect = pygame.Rect((num % 13)*100, (num//13)*100, 100,100)
+            if type in (3,4,5,6):
+                self.rect = self.create_button(type ,self.rect)
+            self.type = type
+            self.num = num
+        def update(self, screen):
+            pygame.draw.rect(screen, self.colour(self.type),self.rect)
+            pygame.draw.rect(screen, ("black"),self.rect,2)
+        def colour(self, num):
+            if num == 0:
+                return ("#70a5d7")
+            elif num == 1:
+                return ("#446482")
+            elif num == 2:
+                return ("#bea925")
+            elif num in (3,4,5,6):
+                return ("#824464")
+            elif num == 8:
+                return ("#a3ef90")
+            elif num == 9:
+                return ('#6c25be')
+            else:
+                print("eror", num)
+                return("red")
+            
+        def create_button(self, b_type, rect):
+            # button(b_type) directions:
+            #  3
+            # 6   4
+            #  5
+            if b_type == 3 or b_type == 5:
+                rect.size = (80, 35)
+                if b_type == 5:
+                    rect.top += 100 - 35
+                rect.left += (100 - 80) / 2
+            else:
+                rect.size = (35, 80)
+                if b_type == 4:
+                    rect.left += 100 - 35
+                rect.top += (100 - 80) / 2
 
-    def update(self, screen):
-        pygame.draw.rect(screen, self.colour(self.type), self.rect)
-        pygame.draw.rect(screen, ("black"), self.rect, 2)
 
-    def colour(self, num):
-        if num == 0:
-            return ("#70a5d7")
-        elif num == 1:
-            return ("#446482")
-        elif num == 2:
-            return ("#bea925")
-        elif num in (3, 4, 5, 6):
-            return ("#824464")
-        elif num == 8:
-            return ("green")
-        elif num == 9 or num == 7:
-            return ('#6c25be')
-        else:
-            print("eror", num)
-            return ("red")
-
+            return rect
+            
 
 class Level_editor:
     def __init__(self):
-        self.screen = pygame.Surface((1300, 1200))
-        self.real_screen = pygame.display.set_mode((1200, 600))
+        self.screen = pygame.Surface((1300,1200))
+        self.real_screen = pygame.display.set_mode((1200,600))
         pygame.display.set_caption('platformer level editor')
         self.clock = pygame.time.Clock()
         self.selected_rect = 0
-        self.key_press = [False, 0]
+        self.key_press = [False,0]
         self.offset = 0
         self.button_depth = 0
-
+        
         with open("new_levels.json", "r") as f:
+
             self.levels = json.load(f)
-        self.num_list = self.levels[self.button_depth]
+        self.num_list = self.convert(self.levels[self.button_depth])
 
     def convert(self, nums):
         new_list = []
-        for num in nums:
-            new_list.append(num)
+        x = 0
+        for num, type in enumerate(nums):
+            if type != 8:
+                new_list.append(Block(num - x, type))
+            else: x += 1 #removes 8
+            
+
+        return new_list
+
+        
 
     def mous(self):
         mouse_pos = pygame.mouse.get_pos()
-        self.selected_rect = mouse_pos[0] // 100 + (mouse_pos[1] // 100) * 13 + (self.offset // 100) * 13
+        self.selected_rect = mouse_pos[0]//100 + (mouse_pos[1] // 100) *13 + (self.offset //100) *13
 
     def update(self):
         while True:
@@ -61,67 +88,79 @@ class Level_editor:
                     pygame.quit()
                     exit(0)
                 if event.type == pygame.KEYDOWN:
-                    #     if event.key == pygame.K_p:
-                    #         print("[")
-                    #         for i in self.levels:
-                    #             print_list = '['
-                    #             for x in i:
-                    #                 print_list += (str(x) + ", ")
-                    #             print(print_list + "],")
-                    #         print("]")
+                #     if event.key == pygame.K_p:
+                #         print("[")
+                #         for i in self.levels:
+                #             print_list = '['
+                #             for x in i:
+                #                 print_list += (str(x) + ", ")
+                #             print(print_list + "],")
+                #         print("]")
 
-                    if event.key == pygame.K_s:
-                        num_list = []
-                        for i in self.num_list:
-                            num_list.append(int(i.type))
+                    if event.key == pygame.K_a:
+                        nlist = []
+                        for num,i in enumerate(self.num_list):
+                            nlist.append(int(i.type))
+                            if num % 13 == 12:
+                                print(nlist)
+                                nlist.append(8)
+                                print(nlist)
 
-                        print(num_list)
-                        self.levels.append(num_list)
+                        # print(nlist)
+                        self.levels.append(nlist)
                         print("saved")
-
-                    elif event.key == pygame.K_c:
-                        self.levels = []
-                        print("cleared")
-
-                    elif event.key == pygame.K_n:
+                    
+                    elif event.key == pygame.K_s:
                         with open("new_levels.json", "w") as file:
-                            x = [[0] * (12 * 6)]
+                            json.dump(self.levels, file)
+
+                    elif event.key == pygame.K_n: #refresh level
+                        with open("new_levels.json", "w") as file:
+                            x = [[]]
                             json.dump(x, file)
-                            self.levels = [[0] * (12 * 6)]
+                            self.levels = [[]]
                             self.button_depth = 0
-                            self.num_list = self.levels[self.button_depth]
+                            self.num_list = self.convert(self.levels[self.button_depth])
+
 
                     elif event.key == pygame.K_b:
-                        if self.button_depth < self.levels.len() - 1:
-                            self.button_depth += 1
-                        else:
-                            self.button_depth = 0
+                        if self.button_depth < self.levels.__len__() - 1:
+                            self.button_depth +=1
+                        else : self.button_depth = 0
 
-                        self.num_list = self.levels[self.button_depth]
+                        self.num_list = self.convert(self.levels[self.button_depth])
 
+                                            
                     elif event.key == pygame.K_l:
-                        self.offset += 100
+                        self.offset +=100
                     elif event.key == pygame.K_o:
                         if self.offset != 0:
-                            self.offset -= 100
-
+                            self.offset -=100
+                    
                     elif int(event.key) in range(48, 58):
-                        self.key_press = [True, int(event.key) - 48]
-                    else:
-                        print("keyboard issue")
-
+                        self.key_press = [True,int(event.key)-48]
+                    else: print("keyboard issue")
+                
                 if event.type == pygame.KEYUP:
-                    self.key_press = [False, 0]
-
-            self.screen.fill("black")
+                    self.key_press = [False,0]
+                    
+                    
+            self.screen.fill("#296d18")
             self.mous()
             if self.key_press[0]:
-                self.num_list[self.selected_rect].type = self.key_press[1]
+                if self.selected_rect < self.num_list.__len__():
+                    self.num_list[self.selected_rect] = Block(self.selected_rect, self.key_press[1])
 
-            print(self.num_list)
+
+                else:
+                    over = self.selected_rect - self.num_list.__len__() + 1
+                    for i in range(over):
+                        self.num_list.append(Block( self.num_list.__len__(), 0))
+                                
+
             for rect in self.num_list:
                 rect.update(self.screen)
-
+            
             self.real_screen.blit(self.screen, (0, 0 - self.offset))
             pygame.display.update()
             self.clock.tick(60)

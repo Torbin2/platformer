@@ -26,7 +26,7 @@ platformer = None
 with open(to_run_module_file_name, 'r') as file:
     version = file.readline()[:-1]
     if version[:3] != '# V':
-        raise ValueError()
+        raise ValueError("No valid version found with regex # Vn.n.n")
     version = version[3:]
 
     split = version.split('.')
@@ -48,6 +48,9 @@ def get_pressed_init(*args, **kwargs):
 
     global platformer
     platformer = sys.modules[TO_RUN_MODULE]
+
+    if platformer is None:
+        raise ModuleNotFoundError("No platformer instance!")
 
     global WRAP_FUNC
     WRAP_FUNC |= {
