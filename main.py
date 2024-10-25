@@ -36,7 +36,7 @@ level = 0
 game_on = True
 
 
-test_level = 10
+test_level = 999
 
 stone_slide: typing.Union[None, pygame.mixer.Sound] = None
 
