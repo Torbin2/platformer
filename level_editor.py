@@ -1,7 +1,8 @@
 import pygame
 import json
 
-LENGHT = [40] #in blocks
+LENGHT = [5] #in blocks
+#change self.screen size to change y length
 
 class Block:
         def __init__(self,num, type ):
@@ -53,7 +54,7 @@ class Block:
 
 class Level_editor:
     def __init__(self):
-        self.screen = pygame.Surface((LENGHT[0] *100,2400))
+        self.screen = pygame.Surface((LENGHT[0] *100,4800)) #rendering breaks after y-value, so ignore that :)
         self.real_screen = pygame.display.set_mode((LENGHT[0] *100,2400))
         pygame.display.set_caption('platformer level editor')
         self.clock = pygame.time.Clock()
@@ -82,7 +83,7 @@ class Level_editor:
 
     def mous(self):
         mouse_pos = pygame.mouse.get_pos()
-        self.selected_rect = mouse_pos[0]//100 + (mouse_pos[1] // 100) *(LENGHT[0]+1) + (self.offset //100) *13
+        self.selected_rect = mouse_pos[0]//100 + (mouse_pos[1] // 100) *(LENGHT[0]+1) + (self.offset //100) *(LENGHT[0]+1)
 
     def update(self):
         while True:
