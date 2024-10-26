@@ -4,8 +4,9 @@ text = "[\n"
 for num, i in enumerate(level):
     text += "[\n"
     for num, x in enumerate(i):
-        text += str(x)
-        text += ", "
+        if num % 14 != 11:
+            text += str(x)
+            text += ", "
         if num % 14 == 13:
             text += "\n"
     text += "],\n"

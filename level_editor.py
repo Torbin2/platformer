@@ -101,10 +101,9 @@ class Level_editor:
                         nlist = []
                         for num,i in enumerate(self.num_list):
                             nlist.append(int(i.type))
-                            if num % 13 == 12:
-                                print(nlist)
+                            if num % 13 == 12:                               
                                 nlist.append(8)
-                                print(nlist)
+
 
                         # print(nlist)
                         self.levels.append(nlist)
