@@ -10,9 +10,10 @@ start = time.time()
 SHOW_HITBOXES = False
 SFX = False
 ROCK_SFX = False
-MUSIC = True
+MUSIC = False
 MAX_SPEED = True
 FRAMES_TIMER = True
+TEST_STUFF = True
 
 import pygame
 from Levels import level_picker
@@ -36,7 +37,7 @@ level = 0
 game_on = True
 
 
-test_level = 999
+TEST_LEVEL = 999
 
 stone_slide: typing.Union[None, pygame.mixer.Sound] = None
 
@@ -86,6 +87,7 @@ b_short = 35
 button_clicks = 0
 death_sound_factor = 1.0
 
+
 total_frames = 0
 
 # colour scheme, #446482, #70a5d7, #18232d
@@ -99,7 +101,10 @@ class player:
         self.rect = pygame.Rect(100, 100, 50, 100)
         self.x_speed = 0
         self.gravity = 0
+        
         self.last_press = 0
+        self.last_KeyB = 0
+                
         self.grounded = False
         self.colour = ('#47602d')
         # rock
@@ -112,6 +117,9 @@ class player:
     def input(self):
         global gravity_direction
         global level
+        
+        global button_clicks
+        global total_frames
         keys = pygame.key.get_pressed()
          # current_time = pygame.time.get_ticks()
         if keys[pygame.K_a]:
@@ -126,17 +134,23 @@ class player:
             self.last_press = total_frames
             self.grounded = False
             # play_sound("switch_gravity")
-        if keys[pygame.K_t]:
-            level = test_level
-            reset_rects()
-            timer(True)
+        if TEST_STUFF:    
+            if keys[pygame.K_t]:
+                level = TEST_LEVEL
+                reset_rects()
+                timer(True)
+            if keys[pygame.K_b] and total_frames > self.last_KeyB +10:
+                self.last_KeyB = total_frames
+                button_clicks += 1
+                reset_rects(True)
+                print(button_clicks)
         if keys[pygame.K_r]:
             level = 0
             reset_rects()
             timer(True)
         if keys[pygame.K_l]:
-            x = Level_editor()
-            x.update()
+            last_KeyB = Level_editor()
+            last_KeyB.update()
 
     def movement(self):
         global gravity_direction
@@ -455,9 +469,9 @@ while 1:
 
     pygame.display.update()
     clock.tick(60)
-
-    if frames_timer == 3600 * 2:  # 36000
-        pygame.mixer.music.load('assets/🤡.mp3')
-        pygame.mixer.music.play(-1)
+    if MUSIC:
+        if frames_timer == 3600 * 2:  # 36000
+            pygame.mixer.music.load('assets/🤡.mp3')
+            pygame.mixer.music.play(-1)
 
     total_frames += 1

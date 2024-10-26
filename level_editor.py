@@ -1,9 +1,11 @@
 import pygame
 import json
 
+LENGHT = [40] #in blocks
+
 class Block:
         def __init__(self,num, type ):
-            self.rect = pygame.Rect((num % 13)*100, (num//13)*100, 100,100)
+            self.rect = pygame.Rect((num % (LENGHT[0] + 1))*100, (num//(LENGHT[0] + 1))*100, 100,100)
             if type in (3,4,5,6):
                 self.rect = self.create_button(type ,self.rect)
             self.type = type
@@ -48,10 +50,11 @@ class Block:
             return rect
             
 
+
 class Level_editor:
     def __init__(self):
-        self.screen = pygame.Surface((1300,1200))
-        self.real_screen = pygame.display.set_mode((1200,600))
+        self.screen = pygame.Surface((LENGHT[0] *100,2400))
+        self.real_screen = pygame.display.set_mode((LENGHT[0] *100,2400))
         pygame.display.set_caption('platformer level editor')
         self.clock = pygame.time.Clock()
         self.selected_rect = 0
@@ -79,7 +82,7 @@ class Level_editor:
 
     def mous(self):
         mouse_pos = pygame.mouse.get_pos()
-        self.selected_rect = mouse_pos[0]//100 + (mouse_pos[1] // 100) *13 + (self.offset //100) *13
+        self.selected_rect = mouse_pos[0]//100 + (mouse_pos[1] // 100) *(LENGHT[0]+1) + (self.offset //100) *13
 
     def update(self):
         while True:
@@ -101,8 +104,9 @@ class Level_editor:
                         nlist = []
                         for num,i in enumerate(self.num_list):
                             nlist.append(int(i.type))
-                            if num % 13 == 12:                               
+                            if num % (LENGHT[0] + 1) == (LENGHT[0]):                               
                                 nlist.append(8)
+                        nlist.append(8)
 
 
                         # print(nlist)
@@ -112,6 +116,12 @@ class Level_editor:
                     elif event.key == pygame.K_s:
                         with open("new_levels.json", "w") as file:
                             json.dump(self.levels, file)
+                    
+                    elif event.key == pygame.K_c:
+                        with open("new_levels.json", "w") as file:
+                            x = [[]]
+                            json.dump(x, file)
+
 
                     elif event.key == pygame.K_n: #refresh levels
                         with open("new_levels.json", "w") as file:
@@ -121,8 +131,8 @@ class Level_editor:
                             self.button_depth = 0
                             self.num_list = self.convert(self.levels[self.button_depth])
 
-                    elif event.key == pygame.K_r: #refresh level
-                        num_list = []
+                    elif event.key == pygame.K_r: #refresh numlist
+                        self.num_list = []
 
 
                     elif event.key == pygame.K_b:
@@ -134,10 +144,10 @@ class Level_editor:
 
                                             
                     elif event.key == pygame.K_l:
-                        self.offset +=100
+                        self.offset +=300
                     elif event.key == pygame.K_o:
                         if self.offset != 0:
-                            self.offset -=100
+                            self.offset -=300
                     
                     elif int(event.key) in range(48, 58):
                         self.key_press = [True,int(event.key)-48]
