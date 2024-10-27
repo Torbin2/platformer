@@ -10,10 +10,12 @@ start = time.time()
 SHOW_HITBOXES = False
 SFX = False
 ROCK_SFX = False
-MUSIC = False
+MUSIC = True
 MAX_SPEED = True
 FRAMES_TIMER = True
 TEST_STUFF = True
+FULLSCREEN = True #slow start up
+
 
 import pygame
 from Levels import level_picker
@@ -23,7 +25,9 @@ pygame.init()
 pygame.mixer.init()
 
 big_display = pygame.Surface((2400,1200))
-screen = pygame.display.set_mode((1200, 600))
+
+if FULLSCREEN:screen = pygame.display.set_mode((1200, 600), pygame.FULLSCREEN)
+else: screen = pygame.display.set_mode((1200, 600))
 
 pygame.display.set_caption("platformer")
 clock = pygame.time.Clock()
@@ -86,7 +90,6 @@ b_long = 80
 b_short = 35
 button_clicks = 0
 death_sound_factor = 1.0
-
 
 total_frames = 0
 
@@ -463,14 +466,16 @@ while 1:
     game_funciton(scroll)
     player_class.draw(scroll)
     timer(False)
+    
     if level > 22:
         screen.blit(pygame.transform.scale(big_display,(1200,600)), (0,0))
     else: screen.blit(big_display, (0,0))
 
     pygame.display.update()
     clock.tick(60)
+    
     if MUSIC:
-        if frames_timer == 3600 * 2:  # 36000
+        if frames_timer == 3600 * 10:  # 36000
             pygame.mixer.music.load('assets/🤡.mp3')
             pygame.mixer.music.play(-1)
 
