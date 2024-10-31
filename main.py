@@ -10,11 +10,11 @@ start = time.time()
 SHOW_HITBOXES = False
 SFX = False
 ROCK_SFX = False
-MUSIC = True
+MUSIC = False
 MAX_SPEED = True
 FRAMES_TIMER = True
 TEST_STUFF = True
-FULLSCREEN = True #slow start up
+FULLSCREEN = False #slow start up
 
 
 import pygame
@@ -41,7 +41,7 @@ level = 0
 game_on = True
 
 
-TEST_LEVEL = 27
+TEST_LEVEL = 30
 
 stone_slide: typing.Union[None, pygame.mixer.Sound] = None
 
@@ -154,7 +154,9 @@ class player:
         if keys[pygame.K_l]:
             last_KeyB = Level_editor()
             last_KeyB.update()
-
+        if keys[pygame.K_ESCAPE]:
+            pygame.quit()
+            exit()
     def movement(self):
         global gravity_direction
         # left and right
@@ -400,7 +402,8 @@ def reset_rects(button=False):
     button_rect = pygame.Rect(-100, 0, 100, 100)
     if button == False:
         gravity_direction = False
-        player_class.rect.topleft = (50, 0)
+        if level == 30: player_class.rect.topleft = (0, 3100)
+        else: player_class.rect.topleft = (50, 0)
         player_class.gravity = 0
         player_class.rock_rect.midtop = player_class.rect.midtop
         button_clicks = 0
@@ -447,6 +450,15 @@ def camera(scroll):
     scroll[1] += (player_class.rect.centery- big_display.get_height() / 2- scroll[1]) /2
     return [int(scroll[0]), int(scroll[1])]
 
+def ending(scroll):
+    pygame.draw.rect(big_display, ("#70a5d7"), pygame.Rect(0 - scroll[0], -1200 - scroll[1], 3000, 1200))
+    if player_class.rect.centery < 200:
+        while True:
+            pass
+    
+
+# remove rock, stop player(while loop),
+
 
 print(f'loading took: {time.time() - start}')
 
@@ -459,6 +471,9 @@ while 1:
             exit()
 
     big_display.fill(("#446482"))
+
+    if level == 30:
+        ending(scroll)
 
     if level > 22:
         scroll = camera(scroll)

@@ -1,7 +1,7 @@
 import pygame
 import json
 
-LENGHT = [5] #in blocks
+LENGHT = [30] #in blocks
 #change self.screen size to change y length
 
 class Block:
