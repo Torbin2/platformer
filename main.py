@@ -1,4 +1,4 @@
-# V1.7.0
+# V1.8.0
 import os
 import random
 import time
@@ -7,12 +7,14 @@ import threading
 
 start = time.time()
 
-SHOW_HITBOXES = True
-SFX = True
+SHOW_HITBOXES = False
+SFX = False
 ROCK_SFX = False
-MUSIC = False
+MUSIC = True
 MAX_SPEED = True
 FRAMES_TIMER = True
+TEST_STUFF = True
+FULLSCREEN = True  # slow start up
 
 import pygame
 from Levels import level_picker
@@ -21,24 +23,27 @@ from level_editor import Level_editor
 pygame.init()
 pygame.mixer.init()
 
-big_display = pygame.Surface((2400,1200))
-screen = pygame.display.set_mode((1200, 600))
+big_display = pygame.Surface((2400, 1200))
+
+if FULLSCREEN:
+    screen = pygame.display.set_mode((1200, 600), pygame.FULLSCREEN)
+else:
+    screen = pygame.display.set_mode((1200, 600))
 
 pygame.display.set_caption("platformer")
 clock = pygame.time.Clock()
 current_time = pygame.time.get_ticks()
-scroll = [0,0]
+scroll = [0, 0]
+rect_list = []
 
 gravity_direction = True
 num_list = []
 level = 0
 game_on = True
 
-
-test_level = 999
+TEST_LEVEL = 27
 
 stone_slide: typing.Union[None, pygame.mixer.Sound] = None
-
 
 if ROCK_SFX and not SFX:
     raise ValueError('rock_sound_effects can only be enabled with the other sound effects (sound_effects)')
@@ -55,19 +60,20 @@ if SFX:
             global stone_slide
             stone_slide = pygame.mixer.Sound("assets/sounds/stone_slide.wav")
 
+
         load_stone_slide_thread = threading.Thread(name='load_stone_slide_thread', target=load_stone_slide)
         load_stone_slide_thread.start()
 
 if MUSIC:
     musics = []
-    for SFX in os.listdir('assets/music'):
-        musics.append(f'assets/music/{SFX}')
+    for music in os.listdir('assets/music'):
+        musics.append(f'assets/music/{music}')
     random.shuffle(musics)
 
     pygame.mixer.music.load(musics[0])
-    for SFX in musics[1:]:
-        pygame.mixer.music.queue(SFX)
-    pygame.mixer.music.play(loops = -1)
+    for music in musics[1:]:
+        pygame.mixer.music.queue(music)
+    pygame.mixer.music.play(loops=-1)
 
 font = pygame.font.Font(("assets/Pixeltype.ttf"), 50)
 big_font = pygame.font.Font(("assets/Pixeltype.ttf"), 100)
@@ -87,6 +93,7 @@ death_sound_factor = 1.0
 
 total_frames = 0
 
+
 # colour scheme, #446482, #70a5d7, #18232d
 
 class player:
@@ -98,7 +105,10 @@ class player:
         self.rect = pygame.Rect(100, 100, 50, 100)
         self.x_speed = 0
         self.gravity = 0
+
         self.last_press = 0
+        self.last_KeyB = 0
+
         self.grounded = False
         self.colour = ('#47602d')
         # rock
@@ -111,44 +121,60 @@ class player:
     def input(self):
         global gravity_direction
         global level
+
+        global button_clicks
+        global total_frames
         keys = pygame.key.get_pressed()
-         # current_time = pygame.time.get_ticks()
+        # current_time = pygame.time.get_ticks()
         if keys[pygame.K_a]:
-            if MAX_SPEED: self.x_speed = max(-30 * self.speed_mult, self.x_speed - 1 * self.speed_mult)
-            else: self.x_speed = self.x_speed - 1 * self.speed_mult
+            if MAX_SPEED:
+                self.x_speed = max(-30 * self.speed_mult, self.x_speed - 1 * self.speed_mult)
+            else:
+                self.x_speed = self.x_speed - 1 * self.speed_mult
         if keys[pygame.K_d]:
-            if MAX_SPEED: self.x_speed = min(30 * self.speed_mult, self.x_speed + 1 * self.speed_mult)
-            else: self.x_speed = self.x_speed + 1 * self.speed_mult
-            #print(self.x_speed)
+            if MAX_SPEED:
+                self.x_speed = min(30 * self.speed_mult, self.x_speed + 1 * self.speed_mult)
+            else:
+                self.x_speed = self.x_speed + 1 * self.speed_mult
+            # print(self.x_speed)
         if keys[pygame.K_SPACE] and total_frames - self.last_press > 9:
             gravity_direction = not gravity_direction
             self.last_press = total_frames
             self.grounded = False
             # play_sound("switch_gravity")
-        if keys[pygame.K_t]:
-            level = test_level
-            reset_rects()
-            timer(True)
+        if TEST_STUFF:
+            if keys[pygame.K_t]:
+                level = TEST_LEVEL
+                reset_rects()
+                timer(True)
+            if keys[pygame.K_b] and total_frames > self.last_KeyB + 10:
+                self.last_KeyB = total_frames
+                button_clicks += 1
+                reset_rects(True)
+                print(button_clicks)
         if keys[pygame.K_r]:
             level = 0
             reset_rects()
             timer(True)
         if keys[pygame.K_l]:
-            x = Level_editor()
-            x.update()
+            last_KeyB = Level_editor()
+            last_KeyB.update()
 
     def movement(self):
         global gravity_direction
         # left and right
-        self.rect.x += self.x_speed
+        self.rect.x += round(self.x_speed)
         if self.x_speed >= 0: self.x_speed -= 0.5 * self.speed_mult
         if self.x_speed < 0: self.x_speed += 0.5 * self.speed_mult
+        colisions(rect_list, False)
+
         # gravity
         if gravity_direction:
             self.gravity += 1
         else:
             self.gravity -= 1
         self.rect.y += self.gravity
+        colisions(rect_list, True)
 
     def rock(self):
         self.rock_rect.y += self.rock_grav
@@ -202,6 +228,7 @@ class player:
             if self.rect.bottom >= 600:
                 self.rect.bottom = 600
                 self.gravity = 0
+
     def update(self):
         self.input()
         self.movement()
@@ -209,13 +236,15 @@ class player:
         self.rock()
 
     def draw(self, scroll):
-        drawing_rect = pygame.Rect(self.rect.left - scroll[0], self.rect.top - scroll[1],self.rect.width,self.rect.height)
-        drawing_rock_rect = pygame.Rect(self.rock_rect.left - scroll[0], self.rock_rect.top - scroll[1],self.rock_rect.width,self.rock_rect.height)
+        drawing_rect = pygame.Rect(self.rect.left - scroll[0], self.rect.top - scroll[1], self.rect.width,
+                                   self.rect.height)
+        drawing_rock_rect = pygame.Rect(self.rock_rect.left - scroll[0], self.rock_rect.top - scroll[1],
+                                        self.rock_rect.width, self.rock_rect.height)
 
         pygame.draw.rect(big_display, self.colour, drawing_rect)
-        pygame.draw.line(big_display, self.colour, drawing_rect.midright,  drawing_rock_rect.midright, 10)
-        pygame.draw.line(big_display, self.colour, drawing_rect.midleft,  drawing_rock_rect.midleft, 10)
-        pygame.draw.rect(big_display, ('#747b81'), drawing_rock_rect )
+        pygame.draw.line(big_display, self.colour, drawing_rect.midright, drawing_rock_rect.midright, 10)
+        pygame.draw.line(big_display, self.colour, drawing_rect.midleft, drawing_rock_rect.midleft, 10)
+        pygame.draw.rect(big_display, ('#747b81'), drawing_rock_rect)
 
 
 player_class = player()
@@ -243,27 +272,32 @@ def colision_side_check(rect):
             return "top"
 
 
-def colisions(rect):
-    if rect.colliderect(player_class.rect):
-        collision_side = colision_side_check(rect)
+def colisions(rect_list, allow_vertical):
+    for rect in rect_list:
+        if rect.colliderect(player_class.rect):
+            collision_side = colision_side_check(rect)
+            # if collision_side is not None:
+            #     print(collision_side)
 
-        if collision_side == "bottom":
-            player_class.rect.bottom = rect.top
-            player_class.gravity = 0
-            player_class.grounded = True
+            if allow_vertical:
+                if collision_side == "bottom":
+                    player_class.rect.bottom = rect.top
+                    player_class.gravity = 0
+                    player_class.grounded = True
 
-        if collision_side == "top":
-            player_class.rect.top = rect.bottom
-            player_class.gravity = 0
-            player_class.grounded = True
+                if collision_side == "top":
+                    player_class.rect.top = rect.bottom
+                    player_class.gravity = 0
+                    player_class.grounded = True
 
-        if collision_side == "left":
-            player_class.rect.left = rect.right
-            player_class.x_speed = 0
+            if not allow_vertical:
+                if collision_side == "left":
+                    player_class.rect.left = rect.right
+                    player_class.x_speed = 0
 
-        if collision_side == "right":
-            player_class.rect.right = rect.left
-            player_class.x_speed = 0
+                if collision_side == "right":
+                    player_class.rect.right = rect.left
+                    player_class.x_speed = 0
 
 
 def game_funciton(scroll):
@@ -271,27 +305,34 @@ def game_funciton(scroll):
     global gravity_direction
     global num_list
     global button_clicks
+    global rect_list
+    rect_list = []
     x = 0
     y = 0
     for num in num_list:
         rect = pygame.Rect(0, 0, 100, 100)
 
-        rect.topleft = (x,y)
-        x+=100
-        #if  100 < rect.centerx - scroll[0] < 2500 and 100 < rect.centery - scroll[1] < 1100:
-        if  -50 < rect.centerx - scroll[0] < 2650 and -50 < rect.centery - scroll[1] < 1250: #optimization?
+        rect.topleft = (x, y)
+        x += 100
+        # if  100 < rect.centerx - scroll[0] < 2500 and 100 < rect.centery - scroll[1] < 1100:
+        if -50 < rect.centerx - scroll[0] < 2650 and -50 < rect.centery - scroll[1] < 1250:  # optimization?
             if num == 0:
-                pygame.draw.rect(big_display, ("#70a5d7"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
+                pygame.draw.rect(big_display, ("#70a5d7"),
+                                 pygame.Rect(rect.left - scroll[0], rect.top - scroll[1], rect.width, rect.height))
 
             elif num == 1:
-                pygame.draw.rect(big_display, ("#446482"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
-                colisions(rect)
+                pygame.draw.rect(big_display, ("#446482"),
+                                 pygame.Rect(rect.left - scroll[0], rect.top - scroll[1], rect.width, rect.height))
+                rect_list.append(rect)
 
             elif num == 2:
-                pygame.draw.rect(big_display, ("#bea925"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
+                pygame.draw.rect(big_display, ("#bea925"),
+                                 pygame.Rect(rect.left - scroll[0], rect.top - scroll[1], rect.width, rect.height))
                 lava_hitbox_rect.center = rect.center
                 if SHOW_HITBOXES:
-                    pygame.draw.rect(big_display, ("#000000"), pygame.Rect(lava_hitbox_rect.left - scroll[0], lava_hitbox_rect.top - scroll[1],lava_hitbox_rect.width,lava_hitbox_rect.height))#fix
+                    pygame.draw.rect(big_display, ("#000000"),
+                                     pygame.Rect(lava_hitbox_rect.left - scroll[0], lava_hitbox_rect.top - scroll[1],
+                                                 lava_hitbox_rect.width, lava_hitbox_rect.height))  # fix
                 if lava_hitbox_rect.colliderect(player_class.rect):
                     player_class.rect.topleft = 0, 0
                     player_class.gravity = 0
@@ -302,9 +343,11 @@ def game_funciton(scroll):
 
                     break
             elif num in (3, 4, 5, 6):
-                pygame.draw.rect(big_display, ("#70a5d7"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
+                pygame.draw.rect(big_display, ("#70a5d7"),
+                                 pygame.Rect(rect.left - scroll[0], rect.top - scroll[1], rect.width, rect.height))
                 rect = create_button(num, rect)
-                pygame.draw.rect(big_display, ("#824464"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
+                pygame.draw.rect(big_display, ("#824464"),
+                                 pygame.Rect(rect.left - scroll[0], rect.top - scroll[1], rect.width, rect.height))
                 if rect.colliderect(player_class.rect):
                     button_clicks += 1
                     reset_rects(True)
@@ -317,7 +360,8 @@ def game_funciton(scroll):
             y += 100
             x = 0
         elif num == 9:
-            pygame.draw.rect(big_display, ('#6c25be'), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
+            pygame.draw.rect(big_display, ('#6c25be'),
+                             pygame.Rect(rect.left - scroll[0], rect.top - scroll[1], rect.width, rect.height))
             if rect.colliderect(player_class.rect):
                 print(f"level: {level} time: {timer(False)}")
                 level += 1
@@ -326,7 +370,7 @@ def game_funciton(scroll):
                 if SFX:
                     play_sound("finish_level")
                 break
-        if num not in (0,1,2,3,4,5,6,8,9):
+        if num not in (0, 1, 2, 3, 4, 5, 6, 8, 9):
             print("something wrong")
             print(num, scroll, rect.center)
 
@@ -376,18 +420,19 @@ def reset_rects(button=False):
         player_class.gravity = 0
         player_class.rock_rect.midtop = player_class.rect.midtop
         button_clicks = 0
-        scroll = [0,0]
-
+        scroll = [0, 0]
 
     num_list = level_picker(level, button_clicks)
 
 
 last_run_time = 0
 frames_timer = 0
+
+
 def timer(reset):
     global last_run_time
     global frames_timer
-    
+
     if FRAMES_TIMER:
         frames_timer += 1
         run_time = frames_timer
@@ -398,25 +443,27 @@ def timer(reset):
         if reset:
             last_run_time = current_time
         run_time = float((current_time - last_run_time) / 1000)
-    
+
     if level > 22:
         score_display = big_font.render(f"{run_time}", False, ("#8f5a28"))
         score_rect = score_display.get_rect(midtop=(1200, 0))
-    else:              
+    else:
         score_display = font.render(f"{run_time}", False, ("#8f5a28"))
         score_rect = score_display.get_rect(midtop=(600, 0))
-    
+
     big_display.blit(score_display, score_rect)
     return run_time
+
 
 def play_sound(name):
     # pygame.mixer.music.stop()
     pygame.mixer.Sound.play(sounds[name])
     # pygame.mixer.Sound.play(pygame.mixer.Sound(f"sounds/{name}.wav"))
 
+
 def camera(scroll):
-    scroll[0] += (player_class.rect.centerx- big_display.get_width() / 2- scroll[0]) /2
-    scroll[1] += (player_class.rect.centery- big_display.get_height() / 2- scroll[1]) /2
+    scroll[0] += (player_class.rect.centerx - big_display.get_width() / 2 - scroll[0]) / 2
+    scroll[1] += (player_class.rect.centery - big_display.get_height() / 2 - scroll[1]) / 2
     return [int(scroll[0]), int(scroll[1])]
 
 
@@ -438,11 +485,18 @@ while 1:
     game_funciton(scroll)
     player_class.draw(scroll)
     timer(False)
+
     if level > 22:
-        screen.blit(pygame.transform.scale(big_display,(1200,600)), (0,0))
-    else: screen.blit(big_display, (0,0))
+        screen.blit(pygame.transform.scale(big_display, (1200, 600)), (0, 0))
+    else:
+        screen.blit(big_display, (0, 0))
 
     pygame.display.update()
     clock.tick(60)
+
+    if MUSIC:
+        if frames_timer == 3600 * 10:  # 36000
+            pygame.mixer.music.load('assets/🤡.mp3')
+            pygame.mixer.music.play(-1)
 
     total_frames += 1

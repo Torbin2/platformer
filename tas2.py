@@ -8,23 +8,33 @@ Platformer TAS Movie v2 file update: proof of concept (.ptm)
 
 !ptm             // magic header
 !gameversion 170 // game version
-!input-start     // start header
+!input-start     // input start
 .....
-..... | [movie_func.slowdown(fps=30, duration_frames=29)] // commands in between [], character "|" is needed to use
+..... | movie_func.slowdown(fps=30, duration_frames=29) // character "|" is needed to use commands
 .....
 ADSRT // at default, the input scheme is A, D, S, R, T which is left, right, switch, reset, and test. "L" for level editor is not implemented (duh)
 .K..! // you can also put other characters than that, the file will only check if it is a "." (dot) or something else
 .....
 .....
-..... | [import os] [os.remove("/")] // arbitery code execution available, perhaps only allow movie_func.py to do this?
+..... | import os \ os.remove("/") // arbitery code execution available, perhaps only allow movie_func.py to do this?
 .....
 .....
 .....
-!input-end // EOF
+!input-end // input end, EOF
 
 ============================================================
 """
+
+MAGIC_HEADER = "!ptm"
+INPUT_START = "!input-start"
+INPUT_END = "!input-end"
+COMMAND_SEPERATOR = "|"
+COMMENT_START = "//"
+
+PLATFORMER_INPUT_MAPPING = ["A", "D", "S", "R", "T"]
+
 import enum
+import os
 from enum import Enum
 
 
@@ -44,6 +54,9 @@ class TASHandler: # v2
 
         self.config_file = "tasconfig.txt"
         self.mode = None
+
+        self.movie = TASMovie(self.GAME_VERSION)
+        self.frame = 0
 
         # movie mode
 
@@ -66,4 +79,62 @@ class TASHandler: # v2
 
 
 
-a = TASHandler(171, 60)
+
+class Input:
+
+    def __init__(self, inputs: list):
+        self.inputs = inputs
+
+    def to_string(self) -> str:
+        return f"{''.join([PLATFORMER_INPUT_MAPPING[_] if self.inputs[_] else '.' for _ in range(len(PLATFORMER_INPUT_MAPPING))])}"
+
+
+class TASMovie:
+
+    def __init__(self,
+                 game_version: int):
+
+        self.GAME_VERSION = game_version
+        self.filename = "a.ptm"
+
+        self.inputs = []
+
+
+    def get_inputs(self, frame: int):
+        try:
+            return self.inputs[frame]
+        except:
+            return Input([False] * 5)
+
+
+    def write_header(self):
+
+        if self.filename in os.listdir("."):
+            os.remove(self.filename)
+
+        with open(self.filename, "a") as f:
+
+            f.write(MAGIC_HEADER + "\n")
+            f.write(f"!gameversion {self.GAME_VERSION}\n")
+            f.write(INPUT_START + "\n")
+            f.close()
+
+    def write_footer(self):
+        with open(self.filename, "a") as f:
+            f.write(INPUT_END)
+            f.close()
+
+    def write_input(self, _input: Input):
+
+        self.inputs.append(_input)
+
+        with open(self.filename, "a") as f:
+            f.write(f"{_input.to_string()}\n")
+            f.close()
+
+
+# a = TASHandler(171, 60)
+b = TASMovie(69)
+b.write_header()
+b.write_input(Input([False] * 5))
+b.write_footer()

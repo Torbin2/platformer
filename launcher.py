@@ -70,13 +70,14 @@ def get_pressed(*args, **kwargs):
 
 
 def update(*args, **kwargs):
+
     tas_handler.handle_input(keys)
     run = True
     while not tas_handler.frame_advance and run:
         our_clock.tick(60)
 
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if event.type == pygame.QUIT or pygame.key.get_pressed()[pygame.K_ESCAPE]:
                 print('Exiting from launcher.py')
                 pygame.quit()
                 exit(0)
@@ -87,14 +88,16 @@ def update(*args, **kwargs):
                     # Return from this function but return because tas_handler.frame_advance is still False
                     run = False
 
+        # debug player gravity thingy
+
         rect = platformer.player_class.rect
 
         drawing_rect = pygame.Rect(rect.left - platformer.scroll[0], rect.top - platformer.scroll[1], rect.width, rect.height)
-        pygame.draw.rect(platformer.big_display,  (255, 0, 0), drawing_rect)
+        pygame.draw.rect(platformer.big_display,  (255, 117, 0), drawing_rect)
 
         height = rect.height // 3
         t = (rect.bottomleft[0] - platformer.scroll[0], rect.bottomleft[1] - height - platformer.scroll[1]) if platformer.gravity_direction else (rect.topleft[0] - platformer.scroll[0], rect.topleft[1] - platformer.scroll[1])
-        pygame.draw.rect(platformer.big_display, (255, 255, 255), (t[0], t[1], rect.width, height))
+        pygame.draw.rect(platformer.big_display, (64, 64, 64), (t[0], t[1], rect.width, height))
 
         print("direction", platformer.gravity_direction)
 
@@ -135,7 +138,7 @@ class Clock:
 WRAP_FUNC = {
     'display.update': lambda *args: print('pygame.display.update', *args),
     'key.get_pressed': get_pressed_init,
-    'time.Clock': Clock,
+    'time.Clock': Clock
 }
 
 
