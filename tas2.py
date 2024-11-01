@@ -40,7 +40,11 @@ SAVESTATE_DATA = "!savestate"
 COMMAND_SEPERATOR = "|"
 COMMENT_START = "//"
 
-PLATFORMER_INPUT_MAPPING = ["A", "D", "S", "R", "T"]
+PLATFORMER_INPUT_MAPPING = {"A" : 'a',
+                            "D": 'd',
+                            "S": 'SPACE',
+                            "R": 'r',
+                            "T": 't'}
 
 import enum
 from enum import Enum
@@ -93,7 +97,17 @@ class TASHandler: # v2
         if self.mode == MovieMode.WRITE:
             self._write_header()
         else:
-            raise NotImplementedError('loading frames from movie file')
+            extra_data = self.read_file()
+            version = int(extra_data.pop(GAME_VERSION_REF[1:]))
+            if version != self.GAME_VERSION:
+                print('WARNING: wrong version tas')
+                if version < self.GAME_VERSION:
+                    print(f"    Outdated TAS version ({version}), this version is {self.GAME_VERSION}")
+                elif version > self.GAME_VERSION:
+                    print(f"    TAS for newer game version ({version}), this version is {self.GAME_VERSION}")
+            if extra_data:
+                print(f'WARNING: unused extra_data: {extra_data}')
+            # raise NotImplementedError('loading frames from movie file')
 
     def create_savestate(self, slot: int):
         self.save_states[slot] = (self.save_state_class(), self.frame)
@@ -160,9 +174,10 @@ class TASHandler: # v2
         for input_ in self.inputs:
             f.write(input_.to_string() + '\n')
 
-    def get_inputs(self, frame: int):
+    def get_inputs(self):
+        self.frame += 1
         try:
-            return self.inputs[frame]
+            return self.inputs[self.frame - 1]
         except IndexError:
             return Input([False] * 5)
 
@@ -199,7 +214,7 @@ class TASHandler: # v2
                     if not line:
                         pass
                     else:
-                        self.inputs.append(Input([line[i] == PLATFORMER_INPUT_MAPPING[i] for i in range(len(PLATFORMER_INPUT_MAPPING)) if line[i] in [PLATFORMER_INPUT_MAPPING[i], '.']]))
+                        self.inputs.append(Input([line[i] == list(PLATFORMER_INPUT_MAPPING.keys())[i] for i in range(len(PLATFORMER_INPUT_MAPPING)) if line[i] in [list(PLATFORMER_INPUT_MAPPING.keys())[i], '.']]))
                 else:
                     raise NotImplementedError(state)
             return extra_data
@@ -220,7 +235,7 @@ class Input:
         self.inputs = inputs
 
     def to_string(self) -> str:
-        return f"{''.join([PLATFORMER_INPUT_MAPPING[_] if self.inputs[_] else '.' for _ in range(len(PLATFORMER_INPUT_MAPPING))])}"
+        return f"{''.join([list(PLATFORMER_INPUT_MAPPING.keys())[_] if self.inputs[_] else '.' for _ in range(len(PLATFORMER_INPUT_MAPPING))])}"
 
 
 class SaveState(abc.ABC):

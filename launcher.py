@@ -120,7 +120,9 @@ print(f'Parsed game version: {gameversion}')
 tas_handler = tas.TASHandler(gameversion, SaveState)
 our_clock = pygame.time.Clock()
 
-frame_advance = False
+frame_advance = tas_handler.mode != tas.MovieMode.WRITE
+
+# S > pygame.K_SPACE
 
 DEFAULT_CLOCK_SPEED = 60
 
@@ -146,7 +148,14 @@ def get_pressed_init(*args, **kwargs):
 def get_pressed(*args, **kwargs):
     global keys
     keys = pygame.key.get_pressed()
-    # TODO: overwrites
+    if tas_handler.mode == tas.MovieMode.READ:
+        keys = list(keys)
+
+        input_ = tas_handler.get_inputs()
+        print(input_.to_string())
+
+        (lambda ks, vs: ([keys.__setitem__(k, v) for k, v in zip(ks, vs)]))((getattr(pygame, 'K_' + tas.PLATFORMER_INPUT_MAPPING[k]) for k in tas.PLATFORMER_INPUT_MAPPING), input_.inputs)
+
     return keys
 
 
@@ -155,11 +164,8 @@ def update(*args, **kwargs):
     global frame_advance
 
     if tas_handler.mode == tas.MovieMode.WRITE:
-        tas_handler.write_input(tas.Input([
-            keys[getattr(pygame, 'K_' + k.lower())] for k in tas.PLATFORMER_INPUT_MAPPING
-        ]))
-    else:
-        raise NotImplementedError("can't play movie files")
+        input_ = tas.Input([keys[getattr(pygame, 'K_' + tas.PLATFORMER_INPUT_MAPPING[k])] for k in tas.PLATFORMER_INPUT_MAPPING])
+        tas_handler.write_input(input_)
 
     run = True
     while not frame_advance and run:
