@@ -41,6 +41,15 @@ with open(to_run_module_file_name, 'r') as file:
     gameversion = int(out)
 
 
+SAVESTATE_KEYS: dict[int, list[str]] = {
+    0: ['q', '1'],
+    1: ['w', '2'],
+    2: ['e', '3'],
+    3: ['r', '4'],
+    4: ['t', '5']
+}
+
+
 class SaveState(tas.SaveState):
 
     NEEDED_VAR_NAMES = {
@@ -182,10 +191,18 @@ def update(*args, **kwargs):
                 elif event.key == pygame.K_RIGHT:
                     # Return from this function but return because frame_advance is still False
                     run = False
-                elif event.key == pygame.K_w:
-                    tas_handler.create_savestate(0)
-                elif event.key == pygame.K_2:
-                    tas_handler.load_savestate(0)
+
+                for i in range(2):
+                    for slot in SAVESTATE_KEYS:
+                        if event.key == getattr(pygame, 'K_' + SAVESTATE_KEYS[slot][i]):
+                            if i == 0:
+                                tas_handler.create_savestate(slot)
+                            else:
+                                tas_handler.load_savestate(slot)
+                # elif event.key == pygame.K_w:
+                #     tas_handler.create_savestate(0)
+                # elif event.key == pygame.K_2:
+                #     tas_handler.load_savestate(0)
 
 
         # debug player gravity thingy

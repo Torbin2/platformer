@@ -80,10 +80,10 @@ class TASHandler: # v2
         try:
             with open(self.config_file, "r") as f:
 
-                mode = f.read()
+                mode = f.read().strip()
 
                 if len(mode) > 1 or not mode.isdigit() or (mode.isdigit() and int(mode) > len(MovieMode)):
-                    raise ValueError(f"Unknown mode: {mode}, the value should be in {[v.value for v in MovieMode]} ({self.config_file})")
+                    raise ValueError(f"Unknown mode: {repr(mode)}, the value should be in {[v.value for v in MovieMode]} ({self.config_file})")
                 else:
                     self.mode = MovieMode(int(mode))
 
@@ -130,7 +130,8 @@ class TASHandler: # v2
             with open(os.path.join(self.movie_name, f'{slot}{MOVIE_FILE_EXTENSION}'), 'r') as f:
                 extra_data = self.read_file(f)
 
-                self.save_states[slot] = (self.save_state_class(json.loads(extra_data.pop('savestate'))), self.frame)
+                self.save_states[slot] = (self.save_state_class(json.loads(extra_data.pop('savestate'))), len(self.inputs))
+                self.frame = len(self.inputs)
                 if extra_data:
                     print(f'WARNING: unused extra_data: {extra_data}')
 
