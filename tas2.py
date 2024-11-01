@@ -27,6 +27,7 @@ ADSRT // at default, the input scheme is A, D, S, R, T which is left, right, swi
 from __future__ import annotations
 
 import abc
+import os
 
 MAGIC_HEADER = "!ptm"
 INPUT_START = "!input-start"
@@ -60,7 +61,7 @@ class TASHandler: # v2
         self.movie_filename = "a.ptm"
 
         self.save_state_class = save_state_class
-        self.save_states: dict[int, SaveState] = {}
+        self.save_states: dict[int, tuple[SaveState, int]] = {}
 
         self.inputs = []
 
@@ -88,12 +89,23 @@ class TASHandler: # v2
             raise NotImplementedError('loading frames from movie file')
 
     def create_savestate(self, slot: int):
-        self.save_states[slot] = self.save_state_class()
+        self.save_states[slot] = (self.save_state_class(), self.frame)
         print(f"saving slot {slot}")
 
     def load_savestate(self, slot: int):
-        self.save_states[slot].load()
+        self.save_states[slot][0].load()
+        self.frame = self.save_states[slot][1]
         print(f"loading slot {slot}")
+
+        if self.mode == MovieMode.WRITE:
+            self.inputs = self.inputs[:self.frame]
+
+            os.truncate(self.movie_filename, 0)
+            self._write_header()
+            with open(self.movie_filename, "a") as f:
+                for input_ in self.inputs:
+                    # self.write_input(input_)
+                    f.write(input_.to_string() + '\n')
 
     def _write_header(self):
         with open(self.movie_filename, "w") as f:
@@ -104,6 +116,7 @@ class TASHandler: # v2
 
     def write_input(self, _input: Input):
 
+        self.frame += 1
         self.inputs.append(_input)
 
         with open(self.movie_filename, "a") as f:
