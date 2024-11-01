@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import sys
 import typing
+import copy
 
 import pygame
 
-import tas
-# from main import big_display
+import tas2 as tas
 
 TO_RUN_MODULE = 'main'
 to_run_module_file_name = TO_RUN_MODULE + '.py'
@@ -40,10 +40,48 @@ with open(to_run_module_file_name, 'r') as file:
         out += s
     gameversion = int(out)
 
+
+class SaveState(tas.SaveState):
+
+    NEEDED_VAR_NAMES = {
+        'player_class',
+        'level',
+        'timer',
+        'gravity_direction',
+        'rect_list',
+        'num_list',
+        'button_clicks',
+        'frames_timer',
+        'total_frames'
+    }
+
+    def __init__(self):
+        print('creating savestate')
+
+        global platformer
+        assert platformer is not None
+
+        self._values: dict[str, typing.Any] = {}
+        for name in self.NEEDED_VAR_NAMES:
+            self._values[name] = copy.deepcopy(getattr(platformer, name))
+
+    def load(self):
+        global platformer
+        assert platformer is not None
+
+        for name in self.NEEDED_VAR_NAMES:
+            setattr(platformer, name, copy.deepcopy(self._values[name]))
+
+        pygame.display.update()
+
+
 print(f'Parsed game version: {gameversion}')
-tas_handler = tas.TASHandler(gameversion)
-tas_handler.init_movie()
+tas_handler = tas.TASHandler(gameversion, SaveState)
 our_clock = pygame.time.Clock()
+
+frame_advance = False
+
+DEFAULT_CLOCK_SPEED = 60
 
 
 def get_pressed_init(*args, **kwargs):
@@ -59,7 +97,7 @@ def get_pressed_init(*args, **kwargs):
     WRAP_FUNC |= {
         'key.get_pressed': get_pressed,
         'display.update': update,
-        'quit': lambda *args, **kwargs: tas_handler.finish_movie(),
+        # 'quit': lambda *args, **kwargs: print("hello, seamen!"),
         'event.get': event_get
     }
 
@@ -73,10 +111,18 @@ def get_pressed(*args, **kwargs):
 
 def update(*args, **kwargs):
 
-    tas_handler.handle_input(keys)
+    global frame_advance
+
+    if tas_handler.mode == tas.MovieMode.WRITE:
+        tas_handler.write_input(tas.Input([
+            keys[getattr(pygame, 'K_' + k.lower())] for k in tas.PLATFORMER_INPUT_MAPPING
+        ]))
+    else:
+        raise NotImplementedError("can't play movie files")
+
     run = True
-    while not tas_handler.frame_advance and run:
-        our_clock.tick(60)
+    while not frame_advance and run:
+        our_clock.tick(DEFAULT_CLOCK_SPEED)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT or pygame.key.get_pressed()[pygame.K_ESCAPE]:
@@ -85,10 +131,15 @@ def update(*args, **kwargs):
                 exit(0)
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
-                    tas_handler.frame_advance = True
+                    frame_advance = True
                 elif event.key == pygame.K_RIGHT:
-                    # Return from this function but return because tas_handler.frame_advance is still False
+                    # Return from this function but return because frame_advance is still False
                     run = False
+                elif event.key == pygame.K_w:
+                    tas_handler.create_savestate(0)
+                elif event.key == pygame.K_2:
+                    tas_handler.load_savestate(0)
+
 
         # debug player gravity thingy
 
@@ -101,7 +152,7 @@ def update(*args, **kwargs):
         t = (rect.bottomleft[0] - platformer.scroll[0], rect.bottomleft[1] - height - platformer.scroll[1]) if platformer.gravity_direction else (rect.topleft[0] - platformer.scroll[0], rect.topleft[1] - platformer.scroll[1])
         pygame.draw.rect(platformer.big_display, (64, 64, 64), (t[0], t[1], rect.width, height))
 
-        print("direction", platformer.gravity_direction)
+        # print("direction", platformer.gravity_direction)
 
         if platformer.level > 22:
             platformer.screen.blit(pygame.transform.scale(platformer.big_display, (1200, 600)), (0, 0))
@@ -112,12 +163,13 @@ def update(*args, **kwargs):
 
 
 def event_get(*args, **kwargs):
+    global frame_advance
     events = pygame.event.get()
 
     for event in events:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
-                tas_handler.frame_advance = False
+                frame_advance = False
 
     return events
 
@@ -125,7 +177,7 @@ def event_get(*args, **kwargs):
 class Clock:
     def __init__(self, *args, **kwargs):
         self._clock = pygame.time.Clock(*args, **kwargs)
-        self._fps = 60
+        self._fps = DEFAULT_CLOCK_SPEED
 
     def __getattr__(self, item):
         if item == 'tick':

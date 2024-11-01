@@ -24,19 +24,18 @@ ADSRT // at default, the input scheme is A, D, S, R, T which is left, right, swi
 
 ============================================================
 """
+from __future__ import annotations
 
 import abc
 
 MAGIC_HEADER = "!ptm"
 INPUT_START = "!input-start"
-INPUT_END = "!input-end"
 COMMAND_SEPERATOR = "|"
 COMMENT_START = "//"
 
 PLATFORMER_INPUT_MAPPING = ["A", "D", "S", "R", "T"]
 
 import enum
-import os
 from enum import Enum
 
 
@@ -48,20 +47,24 @@ class TASHandler: # v2
 
     def __init__(self,
                  game_version: int,
-                 default_clock_speed: int
+                 save_state_class: SaveState
                  ):
 
         self.GAME_VERSION = game_version
-        self.DEFAULT_CLOCK_SPEED = default_clock_speed
 
         self.config_file = "tasconfig.txt"
-        self.mode = None
 
-        self.movie = TASMovie(self.GAME_VERSION)
+        # self.movie = TASMovie(self.GAME_VERSION)
         self.frame = 0
 
-        # movie mode
+        self.movie_filename = "a.ptm"
 
+        self.save_state_class = save_state_class
+        self.save_states: dict[int, SaveState] = {}
+
+        self.inputs = []
+
+        # movie mode
         try:
             with open(self.config_file, "r") as f:
 
@@ -79,8 +82,39 @@ class TASHandler: # v2
                 print(f"Created {self.config_file} and defaulted to WRITE mode")
                 f.close()
 
+        if self.mode == MovieMode.WRITE:
+            self._write_header()
+        else:
+            raise NotImplementedError('loading frames from movie file')
+
     def create_savestate(self, slot: int):
-        pass
+        self.save_states[slot] = self.save_state_class()
+        print(f"saving slot {slot}")
+
+    def load_savestate(self, slot: int):
+        self.save_states[slot].load()
+        print(f"loading slot {slot}")
+
+    def _write_header(self):
+        with open(self.movie_filename, "w") as f:
+
+            f.write(MAGIC_HEADER + "\n")
+            f.write(f"!gameversion {self.GAME_VERSION}\n")
+            f.write(INPUT_START + "\n")
+
+    def write_input(self, _input: Input):
+
+        self.inputs.append(_input)
+
+        with open(self.movie_filename, "a") as f:
+            f.write(f"{_input.to_string()}\n")
+
+
+    def get_inputs(self, frame: int):
+        try:
+            return self.inputs[frame]
+        except IndexError:
+            return Input([False] * 5)
 
 
 class Input:
@@ -92,50 +126,6 @@ class Input:
         return f"{''.join([PLATFORMER_INPUT_MAPPING[_] if self.inputs[_] else '.' for _ in range(len(PLATFORMER_INPUT_MAPPING))])}"
 
 
-class TASMovie:
-
-    def __init__(self,
-                 game_version: int):
-
-        self.GAME_VERSION = game_version
-        self.filename = "a.ptm"
-
-        self.inputs = []
-
-
-    def get_inputs(self, frame: int):
-        try:
-            return self.inputs[frame]
-        except IndexError:
-            return Input([False] * 5)
-
-
-    def write_header(self):
-
-        if self.filename in os.listdir("."):
-            os.remove(self.filename)
-
-        with open(self.filename, "a") as f:
-
-            f.write(MAGIC_HEADER + "\n")
-            f.write(f"!gameversion {self.GAME_VERSION}\n")
-            f.write(INPUT_START + "\n")
-            f.close()
-
-    def write_footer(self):
-        with open(self.filename, "a") as f:
-            f.write(INPUT_END)
-            f.close()
-
-    def write_input(self, _input: Input):
-
-        self.inputs.append(_input)
-
-        with open(self.filename, "a") as f:
-            f.write(f"{_input.to_string()}\n")
-            f.close()
-
-
 class SaveState(abc.ABC):
 
     @abc.abstractmethod
@@ -145,9 +135,3 @@ class SaveState(abc.ABC):
     @abc.abstractmethod
     def load(self):
         pass
-
-
-b = TASMovie(69)
-b.write_header()
-b.write_input(Input([False] * 5))
-b.write_footer()
