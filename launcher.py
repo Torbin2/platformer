@@ -103,7 +103,7 @@ class SaveState(tas.SaveState):
     def serialize(self) -> dict:
         player_class = self._values['player_class']
         v = copy.deepcopy(self._values)
-        d = player_class.__dict__
+        d = copy.deepcopy(player_class.__dict__)
 
         for k in d: # !savestate {"button_clicks": 0, "player_class": {"speed_mult": 1.0, "rect": [50, 0, 50, 100], "x_speed": 0.0, "gravity": 0, "last_press": 0, "last_KeyB": 0, "grounded": false, "colour": "#47602d", "rock_rect": [50, 0, 50, 35], "rock_grav": -0.5, "walk_delay": 0, "slide_state": false}, "rect_list": [], "num_list": [0, 0, 0, 0, 0, 9, 9, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8], "level": 0, "gravity_direction": false, "frames_timer": 1, "total_frames": 0}
             if isinstance(d[k], pygame.Rect):
@@ -111,8 +111,6 @@ class SaveState(tas.SaveState):
 
         v['player_class'] = {k: d[k] for k in d if not callable(d[k])}
         return v
-
-
 
 
 print(f'Parsed game version: {gameversion}')
