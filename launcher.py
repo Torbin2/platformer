@@ -79,6 +79,7 @@ class SaveState(tas.SaveState):
                 setattr(player_class_, k, value)
 
             v['player_class'] = player_class_
+            v['rect_list'] = [pygame.Rect(i) for i in v['rect_list']]
 
             for name in self.NEEDED_VAR_NAMES:
                 setattr(platformer, name, copy.deepcopy(v[name]))
@@ -108,6 +109,8 @@ class SaveState(tas.SaveState):
         for k in d: # !savestate {"button_clicks": 0, "player_class": {"speed_mult": 1.0, "rect": [50, 0, 50, 100], "x_speed": 0.0, "gravity": 0, "last_press": 0, "last_KeyB": 0, "grounded": false, "colour": "#47602d", "rock_rect": [50, 0, 50, 35], "rock_grav": -0.5, "walk_delay": 0, "slide_state": false}, "rect_list": [], "num_list": [0, 0, 0, 0, 0, 9, 9, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8], "level": 0, "gravity_direction": false, "frames_timer": 1, "total_frames": 0}
             if isinstance(d[k], pygame.Rect):
                 d[k] = tuple(d[k])
+
+        v['rect_list'] = [tuple(i) for i in v['rect_list']]
 
         v['player_class'] = {k: d[k] for k in d if not callable(d[k])}
         return v
