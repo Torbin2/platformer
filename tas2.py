@@ -27,10 +27,16 @@ ADSRT // at default, the input scheme is A, D, S, R, T which is left, right, swi
 from __future__ import annotations
 
 import abc
+import json
 import os
+import typing
+
+MOVIE_FILE_EXTENSION = ".ptm"
 
 MAGIC_HEADER = "!ptm"
+GAME_VERSION_REF = "!gameversion"
 INPUT_START = "!input-start"
+SAVESTATE_DATA = "!savestate"
 COMMAND_SEPERATOR = "|"
 COMMENT_START = "//"
 
@@ -58,7 +64,8 @@ class TASHandler: # v2
         # self.movie = TASMovie(self.GAME_VERSION)
         self.frame = 0
 
-        self.movie_filename = "a.ptm"
+        self.movie_name = "a"
+        self.movie_filename = self.movie_name + MOVIE_FILE_EXTENSION
 
         self.save_state_class = save_state_class
         self.save_states: dict[int, tuple[SaveState, int]] = {}
@@ -92,7 +99,27 @@ class TASHandler: # v2
         self.save_states[slot] = (self.save_state_class(), self.frame)
         print(f"saving slot {slot}")
 
+        # /saves/
+        os.makedirs(self.movie_name, exist_ok=True) # a.ptm
+
+        # a > saves > 0.ptm, ...
+        #     a.ptm
+        #
+
+        with open(os.path.join(self.movie_name, f'{slot}{MOVIE_FILE_EXTENSION}'), 'w') as f:
+            self._write_header(f, extra_data={'savestate': json.dumps(self.save_states[slot][0].serialize())})
+
+            self.write_all_inputs(f)
+
     def load_savestate(self, slot: int):
+        if slot not in self.save_states:
+            with open(os.path.join(self.movie_name, f'{slot}{MOVIE_FILE_EXTENSION}'), 'r') as f:
+                extra_data = self.read_file(f)
+
+                self.save_states[slot] = (self.save_state_class(json.loads(extra_data.pop('savestate'))), self.frame)
+                if extra_data:
+                    print(f'WARNING: unused extra_data: {extra_data}')
+
         self.save_states[slot][0].load()
         self.frame = self.save_states[slot][1]
         print(f"loading slot {slot}")
@@ -101,18 +128,25 @@ class TASHandler: # v2
             self.inputs = self.inputs[:self.frame]
 
             os.truncate(self.movie_filename, 0)
-            self._write_header()
-            with open(self.movie_filename, "a") as f:
-                for input_ in self.inputs:
-                    # self.write_input(input_)
-                    f.write(input_.to_string() + '\n')
+            with open(self.movie_filename, 'w') as f:
+                self._write_header(f)
+                self.write_all_inputs(f)
 
-    def _write_header(self):
-        with open(self.movie_filename, "w") as f:
+    def _write_header(self, f: typing.TextIO | None = None, extra_data: dict[str, str] | None = None) -> None: # f is file,
+        # extra_data = {'savestate': '{"player_clazz": "", gravity_direction: False}'}
+        def __write_header(f_):
+            f_.write(MAGIC_HEADER + "\n")
+            f_.write(f"{GAME_VERSION_REF} {self.GAME_VERSION}\n")
+            if extra_data is not None:
+                for key in extra_data:
+                    f_.write('!' + key + " " + extra_data[key] + '\n')
+            f_.write(INPUT_START + "\n")
 
-            f.write(MAGIC_HEADER + "\n")
-            f.write(f"!gameversion {self.GAME_VERSION}\n")
-            f.write(INPUT_START + "\n")
+        if f is None:
+            with open(self.movie_filename, "w") as f:
+                __write_header(f)
+        else:
+            __write_header(f)
 
     def write_input(self, _input: Input):
 
@@ -122,6 +156,9 @@ class TASHandler: # v2
         with open(self.movie_filename, "a") as f:
             f.write(f"{_input.to_string()}\n")
 
+    def write_all_inputs(self, f: typing.TextIO):
+        for input_ in self.inputs:
+            f.write(input_.to_string() + '\n')
 
     def get_inputs(self, frame: int):
         try:
@@ -129,10 +166,57 @@ class TASHandler: # v2
         except IndexError:
             return Input([False] * 5)
 
+    def read_file(self, f: typing.TextIO | None = None) -> dict:
+        def _read_file(f_) -> dict:
+            extra_data: dict[str, str] = {}
+
+            class ParseState(enum.Enum):
+                BEFORE_HEADER = enum.auto()
+                EXTRA_DATA = enum.auto()
+                INPUTS = enum.auto()
+
+            # TODO: parse comments and commands
+
+            self.inputs = []
+
+            state = ParseState.BEFORE_HEADER
+            for line in f_.read().split('\n'):
+                line = line.strip()
+                if state == ParseState.BEFORE_HEADER:
+                    if line != MAGIC_HEADER:
+                        print(f'Warning: EXTRANEOUS data before ptm file {repr(line)}')
+                    else:
+                        state = ParseState.EXTRA_DATA
+                elif state == ParseState.EXTRA_DATA:
+                    if line == INPUT_START:
+                        state = ParseState.INPUTS
+                    else:
+                        if line[0] != '!':
+                            raise ValueError(f"Invalid extra data line '{repr(line)}'")
+                        key, _, value = line.partition(' ')
+                        extra_data[key[1:]] = value
+                elif state == ParseState.INPUTS:
+                    if not line:
+                        pass
+                    else:
+                        self.inputs.append(Input([line[i] == PLATFORMER_INPUT_MAPPING[i] for i in range(len(PLATFORMER_INPUT_MAPPING)) if line[i] in [PLATFORMER_INPUT_MAPPING[i], '.']]))
+                else:
+                    raise NotImplementedError(state)
+            return extra_data
+
+        if f is None:
+            with open(self.movie_filename, 'r') as f:
+                return _read_file(f)
+        else:
+            return _read_file(f)
+
 
 class Input:
 
     def __init__(self, inputs: list):
+        if len(inputs) != len(PLATFORMER_INPUT_MAPPING):
+            raise ValueError(repr(inputs))
+
         self.inputs = inputs
 
     def to_string(self) -> str:
@@ -142,9 +226,13 @@ class Input:
 class SaveState(abc.ABC):
 
     @abc.abstractmethod
-    def __init__(self): # save
+    def __init__(self, from_dict: dict | None = None):
         pass
 
     @abc.abstractmethod
     def load(self):
+        pass
+
+    @abc.abstractmethod
+    def serialize(self) -> dict:
         pass

@@ -46,7 +46,7 @@ class SaveState(tas.SaveState):
     NEEDED_VAR_NAMES = {
         'player_class',
         'level',
-        'timer',
+        # 'timer',
         'gravity_direction',
         'rect_list',
         'num_list',
@@ -55,15 +55,41 @@ class SaveState(tas.SaveState):
         'total_frames'
     }
 
-    def __init__(self):
+    def __init__(self, from_dict: dict | None = None):
+
         print('creating savestate')
 
         global platformer
         assert platformer is not None
 
         self._values: dict[str, typing.Any] = {}
-        for name in self.NEEDED_VAR_NAMES:
-            self._values[name] = copy.deepcopy(getattr(platformer, name))
+
+        if from_dict is not None:
+            v = from_dict
+
+            # print("dict", v)
+
+            player_class_ = copy.deepcopy(platformer.player_class)
+            for k in v['player_class']:
+
+                if isinstance(v['player_class'][k], list):
+                    value = pygame.Rect(v['player_class'][k]) # [50, 50, 50, 50] -> pygame.Rect(50, 50, 50, 50)
+                else:
+                    value = v['player_class'][k]
+                setattr(player_class_, k, value)
+
+            v['player_class'] = player_class_
+
+            for name in self.NEEDED_VAR_NAMES:
+                setattr(platformer, name, copy.deepcopy(v[name]))
+
+            # print("after", v)
+
+            self._values = v
+
+        else:
+            for name in self.NEEDED_VAR_NAMES:
+                self._values[name] = copy.deepcopy(getattr(platformer, name))
 
     def load(self):
         global platformer
@@ -73,6 +99,20 @@ class SaveState(tas.SaveState):
             setattr(platformer, name, copy.deepcopy(self._values[name]))
 
         pygame.display.update()
+
+    def serialize(self) -> dict:
+        player_class = self._values['player_class']
+        v = copy.deepcopy(self._values)
+        d = player_class.__dict__
+
+        for k in d: # !savestate {"button_clicks": 0, "player_class": {"speed_mult": 1.0, "rect": [50, 0, 50, 100], "x_speed": 0.0, "gravity": 0, "last_press": 0, "last_KeyB": 0, "grounded": false, "colour": "#47602d", "rock_rect": [50, 0, 50, 35], "rock_grav": -0.5, "walk_delay": 0, "slide_state": false}, "rect_list": [], "num_list": [0, 0, 0, 0, 0, 9, 9, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8], "level": 0, "gravity_direction": false, "frames_timer": 1, "total_frames": 0}
+            if isinstance(d[k], pygame.Rect):
+                d[k] = tuple(d[k])
+
+        v['player_class'] = {k: d[k] for k in d if not callable(d[k])}
+        return v
+
+
 
 
 print(f'Parsed game version: {gameversion}')
