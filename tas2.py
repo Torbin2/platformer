@@ -25,6 +25,8 @@ ADSRT // at default, the input scheme is A, D, S, R, T which is left, right, swi
 ============================================================
 """
 
+import abc
+
 MAGIC_HEADER = "!ptm"
 INPUT_START = "!input-start"
 INPUT_END = "!input-end"
@@ -77,7 +79,8 @@ class TASHandler: # v2
                 print(f"Created {self.config_file} and defaulted to WRITE mode")
                 f.close()
 
-
+    def create_savestate(self, slot: int):
+        pass
 
 
 class Input:
@@ -103,7 +106,7 @@ class TASMovie:
     def get_inputs(self, frame: int):
         try:
             return self.inputs[frame]
-        except:
+        except IndexError:
             return Input([False] * 5)
 
 
@@ -133,7 +136,17 @@ class TASMovie:
             f.close()
 
 
-# a = TASHandler(171, 60)
+class SaveState(abc.ABC):
+
+    @abc.abstractmethod
+    def __init__(self): # save
+        pass
+
+    @abc.abstractmethod
+    def load(self):
+        pass
+
+
 b = TASMovie(69)
 b.write_header()
 b.write_input(Input([False] * 5))

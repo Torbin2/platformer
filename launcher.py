@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import sys
+import typing
+
 import pygame
 
 import tas
@@ -169,3 +171,4 @@ class Module:
 
 def __getattr__(name):
     return _getattr(getattr(pygame, name), name)
+
