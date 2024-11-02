@@ -26,7 +26,7 @@ pygame.mixer.init()
 
 big_display = pygame.Surface((2400,1200))
 
-if FULLSCREEN:screen = pygame.display.set_mode((1200, 600), pygame.FULLSCREEN)
+if FULLSCREEN:screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 else: screen = pygame.display.set_mode((1200, 600))
 
 pygame.display.set_caption("platformer")
@@ -438,11 +438,13 @@ def timer(reset):
     
     if level > 22:
         score_display = big_font.render(f"{run_time}", False, ("#8f5a28"))
-        score_rect = score_display.get_rect(midtop=(1200, 0))
+        score_rect = score_display.get_rect(midtop=big_display.get_rect().midtop)
     else:              
         score_display = font.render(f"{run_time}", False, ("#8f5a28"))
         score_rect = score_display.get_rect(midtop=(600, 0))
-    
+
+    # screen.blit(font.render(str(clock.get_fps()), False, (255, 255, 255)), (0, 0))
+
     big_display.blit(score_display, score_rect)
     return run_time
 
@@ -566,6 +568,16 @@ while 1:
             pygame.quit()
             exit()
 
+    if level > 22 and FULLSCREEN:
+        if screen.get_width() < 2400 or screen.get_height() < 1200:
+            if big_display.get_size() != (2400, 1200):
+                big_display = pygame.Surface((2400, 1200))
+        else:
+            if big_display.get_size() != screen.get_size():
+                big_display = pygame.Surface(screen.get_size())
+                # print(f'[DEBUG] resized big_display to {big_display.get_size()}')
+
+    screen.fill(("#446482"))
     big_display.fill(("#446482"))
 
 
@@ -580,8 +592,20 @@ while 1:
         ending(scroll)
 
     if level > 22:
-        screen.blit(pygame.transform.scale(big_display,(1200,600)), (0,0))
-    else: screen.blit(big_display, (0,0))
+        if FULLSCREEN and screen.get_width() > big_display.get_width() and screen.get_height() > big_display.get_height():
+            scaled = big_display
+        else:
+            # 1200 / 600 = 2
+            height = min(screen.get_height(), screen.get_width() // 2)
+            width = height * 2
+
+            scaled = pygame.transform.scale(big_display, (width, height))
+
+        dest = tuple(map(lambda a, b: a - b, screen.get_rect().center, scaled.get_rect().center))
+        screen.blit(scaled, dest)
+    else:
+        dest = tuple(map(lambda a, b: a - b, screen.get_rect().center, (1200 // 2, 600 // 2)))
+        screen.blit(big_display, dest)
 
     
 
