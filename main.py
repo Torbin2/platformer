@@ -1,4 +1,4 @@
-# V1.8.0
+# V1.9.0
 import os
 import random
 import time
@@ -10,7 +10,7 @@ start = time.time()
 SHOW_HITBOXES = False
 SFX = False
 ROCK_SFX = False
-MUSIC = False
+MUSIC = True
 MAX_SPEED = True
 FRAMES_TIMER = True
 TEST_STUFF = True
@@ -77,6 +77,7 @@ if MUSIC:
 
 font = pygame.font.Font(("assets/Pixeltype.ttf"), 50)
 big_font = pygame.font.Font(("assets/Pixeltype.ttf"), 100)
+bigger_font = pygame.font.Font(("assets/Pixeltype.ttf"), 300)
 
 ground_rect = pygame.Rect(-100, 0, 100, 100)
 sky_rect = pygame.Rect(-100, 0, 100, 100)
@@ -92,6 +93,7 @@ button_clicks = 0
 death_sound_factor = 1.0
 
 total_frames = 0
+death_counter = 0
 
 # colour scheme, #446482, #70a5d7, #18232d
 
@@ -147,6 +149,8 @@ class player:
                 button_clicks += 1
                 reset_rects(True)
                 print(button_clicks)
+            if keys[pygame.K_z]:
+                player_class.rect.y = -700
         if keys[pygame.K_r]:
             level = 0
             reset_rects()
@@ -208,10 +212,10 @@ class player:
 
     def screen_side_check(self):
         # side of the screen colisions
-
-        if self.rect.top <= 0:
-            self.rect.top = 0
-            self.gravity = 0
+        if level != 30:
+            if self.rect.top <= 0:
+                self.rect.top = 0
+                self.gravity = 0
 
         if self.rect.left <= 0:
             self.rect.left = 0
@@ -300,6 +304,7 @@ def game_funciton(scroll):
     global num_list
     global button_clicks
     global rect_list
+    global death_counter
     rect_list = []
     x = 0
     y = 0
@@ -327,6 +332,7 @@ def game_funciton(scroll):
                     player_class.gravity = 0
                     reset_rects()
                     print(f"death at {timer(False)}")
+                    death_counter += 1
                     if SFX:
                         play_sound("death")
 
@@ -450,14 +456,104 @@ def camera(scroll):
     scroll[1] += (player_class.rect.centery- big_display.get_height() / 2- scroll[1]) /2
     return [int(scroll[0]), int(scroll[1])]
 
-def ending(scroll):
-    pygame.draw.rect(big_display, ("#70a5d7"), pygame.Rect(0 - scroll[0], -1200 - scroll[1], 3000, 1200))
-    if player_class.rect.centery < 200:
-        while True:
-            pass
-    
 
-# remove rock, stop player(while loop),
+first = True
+def ending(scroll):
+    global first
+    global clouds
+    global end_timer
+    global expl_size
+    global rock_pos_y
+    global multp
+    global resize
+    global game_time
+    global death_counter
+
+    pygame.draw.rect(big_display, ("#70a5d7"), pygame.Rect(0 - scroll[0], -1300 - scroll[1], 3000, 1400))
+    
+    if player_class.rect.centery < -600 and first:
+        end_timer = 0
+        rock_pos_y = 1300
+        game_time = timer(False)
+        expl_size = 0
+        multp = 1
+
+        clouds = []
+        for i in range(25):
+            x = random.randint(0, 2400)
+            y = random.randint(-1450, 50)
+            clouds.append([x, y, random.randint(1, 5)])
+
+        first = False
+
+        def resize(rect, expl_size):
+            rect.size = [expl_size, expl_size]
+            rect.center = pygame.Rect(1425, rock_pos_y, 50* multp, 35* multp).center
+            return rect
+    elif first == False:
+        big_display.fill("#70a5d7")
+        end_timer += 1
+        for i in clouds:
+            pygame.draw.rect(big_display, ("white"), pygame.Rect(i[0], i[1], 300, 150))
+            i[1] += 20 / i[2]
+            if i[1] > 2600:
+                i[1] = -150
+                i[0] = random.randint(0, 2400)
+
+        
+        pygame.draw.rect(big_display, ('#47602d'), pygame.Rect(800 -25 * multp, 450, 50 * multp, 100 * multp))
+        if end_timer < 80:
+            multp = end_timer / 40 + 1
+        
+        #rock_stuf
+        if end_timer < 450:
+            pygame.draw.rect(big_display, ('#747b81'), pygame.Rect(1425, rock_pos_y, 50* multp, 35* multp))
+        
+        # if 400 < end_timer and  end_timer < 406:
+        #     if SFX or MUSIC:
+        #         play_sound("death")
+        if  end_timer > 80 and end_timer < 450:
+            rock_pos_y += (200 - rock_pos_y) / 120
+            print((900 - rock_pos_y) / 60)
+        elif 400 < end_timer and end_timer < 600:
+            rect = pygame.Rect(0, 0, expl_size, expl_size)
+            
+            expl_size = (end_timer - 400) * 5
+            rect = resize(rect, expl_size)
+            pygame.draw.rect(big_display, ('#e20404'), rect)
+            
+            expl_size = (end_timer -420) *5
+            rect =resize(rect, expl_size)
+            pygame.draw.rect(big_display, ('#fb9304'), rect)
+            
+            expl_size = (end_timer -450) *5
+            rect = resize(rect, expl_size)
+            pygame.draw.rect(big_display, ('#fbea04'), rect)
+        if end_timer > 500:
+            score_display = bigger_font.render(f"PLATFORMER", False, ("#fba904"))
+            score_rect = score_display.get_rect(midtop=(600, 0))
+            big_display.blit(score_display, score_rect)
+            if FRAMES_TIMER:
+                score_display = bigger_font.render(f"Frames : {game_time}", False, ("#fba904"))
+                score_rect = score_display.get_rect(midtop=(600, 400))
+                big_display.blit(score_display, score_rect)
+
+                score_display = bigger_font.render(f"Seconds : {game_time // 60}", False, ("#fba904"))
+                score_rect = score_display.get_rect(midtop=(600, 700))
+                big_display.blit(score_display, score_rect)
+            else:
+                score_display = bigger_font.render(f"Seconds : {game_time}", False, ("#fba904"))
+                score_rect = score_display.get_rect(midtop=(600, 400))
+                big_display.blit(score_display, score_rect)
+            
+            score_display = bigger_font.render(f"deaths : {death_counter}", False, ("#fba904"))
+            score_rect = score_display.get_rect(midtop=(600, 1000))
+            big_display.blit(score_display, score_rect)
+
+        
+        
+
+
 
 
 print(f'loading took: {time.time() - start}')
@@ -472,8 +568,6 @@ while 1:
 
     big_display.fill(("#446482"))
 
-    if level == 30:
-        ending(scroll)
 
     if level > 22:
         scroll = camera(scroll)
@@ -482,9 +576,14 @@ while 1:
     player_class.draw(scroll)
     timer(False)
     
+    if level == 30:
+        ending(scroll)
+
     if level > 22:
         screen.blit(pygame.transform.scale(big_display,(1200,600)), (0,0))
     else: screen.blit(big_display, (0,0))
+
+    
 
     pygame.display.update()
     clock.tick(60)
