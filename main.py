@@ -1,4 +1,4 @@
-# V1.9.0
+# V1.9.1
 import os
 import random
 import time
@@ -13,7 +13,7 @@ ROCK_SFX = False
 MUSIC = True
 MAX_SPEED = True
 FRAMES_TIMER = True
-TEST_STUFF = True
+TEST_STUFF = False
 FULLSCREEN = False #slow start up
 
 
@@ -139,7 +139,7 @@ class player:
             self.last_press = total_frames
             self.grounded = False
             # play_sound("switch_gravity")
-        if TEST_STUFF:    
+        if TEST_STUFF:
             if keys[pygame.K_t]:
                 level = TEST_LEVEL
                 reset_rects()
