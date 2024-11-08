@@ -98,7 +98,6 @@ class player:
             if keys[pygame.K_t]:
                 level = TEST_LEVEL
                 reset_rects()
-                timer(True)
             if keys[pygame.K_b] and total_frames > self.last_KeyB + 10:
                 self.last_KeyB = total_frames
                 button_clicks += 1
@@ -109,7 +108,6 @@ class player:
         if keys[pygame.K_r]:
             level = 0
             reset_rects()
-            timer(True)
         if keys[pygame.K_ESCAPE]:
             pygame.quit()
             exit()
@@ -253,7 +251,6 @@ def game_funciton(scroll):
                     player_class.rect.topleft = 0, 0
                     player_class.gravity = 0
                     reset_rects()
-                    print(f"death at {timer(False)}")
                     death_counter += 1
 
                     break
@@ -266,7 +263,6 @@ def game_funciton(scroll):
                 if rect.colliderect(player_class.rect):
                     button_clicks += 1
                     reset_rects(True)
-                    print(f"button {button_clicks} hit at {timer(False)} in level {level}")
         if num == 8:
             if player_class.rect.colliderect(rect):
                 player_class.rect.right = rect.left
@@ -276,7 +272,6 @@ def game_funciton(scroll):
             pygame.draw.rect(big_display, ('#6c25be'),
                              pygame.Rect(rect.left - scroll[0], rect.top - scroll[1], rect.width, rect.height))
             if rect.colliderect(player_class.rect):
-                print(f"level: {level} time: {timer(False)}")
                 level += 1
                 button_clicks = 0
                 reset_rects()
@@ -342,25 +337,6 @@ last_run_time = 0
 frames_timer = 0
 
 
-def timer(reset):
-    global last_run_time
-    global frames_timer
-
-    if FRAMES_TIMER:
-        frames_timer += 1
-        run_time = frames_timer
-        if reset:
-            frames_timer = 0
-    else:
-        current_time = pygame.time.get_ticks()
-        if reset:
-            last_run_time = current_time
-        run_time = float((current_time - last_run_time) / 1000)
-
-    # screen.blit(font.render(str(clock.get_fps()), False, (255, 255, 255)), (0, 0))
-    return run_time
-
-
 def camera(scroll):
     scroll[0] += (player_class.rect.centerx - big_display.get_width() / 2 - scroll[0]) / 2
     scroll[1] += (player_class.rect.centery - big_display.get_height() / 2 - scroll[1]) / 2
@@ -386,7 +362,6 @@ def ending(scroll):
     if player_class.rect.centery < -600 and first:
         end_timer = 0
         rock_pos_y = 1300
-        game_time = timer(False)
         expl_size = 0
         multp = 1
 
@@ -465,7 +440,6 @@ while 1:
     player_class.update()
     game_funciton(scroll)
     player_class.draw(scroll)
-    timer(False)
 
     if level == 30:
         ending(scroll)
