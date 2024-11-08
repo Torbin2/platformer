@@ -1,9 +1,6 @@
-# V1.9.1
-import os
+# V1.9.1c1
 import random
 import time
-import typing
-import threading
 
 start = time.time()
 
@@ -15,7 +12,6 @@ FULLSCREEN = False  # slow start up
 
 import pygame
 from Levels import level_picker
-from level_editor import Level_editor
 
 pygame.init()
 pygame.mixer.init()
@@ -36,24 +32,19 @@ rect_list = []
 gravity_direction = True
 num_list = []
 level = 0
-game_on = True
 
 TEST_LEVEL = 30
-
-stone_slide: typing.Union[None, pygame.mixer.Sound] = None
 
 ground_rect = pygame.Rect(-100, 0, 100, 100)
 sky_rect = pygame.Rect(-100, 0, 100, 100)
 end_rect = pygame.Rect(-100, 0, 100, 100)
 lava_rect = pygame.Rect(-100, 0, 100, 100)
-level_building_rects = [sky_rect, ground_rect, lava_rect, end_rect]
 lava_hitbox_rect = pygame.Rect(-100, 0, 50, 50)
 # button
 button_rect = pygame.Rect(0, 0, 0, 0)
 b_long = 80
 b_short = 35
 button_clicks = 0
-death_sound_factor = 1.0
 
 total_frames = 0
 death_counter = 0
@@ -76,11 +67,7 @@ class player:
 
         self.grounded = False
         self.colour = ('#47602d')
-        # rock
-        self.rock_rect = pygame.Rect(0, 0, 50, 35)
-        self.rock_grav = 0
 
-        self.walk_delay = 0
         self.slide_state = False
 
     def input(self):
@@ -123,9 +110,6 @@ class player:
             level = 0
             reset_rects()
             timer(True)
-        if keys[pygame.K_l]:
-            last_KeyB = Level_editor()
-            last_KeyB.update()
         if keys[pygame.K_ESCAPE]:
             pygame.quit()
             exit()
@@ -145,31 +129,6 @@ class player:
             self.gravity -= 1
         self.rect.y += self.gravity
         colisions(rect_list, True)
-
-    def rock(self):
-        self.rock_rect.y += self.rock_grav
-        self.rock_rect.x += self.x_speed
-
-        if abs(self.rock_grav) > 2:
-            self.slide_state = True
-        else:
-            self.slide_state = False
-
-        if gravity_direction:
-            self.rock_grav += 0.5
-        else:
-            self.rock_grav -= 0.5
-
-        if self.rock_rect.top <= self.rect.top - 10:
-            self.rock_rect.top = self.rect.top - 8
-            self.rock_grav = 0
-        elif self.rock_rect.bottom >= self.rect.bottom + 10:
-            self.rock_rect.bottom = self.rect.bottom + 8
-            self.rock_grav = 0
-        if self.rock_rect.left < self.rect.left - 10:
-            self.rock_rect.left = self.rect.left - 10
-        if self.rock_rect.right > self.rect.right + 10:
-            self.rock_rect.right = self.rect.right + 10
 
     def screen_side_check(self):
         # side of the screen colisions
@@ -195,18 +154,12 @@ class player:
         self.input()
         self.movement()
         self.screen_side_check()
-        self.rock()
 
     def draw(self, scroll):
         drawing_rect = pygame.Rect(self.rect.left - scroll[0], self.rect.top - scroll[1], self.rect.width,
                                    self.rect.height)
-        drawing_rock_rect = pygame.Rect(self.rock_rect.left - scroll[0], self.rock_rect.top - scroll[1],
-                                        self.rock_rect.width, self.rock_rect.height)
 
         pygame.draw.rect(big_display, self.colour, drawing_rect)
-        pygame.draw.line(big_display, self.colour, drawing_rect.midright, drawing_rock_rect.midright, 10)
-        pygame.draw.line(big_display, self.colour, drawing_rect.midleft, drawing_rock_rect.midleft, 10)
-        pygame.draw.rect(big_display, ('#747b81'), drawing_rock_rect)
 
 
 player_class = player()
@@ -379,7 +332,6 @@ def reset_rects(button=False):
         else:
             player_class.rect.topleft = (50, 0)
         player_class.gravity = 0
-        player_class.rock_rect.midtop = player_class.rect.midtop
         button_clicks = 0
         scroll = [0, 0]
 
@@ -446,10 +398,6 @@ def ending(scroll):
 
         first = False
 
-        def resize(rect, expl_size):
-            rect.size = [expl_size, expl_size]
-            rect.center = pygame.Rect(1425, rock_pos_y, 50 * multp, 35 * multp).center
-            return rect
     elif first == False:
         big_display.fill("#70a5d7")
         end_timer += 1
