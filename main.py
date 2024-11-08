@@ -7,7 +7,6 @@ start = time.time()
 SHOW_HITBOXES = False
 MAX_SPEED = True
 FRAMES_TIMER = True
-TEST_STUFF = False
 FULLSCREEN = False  # slow start up
 
 import pygame
@@ -32,8 +31,6 @@ rect_list = []
 gravity_direction = True
 num_list = []
 level = 0
-
-TEST_LEVEL = 30
 
 ground_rect = pygame.Rect(-100, 0, 100, 100)
 sky_rect = pygame.Rect(-100, 0, 100, 100)
@@ -79,32 +76,14 @@ class player:
         keys = pygame.key.get_pressed()
         # current_time = pygame.time.get_ticks()
         if keys[pygame.K_a]:
-            if MAX_SPEED:
-                self.x_speed = max(-30 * self.speed_mult, self.x_speed - 1 * self.speed_mult)
-            else:
-                self.x_speed = self.x_speed - 1 * self.speed_mult
+            self.x_speed = max(-30 * self.speed_mult, self.x_speed - 1 * self.speed_mult)
         if keys[pygame.K_d]:
-            if MAX_SPEED:
-                self.x_speed = min(30 * self.speed_mult, self.x_speed + 1 * self.speed_mult)
-            else:
-                self.x_speed = self.x_speed + 1 * self.speed_mult
-            # print(self.x_speed)
+            self.x_speed = min(30 * self.speed_mult, self.x_speed + 1 * self.speed_mult)
         if keys[pygame.K_SPACE] and total_frames - self.last_press > 9:
             gravity_direction = not gravity_direction
             self.last_press = total_frames
             self.grounded = False
             # play_sound("switch_gravity")
-        if TEST_STUFF:
-            if keys[pygame.K_t]:
-                level = TEST_LEVEL
-                reset_rects()
-            if keys[pygame.K_b] and total_frames > self.last_KeyB + 10:
-                self.last_KeyB = total_frames
-                button_clicks += 1
-                reset_rects(True)
-                print(button_clicks)
-            if keys[pygame.K_z]:
-                player_class.rect.y = -700
         if keys[pygame.K_r]:
             level = 0
             reset_rects()
