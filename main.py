@@ -3,7 +3,6 @@
 SHOW_HITBOXES = False
 MAX_SPEED = True
 FRAMES_TIMER = True
-FULLSCREEN = False  # slow start up
 
 import pygame
 from Levels import level_picker
@@ -12,11 +11,7 @@ pygame.init()
 pygame.mixer.init()
 
 big_display = pygame.Surface((2400, 1200))
-
-if FULLSCREEN:
-    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-else:
-    screen = pygame.display.set_mode((1200, 600))
+screen = pygame.display.set_mode((1200, 600))
 
 pygame.display.set_caption("platformer")
 clock = pygame.time.Clock()
@@ -314,15 +309,6 @@ while 1:
             pygame.quit()
             exit()
 
-    if level > 22 and FULLSCREEN:
-        if screen.get_width() < 2400 or screen.get_height() < 1200:
-            if big_display.get_size() != (2400, 1200):
-                big_display = pygame.Surface((2400, 1200))
-        else:
-            if big_display.get_size() != screen.get_size():
-                big_display = pygame.Surface(screen.get_size())
-                # print(f'[DEBUG] resized big_display to {big_display.get_size()}')
-
     screen.fill(("#446482"))
     big_display.fill(("#446482"))
 
@@ -332,19 +318,12 @@ while 1:
     game_funciton(scroll)
     player_class.draw(scroll)
 
-    if level == 30:
-        pygame.quit()
-        exit(0)
-
     if level > 22:
-        if FULLSCREEN and screen.get_width() > big_display.get_width() and screen.get_height() > big_display.get_height():
-            scaled = big_display
-        else:
-            # 1200 / 600 = 2
-            height = min(screen.get_height(), screen.get_width() // 2)
-            width = height * 2
 
-            scaled = pygame.transform.scale(big_display, (width, height))
+        height = min(screen.get_height(), screen.get_width() // 2)
+        width = height * 2
+
+        scaled = pygame.transform.scale(big_display, (width, height))
 
         dest = tuple(map(lambda a, b: a - b, screen.get_rect().center, scaled.get_rect().center))
         screen.blit(scaled, dest)
