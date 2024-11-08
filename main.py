@@ -1,8 +1,4 @@
-# V1.9.1c3
-import random
-import time
-
-start = time.time()
+# V1.9.1c4
 
 SHOW_HITBOXES = False
 MAX_SPEED = True
@@ -30,7 +26,7 @@ rect_list = []
 
 gravity_direction = True
 num_list = []
-level = 0
+level = 29
 
 ground_rect = pygame.Rect(-100, 0, 100, 100)
 sky_rect = pygame.Rect(-100, 0, 100, 100)
@@ -44,7 +40,6 @@ b_short = 35
 button_clicks = 0
 
 total_frames = 0
-death_counter = 0
 
 
 # colour scheme, #446482, #70a5d7, #18232d
@@ -311,77 +306,6 @@ def camera(scroll):
     scroll[1] += (player_class.rect.centery - big_display.get_height() / 2 - scroll[1]) / 2
     return [int(scroll[0]), int(scroll[1])]
 
-
-first = True
-
-
-def ending(scroll):
-    global first
-    global clouds
-    global end_timer
-    global expl_size
-    global rock_pos_y
-    global multp
-    global resize
-
-    pygame.draw.rect(big_display, ("#70a5d7"), pygame.Rect(0 - scroll[0], -1300 - scroll[1], 3000, 1400))
-
-    if player_class.rect.centery < -600 and first:
-        end_timer = 0
-        rock_pos_y = 1300
-        expl_size = 0
-        multp = 1
-
-        clouds = []
-        for i in range(25):
-            x = random.randint(0, 2400)
-            y = random.randint(-1450, 50)
-            clouds.append([x, y, random.randint(1, 5)])
-
-        first = False
-
-    elif first == False:
-        big_display.fill("#70a5d7")
-        end_timer += 1
-        for i in clouds:
-            pygame.draw.rect(big_display, ("white"), pygame.Rect(i[0], i[1], 300, 150))
-            i[1] += 20 / i[2]
-            if i[1] > 2600:
-                i[1] = -150
-                i[0] = random.randint(0, 2400)
-
-        pygame.draw.rect(big_display, ('#47602d'), pygame.Rect(800 - 25 * multp, 450, 50 * multp, 100 * multp))
-        if end_timer < 80:
-            multp = end_timer / 40 + 1
-
-        # rock_stuf
-        if end_timer < 450:
-            pygame.draw.rect(big_display, ('#747b81'), pygame.Rect(1425, rock_pos_y, 50 * multp, 35 * multp))
-
-        # if 400 < end_timer and  end_timer < 406:
-        #     if SFX or MUSIC:
-        #         play_sound("death")
-        if end_timer > 80 and end_timer < 450:
-            rock_pos_y += (200 - rock_pos_y) / 120
-            print((900 - rock_pos_y) / 60)
-        elif 400 < end_timer and end_timer < 600:
-            rect = pygame.Rect(0, 0, expl_size, expl_size)
-
-            expl_size = (end_timer - 400) * 5
-            rect = resize(rect, expl_size)
-            pygame.draw.rect(big_display, ('#e20404'), rect)
-
-            expl_size = (end_timer - 420) * 5
-            rect = resize(rect, expl_size)
-            pygame.draw.rect(big_display, ('#fb9304'), rect)
-
-            expl_size = (end_timer - 450) * 5
-            rect = resize(rect, expl_size)
-            pygame.draw.rect(big_display, ('#fbea04'), rect)
-
-
-print(f'loading took: {time.time() - start}')
-
 reset_rects()
 while 1:
 
@@ -409,7 +333,8 @@ while 1:
     player_class.draw(scroll)
 
     if level == 30:
-        ending(scroll)
+        pygame.quit()
+        exit(0)
 
     if level > 22:
         if FULLSCREEN and screen.get_width() > big_display.get_width() and screen.get_height() > big_display.get_height():
