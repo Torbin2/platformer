@@ -279,7 +279,6 @@ def create_button(b_type, rect):
         rect.top += (100 - b_long) / 2
     return rect
 
-
 def reset_rects(button=False):
     global ground_rect
     global sky_rect
