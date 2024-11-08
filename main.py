@@ -1,4 +1,4 @@
-# V1.9.1c1
+# V1.9.1c3
 import random
 import time
 
@@ -60,12 +60,9 @@ class player:
         self.gravity = 0
 
         self.last_press = 0
-        self.last_KeyB = 0
 
         self.grounded = False
         self.colour = ('#47602d')
-
-        self.slide_state = False
 
     def input(self):
         global gravity_direction
@@ -198,7 +195,7 @@ def game_funciton(scroll):
     global num_list
     global button_clicks
     global rect_list
-    global death_counter
+
     rect_list = []
     x = 0
     y = 0
@@ -230,7 +227,6 @@ def game_funciton(scroll):
                     player_class.rect.topleft = 0, 0
                     player_class.gravity = 0
                     reset_rects()
-                    death_counter += 1
 
                     break
             elif num in (3, 4, 5, 6):
@@ -310,11 +306,6 @@ def reset_rects(button=False):
 
     num_list = level_picker(level, button_clicks)
 
-
-last_run_time = 0
-frames_timer = 0
-
-
 def camera(scroll):
     scroll[0] += (player_class.rect.centerx - big_display.get_width() / 2 - scroll[0]) / 2
     scroll[1] += (player_class.rect.centery - big_display.get_height() / 2 - scroll[1]) / 2
@@ -332,8 +323,6 @@ def ending(scroll):
     global rock_pos_y
     global multp
     global resize
-    global game_time
-    global death_counter
 
     pygame.draw.rect(big_display, ("#70a5d7"), pygame.Rect(0 - scroll[0], -1300 - scroll[1], 3000, 1400))
 
