@@ -38,7 +38,7 @@ scroll = [0, 0]
 rect_list = []
 
 num_list = []
-level = 18
+level = 0
 game_on = True
 
 TEST_LEVEL = 30
