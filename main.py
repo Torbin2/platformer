@@ -45,9 +45,11 @@ TEST_LEVEL = 30
 
 players = 2
 player_classes = []
-players_color_schemes = ['#47602d', '#cb3333']
+players_color_schemes = ['#47602d', 'darkred', 'darkblue', '#5c2d0f']
 players_input_mapping = {0: [pygame.K_a, pygame.K_d, pygame.K_SPACE],
-                         1: [pygame.K_b, pygame.K_m, pygame.K_n],}
+                         1: [pygame.K_b, pygame.K_m, pygame.K_n],
+                         2: [pygame.K_KP_DIVIDE, pygame.K_KP_MINUS, pygame.K_KP_MULTIPLY],
+                         3: [pygame.K_KP1, pygame.K_KP3, pygame.K_KP2]}
 
 gravity_directions = []
 
@@ -499,9 +501,13 @@ def play_sound(name):
 
 
 def camera(scroll):
-    scroll[0] += (player_classes[0].rect.centerx - big_display.get_width() / 2 - scroll[0]) / 2
-    scroll[1] += (player_classes[0].rect.centery - big_display.get_height() / 2 - scroll[1]) / 2
-    return [int(scroll[0]), int(scroll[1])]
+
+    tx = sum(p.rect.centerx for p in player_classes) / players
+    ty = sum(p.rect.centery for p in player_classes) / players
+
+    scroll[0] += (tx - big_display.get_width() / 2 - scroll[0]) / 2
+    scroll[1] += (ty - big_display.get_height() / 2 - scroll[1]) / 2
+    return [min(int(scroll[0]), big_display.get_width()), min(int(scroll[1]), big_display.get_height())]
 
 
 first = True
