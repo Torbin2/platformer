@@ -123,20 +123,25 @@ class TASHandler: # v2
         with open(os.path.join(self.movie_name, f'{slot}{MOVIE_FILE_EXTENSION}'), 'w') as f:
             self._write_header(f, extra_data={'savestate': json.dumps(self.save_states[slot][0].serialize())})
 
+            inputs = self.inputs[:self.frame]
+            self.inputs = self.inputs[:self.frame]
+
             self.write_all_inputs(f)
 
+            self.inputs = inputs
+
     def load_savestate(self, slot: int):
-        if slot not in self.save_states:
-            with open(os.path.join(self.movie_name, f'{slot}{MOVIE_FILE_EXTENSION}'), 'r') as f:
-                extra_data = self.read_file(f)
+        # if slot not in self.save_states:
+        with open(os.path.join(self.movie_name, f'{slot}{MOVIE_FILE_EXTENSION}'), 'r') as f:
+            extra_data = self.read_file(f)
 
-                self.save_states[slot] = (self.save_state_class(json.loads(extra_data.pop('savestate'))), len(self.inputs))
-                self.frame = len(self.inputs)
-                if extra_data:
-                    print(f'WARNING: unused extra_data: {extra_data}')
+            self.save_states[slot] = (self.save_state_class(json.loads(extra_data.pop('savestate'))), len(self.inputs))
+            self.frame = len(self.inputs)
+            if extra_data:
+                print(f'WARNING: unused extra_data: {extra_data}')
 
-        self.save_states[slot][0].load()
-        self.frame = self.save_states[slot][1]
+        # self.save_states[slot][0].load()
+        # self.frame = self.save_states[slot][1]
         print(f"loading slot {slot}")
 
         if self.mode == MovieMode.WRITE:

@@ -1,7 +1,10 @@
-__pycache__
+__pycache__/
+.idea/
+venv/
 
 # Platformer TAS Movies
-*.ptm
+**.ptm
+# */*.ptm
 
 # TAS config file
 tasconfig.txt

@@ -3,6 +3,7 @@ from __future__ import annotations
 import sys
 import typing
 import copy
+from platform import platform
 
 import pygame
 
@@ -11,17 +12,6 @@ import tas2 as tas
 TO_RUN_MODULE = 'main'
 to_run_module_file_name = TO_RUN_MODULE + '.py'
 THIS_NAME = 'launcher'
-
-if THIS_NAME not in sys.modules:
-    __import__(THIS_NAME)
-
-    # https://docs.python.org/3/library/importlib.html#importing-a-source-file-directly
-    this_module = sys.modules[THIS_NAME]
-    sys.modules['pygame'] = this_module
-
-    print(f'injected, running {TO_RUN_MODULE}')
-    __import__(TO_RUN_MODULE)
-
 
 keys = None
 platformer = None
@@ -45,8 +35,13 @@ SAVESTATE_KEYS: dict[int, list[str]] = {
     0: ['q', '1'],
     1: ['w', '2'],
     2: ['e', '3'],
-    3: ['r', '4'],
-    4: ['t', '5']
+    # 3: ['r', '4'],
+    4: ['t', '5'],
+    5: ['y', '6'],
+    6: ['u', '7'],
+    7: ['i', '8'],
+    8: ['o', '9'],
+    9: ['p', '0']
 }
 
 
@@ -134,6 +129,8 @@ frame_advance = tas_handler.mode != tas.MovieMode.WRITE
 # S > pygame.K_SPACE
 
 DEFAULT_CLOCK_SPEED = 60
+EXTRA_DISPLAY_HEIGHT = 120
+font: None | pygame.font.Font = None
 
 
 def get_pressed_init(*args, **kwargs):
@@ -145,6 +142,9 @@ def get_pressed_init(*args, **kwargs):
     if platformer is None:
         raise ModuleNotFoundError("No platformer instance!")
 
+    global font
+    font = pygame.font.SysFont("notosansmono", 20)
+
     global WRAP_FUNC
     WRAP_FUNC |= {
         'key.get_pressed': get_pressed,
@@ -152,6 +152,8 @@ def get_pressed_init(*args, **kwargs):
         # 'quit': lambda *args, **kwargs: print("hello, seamen!"),
         'event.get': event_get
     }
+
+    platformer.SHOW_HITBOXES = True
 
 
 def get_pressed(*args, **kwargs):
@@ -167,14 +169,17 @@ def get_pressed(*args, **kwargs):
 
     return keys
 
-
 def update(*args, **kwargs):
+
+    # print(platformer.player_class.x_speed, platformer.player_class.rect.x)
 
     global frame_advance
 
     if tas_handler.mode == tas.MovieMode.WRITE:
         input_ = tas.Input([keys[getattr(pygame, 'K_' + tas.PLATFORMER_INPUT_MAPPING[k])] for k in tas.PLATFORMER_INPUT_MAPPING])
         tas_handler.write_input(input_)
+
+    assert font is not None
 
     run = True
     while not frame_advance and run:
@@ -204,6 +209,22 @@ def update(*args, **kwargs):
                 # elif event.key == pygame.K_2:
                 #     tas_handler.load_savestate(0)
 
+        # clip hitbox debug
+        for rect in platformer.rect_list:
+
+            cover_rect = pygame.Rect(platformer.player_class.rect.left - 32,
+                                            platformer.player_class.rect.top - 32,
+                                            platformer.player_class.rect.width + 64,
+                                            platformer.player_class.rect.height + 64)
+
+            if rect.colliderect(cover_rect):
+                width = 25
+                pygame.draw.line(platformer.big_display, (30, 30, 30), rect.topleft, rect.bottomright, width)
+                pygame.draw.line(platformer.big_display, (30, 30, 30), rect.bottomleft, rect.topright, width)
+
+            # pygame.draw.rect(platformer.big_display, (34, 111, 23), cover_rect)
+
+            # pygame.draw.rect(platformer.big_display, (255, 255, 255), rect, 1)
 
         # debug player gravity thingy
 
@@ -211,6 +232,7 @@ def update(*args, **kwargs):
 
         drawing_rect = pygame.Rect(rect.left - platformer.scroll[0], rect.top - platformer.scroll[1], rect.width, rect.height)
         pygame.draw.rect(platformer.big_display,  (255, 117, 0), drawing_rect)
+        pygame.draw.circle(platformer.big_display, (255, 255, 255), rect.center, 5)
 
         height = rect.height // 3
         t = (rect.bottomleft[0] - platformer.scroll[0], rect.bottomleft[1] - height - platformer.scroll[1]) if platformer.gravity_direction else (rect.topleft[0] - platformer.scroll[0], rect.topleft[1] - platformer.scroll[1])
@@ -222,6 +244,35 @@ def update(*args, **kwargs):
             platformer.screen.blit(pygame.transform.scale(platformer.big_display, (1200, 600)), (0, 0))
         else:
             platformer.screen.blit(platformer.big_display, (0, 0))
+
+        pygame.draw.rect(platformer.screen, (0, 0, 0),
+                         (0, platformer.screen.get_height() - EXTRA_DISPLAY_HEIGHT,
+                          platformer.screen.get_width(), EXTRA_DISPLAY_HEIGHT))
+        debug_info = {
+            'x': platformer.player_class.rect.x,
+            'xv': platformer.player_class.x_speed,
+            'switch_cooldown': max(platformer.player_class.last_press - platformer.total_frames + 9, 0),
+            'level': str(platformer.level) + '-' + str(platformer.button_clicks),
+            'y': platformer.player_class.rect.y,
+            'yv': platformer.player_class.gravity,
+            'movie_frame': tas_handler.frame
+        }
+
+        x = 0
+        y = platformer.screen.get_height() - EXTRA_DISPLAY_HEIGHT
+        for key in debug_info:
+            value = debug_info[key]
+
+            s = font.render(str(value), True, (255, 255, 255))
+            platformer.screen.blit(s, (x + platformer.screen.get_width() // 4 * 1, y))
+
+            platformer.screen.blit(font.render(key, True, (255, 255, 255)), (x, y))
+
+            y += s.get_height()
+
+            if y + s.get_height() > platformer.screen.get_height():
+                x += platformer.screen.get_width() // 2
+                y = platformer.screen.get_height() - EXTRA_DISPLAY_HEIGHT
 
         pygame.display.update()
 
@@ -256,7 +307,8 @@ class Clock:
 WRAP_FUNC = {
     'display.update': lambda *args: print('pygame.display.update', *args),
     'key.get_pressed': get_pressed_init,
-    'time.Clock': Clock
+    'time.Clock': Clock,
+    'display.set_mode': lambda size, *args, **kwargs: pygame.display.set_mode((size[0], size[1] + EXTRA_DISPLAY_HEIGHT), *args, **kwargs)
 }
 
 
@@ -285,6 +337,18 @@ class Module:
         return _getattr(r, item, self.name)
 
 
-def __getattr__(name):
-    return _getattr(getattr(pygame, name), name)
+class OuterModule:
+    def __getattr__(self, name):
+        return _getattr(getattr(pygame, name), name)
 
+
+if THIS_NAME not in sys.modules:
+    __import__(THIS_NAME)
+
+    # https://docs.python.org/3/library/importlib.html#importing-a-source-file-directly
+    this_module = sys.modules[THIS_NAME]
+    # sys.modules['pygame'] = this_module
+    sys.modules['pygame'] = OuterModule()
+
+    print(f'injected, running {TO_RUN_MODULE}')
+    __import__(TO_RUN_MODULE)
