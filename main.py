@@ -1,4 +1,4 @@
-# V1.9.1
+# V1.9.2
 import os
 import random
 import time
@@ -516,7 +516,6 @@ def ending(scroll):
         #         play_sound("death")
         if  end_timer > 80 and end_timer < 450:
             rock_pos_y += (200 - rock_pos_y) / 120
-            print((900 - rock_pos_y) / 60)
         elif 400 < end_timer and end_timer < 600:
             rect = pygame.Rect(0, 0, expl_size, expl_size)
             
@@ -533,23 +532,23 @@ def ending(scroll):
             pygame.draw.rect(big_display, ('#fbea04'), rect)
         if end_timer > 500:
             score_display = bigger_font.render(f"PLATFORMER", False, ("#fba904"))
-            score_rect = score_display.get_rect(midtop=(600, 0))
+            score_rect = score_display.get_rect(midtop=(1200, 0))
             big_display.blit(score_display, score_rect)
             if FRAMES_TIMER:
                 score_display = bigger_font.render(f"Frames : {game_time}", False, ("#fba904"))
-                score_rect = score_display.get_rect(midtop=(600, 400))
+                score_rect = score_display.get_rect(midtop=(1200, 400))
                 big_display.blit(score_display, score_rect)
 
                 score_display = bigger_font.render(f"Seconds : {game_time // 60}", False, ("#fba904"))
-                score_rect = score_display.get_rect(midtop=(600, 700))
+                score_rect = score_display.get_rect(midtop=(1200, 700))
                 big_display.blit(score_display, score_rect)
             else:
                 score_display = bigger_font.render(f"Seconds : {game_time}", False, ("#fba904"))
-                score_rect = score_display.get_rect(midtop=(600, 400))
+                score_rect = score_display.get_rect(midtop=(1200, 400))
                 big_display.blit(score_display, score_rect)
             
             score_display = bigger_font.render(f"deaths : {death_counter}", False, ("#fba904"))
-            score_rect = score_display.get_rect(midtop=(600, 1000))
+            score_rect = score_display.get_rect(midtop=(1200, 1000))
             big_display.blit(score_display, score_rect)
 
         
