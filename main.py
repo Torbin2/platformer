@@ -34,7 +34,8 @@ else:
 pygame.display.set_caption("platformer")
 clock = pygame.time.Clock()
 current_time = pygame.time.get_ticks()
-scroll = [0, 0]
+# scroll = [0, 0]
+scrolls = {}
 # rect_list = []
 rect_lists = {}
 
@@ -114,8 +115,9 @@ for n in range(players):
 
     rect_lists[n] = []
     num_lists[n] = []
+    scrolls[n] = [0, 0]
     button_clickzz.append(0)
-    levelzz.append(0)
+    levelzz.append(22)
 
 # colour scheme, #446482, #70a5d7, #18232d
 
@@ -331,7 +333,7 @@ def colisions(player_class, rect_list, allow_vertical):
                     player_class.x_speed = 0
 
 
-def game_funciton(scroll):
+def game_funciton(scrolls):
     global levelzz
     global gravity_directions
     global num_lists
@@ -352,19 +354,19 @@ def game_funciton(scroll):
             rect.topleft = (x,y)
             x+=100
             #if  100 < rect.centerx - scroll[0] < 2500 and 100 < rect.centery - scroll[1] < 1100:
-            if  -50 < rect.centerx - scroll[0] < 2650 and -50 < rect.centery - scroll[1] < 1250: #optimization?
+            if  -50 < rect.centerx - scrolls[_.player_index][0] < 2650 and -50 < rect.centery - scrolls[_.player_index][1] < 1250: #optimization?
                 if num == 0:
-                    pygame.draw.rect(tmp, ("#70a5d7"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
+                    pygame.draw.rect(tmp, ("#70a5d7"), pygame.Rect(rect.left - scrolls[_.player_index][0], rect.top - scrolls[_.player_index][1],rect.width,rect.height))
 
                 elif num == 1:
-                    pygame.draw.rect(tmp, ("#446482"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
+                    pygame.draw.rect(tmp, ("#446482"), pygame.Rect(rect.left - scrolls[_.player_index][0], rect.top - scrolls[_.player_index][1],rect.width,rect.height))
                     rect_lists[_.player_index].append(rect)
 
                 elif num == 2:
-                    pygame.draw.rect(tmp, ("#bea925"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
+                    pygame.draw.rect(tmp, ("#bea925"), pygame.Rect(rect.left - scrolls[_.player_index][0], rect.top - scrolls[_.player_index][1],rect.width,rect.height))
                     lava_hitbox_rect.center = rect.center
                     if SHOW_HITBOXES:
-                        pygame.draw.rect(tmp, ("#000000"), pygame.Rect(lava_hitbox_rect.left - scroll[0], lava_hitbox_rect.top - scroll[1],lava_hitbox_rect.width,lava_hitbox_rect.height))#fix
+                        pygame.draw.rect(tmp, ("#000000"), pygame.Rect(lava_hitbox_rect.left - scrolls[_.player_index][0], lava_hitbox_rect.top - scrolls[_.player_index][1],lava_hitbox_rect.width,lava_hitbox_rect.height))#fix
                     if lava_hitbox_rect.colliderect(_.rect):
                         _.rect.topleft = 0, 0
                         _.gravity = 0
@@ -376,9 +378,9 @@ def game_funciton(scroll):
 
                         break
                 elif num in (3, 4, 5, 6):
-                    pygame.draw.rect(tmp, ("#70a5d7"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
+                    pygame.draw.rect(tmp, ("#70a5d7"), pygame.Rect(rect.left - scrolls[_.player_index][0], rect.top - scrolls[_.player_index][1],rect.width,rect.height))
                     rect = create_button(num, rect)
-                    pygame.draw.rect(tmp, ("#824464"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
+                    pygame.draw.rect(tmp, ("#824464"), pygame.Rect(rect.left - scrolls[_.player_index][0], rect.top - scrolls[_.player_index][1],rect.width,rect.height))
                     if rect.colliderect(_.rect):
                         button_clickzz[_.player_index] += 1
                         reset_rects(_.player_index, True)
@@ -391,7 +393,7 @@ def game_funciton(scroll):
                 y += 100
                 x = 0
             elif num == 9:
-                pygame.draw.rect(tmp, ('#6c25be'), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
+                pygame.draw.rect(tmp, ('#6c25be'), pygame.Rect(rect.left - scrolls[_.player_index][0], rect.top - scrolls[_.player_index][1],rect.width,rect.height))
                 if rect.colliderect(_.rect):
                     print(f"level: {levelzz[_.player_index]} time: {timer(False)} (by player {_.player_index})")
                     levelzz[_.player_index] += 1
@@ -402,7 +404,7 @@ def game_funciton(scroll):
                     break
             if num not in (0,1,2,3,4,5,6,8,9):
                 print("something wrong")
-                print(num, scroll, rect.center)
+                print(num, scrolls, rect.center)
 
         big_display.blit(tmp, (0, 0))
 
@@ -436,7 +438,7 @@ def reset_rects(player_index: int, button=False):
     global gravity_directions
     global num_lists
     global button_clickzz
-    global scroll
+    global scrolls
     ground_rect = pygame.Rect(-100, 0, 100, 100)
     sky_rect = pygame.Rect(-100, 0, 100, 100)
     end_rect = pygame.Rect(-100, 0, 100, 100)
@@ -451,7 +453,7 @@ def reset_rects(player_index: int, button=False):
         player_classes[player_index].gravity = 0
         player_classes[player_index].rock_rect.midtop = player_classes[player_index].rect.midtop
         button_clickzz[player_index] = 0
-        scroll = [0,0]
+        scrolls[player_index] = [0,0]
 
 
     num_lists[player_index] = level_picker(levelzz[player_index], button_clickzz[player_index])
@@ -495,15 +497,20 @@ def play_sound(name):
     # pygame.mixer.Sound.play(pygame.mixer.Sound(f"sounds/{name}.wav"))
 
 
-def camera(scroll):
+# def camera(scroll):
+#
+#     tx = sum(p.rect.centerx for p in player_classes) / players
+#     ty = sum(p.rect.centery for p in player_classes) / players
+#
+#     scroll[0] += (tx - big_display.get_width() / 2 - scroll[0]) / 2
+#     scroll[1] += (ty - big_display.get_height() / 2 - scroll[1]) / 2
+#     return [min(int(scroll[0]), big_display.get_width()), min(int(scroll[1]), big_display.get_height())]
 
-    tx = sum(p.rect.centerx for p in player_classes) / players
-    ty = sum(p.rect.centery for p in player_classes) / players
 
-    scroll[0] += (tx - big_display.get_width() / 2 - scroll[0]) / 2
-    scroll[1] += (ty - big_display.get_height() / 2 - scroll[1]) / 2
-    return [min(int(scroll[0]), big_display.get_width()), min(int(scroll[1]), big_display.get_height())]
-
+def camera(player_index):
+    scrolls[player_index][0] += (player_classes[player_index].rect.centerx - big_display.get_width()  / 2 - scrolls[player_index][0]) /2
+    scrolls[player_index][1] += (player_classes[player_index].rect.centery - big_display.get_height() / 2 - scrolls[player_index][1]) /2
+    return [int(scrolls[player_index][0]), int(scrolls[player_index][1])]
 
 first = True
 
@@ -612,36 +619,34 @@ while 1:
             pygame.quit()
             exit()
 
-    if not "level > 22" and FULLSCREEN:
+    if max(levelzz) > 22 and FULLSCREEN:
         if screen.get_width() < 2400 or screen.get_height() < 1200:
             if big_display.get_size() != (2400, 1200):
                 big_display = pygame.Surface((2400, 1200))
-    else:
-        if big_display.get_size() != screen.get_size():
-            big_display = pygame.Surface(screen.get_size())
-        #   print(f'[DEBUG] resized big_display to {big_display.get_size()}')
+        else:
+            if big_display.get_size() != screen.get_size():
+                big_display = pygame.Surface(screen.get_size())
+                # print(f'[DEBUG] resized big_display to {big_display.get_size()}')
 
     screen.fill(("#446482"))
     big_display.fill(("#446482"))
 
-
-    if not "level > 22":
-        scroll = camera(scroll)
+    for _ in player_classes:
+        if levelzz[_.player_index] > 22:
+            scrolls[_.player_index] = camera(_.player_index)
 
     for _ in player_classes:
         _.update()
-
-    game_funciton(scroll)
-
+    game_funciton(scrolls)
     for _ in player_classes:
-        _.draw(scroll)
-
+        _.draw(scrolls[_.player_index])
     timer(False)
 
-    if not "level == 30":
-        ending(scroll)
+    for _ in player_classes:
+        if levelzz[_.player_index] == 30:
+            ending(scrolls[_.player_index])
 
-    if not "level > 22":
+    if max(levelzz) > 22:
         if FULLSCREEN and screen.get_width() > big_display.get_width() and screen.get_height() > big_display.get_height():
             scaled = big_display
         else:
