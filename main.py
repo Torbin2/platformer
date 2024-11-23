@@ -46,9 +46,9 @@ TEST_LEVEL = 30
 players = 2
 player_classes = []
 players_color_schemes = ['#47602d', 'darkred', 'darkblue', '#5c2d0f']
-players_input_mapping = {0: [pygame.K_a, pygame.K_d, pygame.K_SPACE],
+players_input_mapping = {0: [pygame.K_a, pygame.K_d, pygame.K_s],
                          1: [pygame.K_b, pygame.K_m, pygame.K_n],
-                         2: [pygame.K_KP_DIVIDE, pygame.K_KP_MINUS, pygame.K_KP_MULTIPLY],
+                         2: [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_RIGHT],
                          3: [pygame.K_KP1, pygame.K_KP3, pygame.K_KP2]}
 
 gravity_directions = []
