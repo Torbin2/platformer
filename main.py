@@ -24,7 +24,12 @@ from level_editor import Level_editor
 pygame.init()
 pygame.mixer.init()
 
-big_display = pygame.Surface((2400,1200))
+SCREEN_RESIZE_FACTOR = 2
+
+BIG_DISPLAY_WIDTH = 2400 * SCREEN_RESIZE_FACTOR
+BIG_DISPLAY_HEIGHT = 1200 * SCREEN_RESIZE_FACTOR
+
+big_display = pygame.Surface((BIG_DISPLAY_WIDTH, BIG_DISPLAY_HEIGHT))
 
 if FULLSCREEN:screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 else: screen = pygame.display.set_mode((1200, 600))
@@ -37,7 +42,7 @@ rect_list = []
 
 gravity_direction = True
 num_list = []
-level = 0
+level = 22
 game_on = True
 
 
@@ -314,7 +319,7 @@ def game_funciton(scroll):
         rect.topleft = (x,y)
         x+=100
         #if  100 < rect.centerx - scroll[0] < 2500 and 100 < rect.centery - scroll[1] < 1100:
-        if  -50 < rect.centerx - scroll[0] < 2650 and -50 < rect.centery - scroll[1] < 1250: #optimization?
+        if  -50 < rect.centerx - scroll[0] < 2650 * (BIG_DISPLAY_WIDTH / 1200) and -50 < rect.centery - scroll[1] < 1250 * (BIG_DISPLAY_HEIGHT / 600): #optimization?
             if num == 0:
                 pygame.draw.rect(big_display, ("#70a5d7"), pygame.Rect(rect.left - scroll[0], rect.top - scroll[1],rect.width,rect.height))
 
@@ -568,9 +573,9 @@ while 1:
             exit()
 
     if level > 22 and FULLSCREEN:
-        if screen.get_width() < 2400 or screen.get_height() < 1200:
-            if big_display.get_size() != (2400, 1200):
-                big_display = pygame.Surface((2400, 1200))
+        if screen.get_width() < BIG_DISPLAY_WIDTH or screen.get_height() < BIG_DISPLAY_HEIGHT:
+            if big_display.get_size() != (BIG_DISPLAY_WIDTH, BIG_DISPLAY_HEIGHT):
+                big_display = pygame.Surface((BIG_DISPLAY_WIDTH, BIG_DISPLAY_WIDTH))
         else:
             if big_display.get_size() != screen.get_size():
                 big_display = pygame.Surface(screen.get_size())
