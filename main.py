@@ -1,4 +1,4 @@
-# V1.9.2
+# V1.9.3
 import os
 import random
 import time
@@ -7,13 +7,13 @@ import threading
 
 start = time.time()
 
-SHOW_HITBOXES = False
-SFX = False
-ROCK_SFX = False
+SHOW_HITBOXES = True
+SFX = True
+ROCK_SFX = True
 MUSIC = True
 MAX_SPEED = True
 FRAMES_TIMER = True
-TEST_STUFF = False
+TEST_STUFF = True
 FULLSCREEN = False #slow start up
 
 
@@ -41,7 +41,7 @@ level = 0
 game_on = True
 
 
-TEST_LEVEL = 30
+TEST_LEVEL = 24
 
 stone_slide: typing.Union[None, pygame.mixer.Sound] = None
 
@@ -612,7 +612,7 @@ while 1:
     clock.tick(60)
     
     if MUSIC:
-        if frames_timer == 3600 * 10:  # 36000
+        if frames_timer == 10000:  # 36000
             pygame.mixer.music.load('assets/🤡.mp3')
             pygame.mixer.music.play(-1)
 
