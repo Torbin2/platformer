@@ -41,7 +41,7 @@ level = 0
 game_on = True
 
 
-TEST_LEVEL = 24
+TEST_LEVEL = 29
 
 stone_slide: typing.Union[None, pygame.mixer.Sound] = None
 
@@ -212,7 +212,7 @@ class player:
 
     def screen_side_check(self):
         # side of the screen colisions
-        if level != 30:
+        if level != 31:
             if self.rect.top <= 0:
                 self.rect.top = 0
                 self.gravity = 0
@@ -408,7 +408,7 @@ def reset_rects(button=False):
     button_rect = pygame.Rect(-100, 0, 100, 100)
     if button == False:
         gravity_direction = False
-        if level == 30: player_class.rect.topleft = (0, 3100)
+        if level == 31: player_class.rect.topleft = (0, 3100)
         else: player_class.rect.topleft = (50, 0)
         player_class.gravity = 0
         player_class.rock_rect.midtop = player_class.rect.midtop
@@ -587,7 +587,7 @@ while 1:
     player_class.draw(scroll)
     timer(False)
     
-    if level == 30:
+    if level == 31:
         ending(scroll)
 
     if level > 22:
