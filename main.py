@@ -13,7 +13,7 @@ ROCK_SFX = True
 MUSIC = True
 MAX_SPEED = True
 FRAMES_TIMER = True
-TEST_STUFF = True
+TEST_STUFF = False
 FULLSCREEN = False #slow start up
 
 
@@ -27,7 +27,7 @@ pygame.mixer.init()
 big_display = pygame.Surface((2400,1200))
 
 if FULLSCREEN:screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-else: screen = pygame.display.set_mode((1200, 600))
+else: screen = pygame.display.set_mode((1200, 600), pygame.RESIZABLE)
 
 pygame.display.set_caption("platformer")
 clock = pygame.time.Clock()
@@ -73,7 +73,7 @@ if MUSIC:
     pygame.mixer.music.load(musics[0])
     for music in musics[1:]:
         pygame.mixer.music.queue(music)
-    pygame.mixer.music.play(loops=-1)
+    pygame.mixer.music.play()
 
 font = pygame.font.Font(("assets/Pixeltype.ttf"), 50)
 big_font = pygame.font.Font(("assets/Pixeltype.ttf"), 100)
@@ -567,15 +567,6 @@ while 1:
             pygame.quit()
             exit()
 
-    if level > 22 and FULLSCREEN:
-        if screen.get_width() < 2400 or screen.get_height() < 1200:
-            if big_display.get_size() != (2400, 1200):
-                big_display = pygame.Surface((2400, 1200))
-        else:
-            if big_display.get_size() != screen.get_size():
-                big_display = pygame.Surface(screen.get_size())
-                # print(f'[DEBUG] resized big_display to {big_display.get_size()}')
-
     screen.fill(("#446482"))
     big_display.fill(("#446482"))
 
@@ -591,22 +582,21 @@ while 1:
         ending(scroll)
 
     if level > 22:
-        if FULLSCREEN and screen.get_width() > big_display.get_width() and screen.get_height() > big_display.get_height():
-            scaled = big_display
-        else:
-            # 1200 / 600 = 2
-            height = min(screen.get_height(), screen.get_width() // 2)
-            width = height * 2
-
-            scaled = pygame.transform.scale(big_display, (width, height))
-
-        dest = tuple(map(lambda a, b: a - b, screen.get_rect().center, scaled.get_rect().center))
-        screen.blit(scaled, dest)
+        source_rect = big_display
     else:
-        dest = tuple(map(lambda a, b: a - b, screen.get_rect().center, (1200 // 2, 600 // 2)))
-        screen.blit(big_display, dest)
+        source_rect = big_display.subsurface((0, 0, 1200, 600))
 
-    
+    if source_rect.get_size() == screen.get_size():
+        scaled = source_rect
+    else:
+        # 1200 / 600 = 2
+        height = min(screen.get_height(), screen.get_width() // 2)
+        width = height * 2
+
+        scaled = pygame.transform.scale(source_rect, (width, height))
+
+    dest = tuple(map(lambda a, b: a - b, screen.get_rect().center, scaled.get_rect().center))
+    screen.blit(scaled, dest)
 
     pygame.display.update()
     clock.tick(60)
